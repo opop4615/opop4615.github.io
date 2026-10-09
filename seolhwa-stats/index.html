@@ -430,7 +430,7 @@ function baseline() {
 
 function label(k) {
   let m;
-  if ((m = k.match(/^yt\.v\.(.+)$/))) { const v = videos().find(x => x.id === m[1]); return v ? `유튜브 · ${v.title}` : `유튜브 영상 ${m[1]}`; }
+  if ((m = k.match(/^yt\.v\.(.+)$/))) { const v = videos().find(x => x.id === m[1]); return v ? `유튜브 · ${v.title.split(" | ")[0]}` : `유튜브 영상 ${m[1]}`; }
   if (k === "yt.subs") return "유튜브 구독자";
   const H = { total_runs: "전당 누적 판 (10/2~)", total_people: "전당 누적 사람", today_runs: "오늘 전당 판", today_people: "오늘 전당 사람", today_new: "오늘 새 사람", en_runs: "영어로 한 판 (누적)" };
   if ((m = k.match(/^hall\.(.+)$/))) return H[m[1]] || k;
@@ -535,7 +535,7 @@ function renderChanges(m) {
 function renderYoutube(m) {
   const y = curOf("youtube"), vs = videos();
   const live = !!(S.live.youtube);
-  $("ytsub").innerHTML = y ? `${live ? '<span class="tag live">실시간</span> ' : ""}${y.via === "rss" ? "API 키가 없어 채널 RSS의 최근 15편만 읽었다(구독자는 채널 페이지에서)." : "채널의 모든 영상."} 변화는 ‘달라진 것’의 기준과 같다.` : "아직 못 읽었다.";
+  $("ytsub").innerHTML = y ? `${live ? '<span class="tag live">실시간</span> ' : ""}${y.via === "rss" ? "API 키가 없어 채널 RSS의 최근 15편만 읽었다(구독자는 채널 페이지에서). RSS 조회수는 유튜브가 고쳐 세며 몇 회씩 오르내리기도 한다." : "채널의 모든 영상."} 변화는 ‘달라진 것’의 기준과 같다.` : "아직 못 읽었다.";
   const b = baseline();
   $("yt").innerHTML = vs.length ? `<thead><tr><th>영상</th><th>올린 날</th><th class="n">조회</th><th class="n">변화</th></tr></thead><tbody>` + vs.map(v => {
     const k = "yt.v." + v.id, was = b && b.m[k];
