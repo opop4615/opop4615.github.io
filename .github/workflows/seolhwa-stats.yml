@@ -1,0 +1,52 @@
+# 설화던전 현황 수집 (페이지: https://opop4615.github.io/seolhwa-stats/)
+# 한 시간마다 + 손으로(Actions 탭 > seolhwa-stats > Run workflow, 또는 페이지의 새로고침이 토큰으로 부른다).
+# 결과는 main이 아니라 seolhwa-stats-data 가지에 한 커밋으로 덮어쓴다 — 사이트(main)는 안 건드리고 저장소도 안 불어난다.
+# 유튜브 Data API 키를 저장소 Secrets에 YT_API_KEY로 넣으면 구독자·전체 영상까지, 없으면 채널 RSS(최근 15편)만.
+name: seolhwa-stats
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seolhwa-stats
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install --quiet google-play-scraper==1.2.7
+
+      - name: Collect
+        env:
+          YT_API_KEY: ${{ secrets.YT_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$url" seolhwa-stats-data >/dev/null; then
+            git clone --quiet --depth 1 --branch seolhwa-stats-data "$url" data
+          else
+            mkdir data && git -C data init --quiet && git -C data remote add origin "$url"
+          fi
+          python .github/scripts/seolhwa_stats.py data
+          cd data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --quiet --orphan next
+          git add latest.json history.jsonl
+          git commit --quiet -m "seolhwa-stats $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M') KST"
+          git push --quiet --force origin next:seolhwa-stats-data
