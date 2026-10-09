@@ -89,8 +89,12 @@ def ios_rank(cc, term):
     return None
 
 
+CHART_SLUG = {6014: "games", 7014: "role-playing-games"}
+
+
 def ios_chart(cc, genre):
-    """(순위 또는 None, 목록 길이). 목록이 비면 순위가 아니라 실패다"""
+    """(순위 또는 None, 본 목록 길이). 옛 RSS는 2026-10 현재 limit=200을 줘도 100개만 준다 —
+    거기 없으면 앱스토어 웹 차트 페이지(200개)에서 앱 번호가 나오는 차례로 다시 찾는다"""
     feed = get_json("https://itunes.apple.com/%s/rss/topfreeapplications/limit=200/genre=%d/json" % (cc, genre))["feed"]
     rows = feed.get("entry", [])
     if not rows:
@@ -98,6 +102,17 @@ def ios_chart(cc, genre):
     for i, e in enumerate(rows, 1):
         if e["id"]["attributes"].get("im:id") == str(IOS_ID):
             return i, len(rows)
+    try:
+        html = get("https://apps.apple.com/%s/charts/iphone/%s/%d?chart=top-free" % (cc, CHART_SLUG[genre], genre))
+        ids = []
+        for x in re.findall(r"/id(\d{6,})", html):
+            if x not in ids:
+                ids.append(x)
+        if len(ids) > len(rows):
+            return (ids.index(str(IOS_ID)) + 1 if str(IOS_ID) in ids else None), len(ids)
+        errors.append({"what": "앱스토어 웹 차트 %s %d" % (cc, genre), "why": "앱 번호가 %d개뿐이라 RSS(%d)를 썼다" % (len(ids), len(rows))})
+    except Exception as e:
+        errors.append({"what": "앱스토어 웹 차트 %s %d" % (cc, genre), "why": str(e)[:200]})
     return None, len(rows)
 
 
@@ -185,11 +200,14 @@ def youtube():
     cid = m.group(1)
     subs = None
     s = re.search(r'([\d][\d.,]*\s?[KM]?)\s+subscribers?\b', page)
+    k = re.search(r"구독자\s*([\d.,]+)\s*(천|만)?\s*명", page)
     if s:
         n = s.group(1).replace(",", "").replace(" ", "")
         subs = int(float(n[:-1]) * (1000 if n[-1] == "K" else 1000000)) if n[-1] in "KM" else int(float(n))
+    elif k:
+        subs = int(float(k.group(1).replace(",", "")) * {"천": 1000, "만": 10000}.get(k.group(2) or "", 1))
     else:
-        i = page.find("subscriber")
+        i = max(page.find("subscriber"), page.find("구독자"))
         errors.append({"what": "유튜브 구독자 수(키 없이)", "why": "채널 페이지에서 못 찾음 — 길이 %d, 주변: %s" % (len(page), page[max(0, i - 80):i + 40].replace("\n", " ") if i >= 0 else "없음")})
     xml = get("https://www.youtube.com/feeds/videos.xml?channel_id=" + cid)
     vids = []
