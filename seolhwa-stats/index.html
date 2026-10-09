@@ -562,7 +562,8 @@ function renderRanks(m) {
 function renderCharts(m) {
   $("charts").innerHTML = `<thead><tr><th>앱스토어 차트</th><th class="n">순위</th></tr></thead><tbody>` + CHARTS.map(([k, l]) => {
     const key = "chart." + k;
-    return `<tr><td>${esc(l)}</td><td class="n">${key in m ? esc(fmt(key, m[key])) : '<span class="muted">못 읽음</span>'}</td></tr>`;
+    const n = ((S.snap || {}).charts_n || {})[k];
+    return `<tr><td>${esc(l)}</td><td class="n">${key in m ? esc(m[key] == null && n ? `${n}위 밖` : fmt(key, m[key])) : '<span class="muted">못 읽음</span>'}</td></tr>`;
   }).join("") + "</tbody>";
   const ios = curOf("ios") || {}, play = (S.snap && S.snap.play) || {};
   const col = [["앱스토어 한국", ios.kr], ["앱스토어 미국", ios.us], ["플레이 한국", play.kr], ["플레이 미국", play.us]];
@@ -627,7 +628,7 @@ function renderReviews() {
   const rv = (S.snap && S.snap.reviews) || {};
   for (const cc of ["kr", "us"]) {
     const list = rv[cc];
-    $("rev-" + cc).innerHTML = `<h3 style="font-size:14px;margin:0 0 6px">${CC[cc]}</h3>` + (list == null ? `<p class="empty">못 읽음</p>` : !list.length ? `<p class="empty">글 리뷰 없음</p>` :
+    $("rev-" + cc).innerHTML = `<h3 style="font-size:14px;margin:0 0 6px">${CC[cc]}</h3>` + (list == null ? `<p class="empty">못 읽음</p>` : !list.length ? `<p class="empty">목록이 비어 왔다${(curOf("ios")[cc] || {}).ratings ? ` (별점은 ${nf(curOf("ios")[cc].ratings)}개 — 애플 리뷰 목록이 가끔 비어 온다)` : ""}</p>` :
       list.map(r => `<div class="review"><div><span class="stars" aria-label="별 ${r.rating}개">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span> <b>${esc(r.title)}</b></div><div style="font-size:13.5px;margin-top:2px">${esc(r.text)}</div><div class="muted" style="font-size:12px;margin-top:2px">${esc(r.date)} · ${esc(r.ver)}</div></div>`).join(""));
   }
 }

@@ -90,11 +90,15 @@ def ios_rank(cc, term):
 
 
 def ios_chart(cc, genre):
+    """(순위 또는 None, 목록 길이). 목록이 비면 순위가 아니라 실패다"""
     feed = get_json("https://itunes.apple.com/%s/rss/topfreeapplications/limit=200/genre=%d/json" % (cc, genre))["feed"]
-    for i, e in enumerate(feed.get("entry", []), 1):
+    rows = feed.get("entry", [])
+    if not rows:
+        raise RuntimeError("빈 목록")
+    for i, e in enumerate(rows, 1):
         if e["id"]["attributes"].get("im:id") == str(IOS_ID):
-            return i
-    return None
+            return i, len(rows)
+    return None, len(rows)
 
 
 def ios_reviews(cc):
@@ -180,10 +184,13 @@ def youtube():
         raise RuntimeError("채널 번호를 못 찾았다")
     cid = m.group(1)
     subs = None
-    s = re.search(r'"([\d.,]+[KM]?) subscribers?"', page)
+    s = re.search(r'([\d][\d.,]*\s?[KM]?)\s+subscribers?\b', page)
     if s:
-        n = s.group(1).replace(",", "")
+        n = s.group(1).replace(",", "").replace(" ", "")
         subs = int(float(n[:-1]) * (1000 if n[-1] == "K" else 1000000)) if n[-1] in "KM" else int(float(n))
+    else:
+        i = page.find("subscriber")
+        errors.append({"what": "유튜브 구독자 수(키 없이)", "why": "채널 페이지에서 못 찾음 — 길이 %d, 주변: %s" % (len(page), page[max(0, i - 80):i + 40].replace("\n", " ") if i >= 0 else "없음")})
     xml = get("https://www.youtube.com/feeds/videos.xml?channel_id=" + cid)
     vids = []
     for ent in re.findall(r"<entry>(.*?)</entry>", xml, re.S):
@@ -311,10 +318,10 @@ def main():
             except Exception as e:
                 errors.append({"what": "앱스토어 검색 %s '%s'" % (cc, t), "why": str(e)[:200]})
             time.sleep(1)
-    s["charts"] = {}
+    s["charts"], s["charts_n"] = {}, {}
     for cc, g, name in CHARTS:
         try:
-            s["charts"]["%s.%d" % (cc, g)] = ios_chart(cc, g)
+            s["charts"]["%s.%d" % (cc, g)], s["charts_n"]["%s.%d" % (cc, g)] = ios_chart(cc, g)
         except Exception as e:
             errors.append({"what": "앱스토어 차트 %s %s" % (cc, name), "why": str(e)[:200]})
     s["reviews"] = {cc: step("앱스토어 %s 리뷰" % cc, ios_reviews, cc) for cc in ["kr", "us"]}
