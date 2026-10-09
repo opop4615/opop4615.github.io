@@ -146,39 +146,57 @@ def yt_api(path, **q):
     return get_json("https://www.googleapis.com/youtube/v3/%s?%s" % (path, urllib.parse.urlencode(q)))
 
 
-def youtube():
+SEARCH_EVERY = 6  # 다른 채널 검색(search.list)은 한 번에 100단위라 여섯 시간에 한 번만. 나머지 호출은 한 번에 3단위 남짓
+
+
+def youtube(prev):
+    """prev = 지난 수집의 youtube. 키가 있어도 API가 실패하면(하루 한도 10,000단위를 넘기는 등) 키 없는 길로 내려간다"""
     if os.environ.get("YT_API_KEY"):
-        ch = yt_api("channels", part="snippet,statistics,contentDetails", forHandle=YT_HANDLE)["items"][0]
-        up = ch["contentDetails"]["relatedPlaylists"]["uploads"]
-        ids, tok = [], ""
-        for _ in range(4):
-            q = {"part": "contentDetails", "playlistId": up, "maxResults": 50}
-            if tok:
-                q["pageToken"] = tok
-            d = yt_api("playlistItems", **q)
-            ids += [x["contentDetails"]["videoId"] for x in d.get("items", [])]
-            tok = d.get("nextPageToken", "")
-            if not tok:
-                break
-        vids = []
-        for i in range(0, len(ids), 50):
-            for v in yt_api("videos", part="snippet,statistics", id=",".join(ids[i:i + 50])).get("items", []):
-                s = v.get("statistics", {})
-                vids.append({"id": v["id"], "title": v["snippet"]["title"], "published": v["snippet"]["publishedAt"],
-                             "views": int(s.get("viewCount", 0)), "likes": int(s.get("likeCount", 0)),
-                             "comments": int(s.get("commentCount", 0))})
-        others = []
+        try:
+            return youtube_api(prev or {})
+        except Exception as e:
+            errors.append({"what": "유튜브 API", "why": "%s — 키 없이 RSS로 읽었다" % str(e)[:160]})
+    return youtube_rss()
+
+
+def youtube_api(prev):
+    ch = yt_api("channels", part="snippet,statistics,contentDetails", forHandle=YT_HANDLE)["items"][0]
+    up = ch["contentDetails"]["relatedPlaylists"]["uploads"]
+    ids, tok = [], ""
+    for _ in range(4):
+        q = {"part": "contentDetails", "playlistId": up, "maxResults": 50}
+        if tok:
+            q["pageToken"] = tok
+        d = yt_api("playlistItems", **q)
+        ids += [x["contentDetails"]["videoId"] for x in d.get("items", [])]
+        tok = d.get("nextPageToken", "")
+        if not tok:
+            break
+    vids = []
+    for i in range(0, len(ids), 50):
+        for v in yt_api("videos", part="snippet,statistics", id=",".join(ids[i:i + 50])).get("items", []):
+            s = v.get("statistics", {})
+            vids.append({"id": v["id"], "title": v["snippet"]["title"], "published": v["snippet"]["publishedAt"],
+                         "views": int(s.get("viewCount", 0)), "likes": int(s.get("likeCount", 0)),
+                         "comments": int(s.get("commentCount", 0))})
+    others, others_at = prev.get("others"), prev.get("others_at")
+    due = others is None or not others_at or datetime.now(KST) - datetime.fromisoformat(others_at) >= timedelta(hours=SEARCH_EVERY) - timedelta(minutes=10)
+    if due:
         try:
             d = yt_api("search", part="snippet", q='설화던전|"Seolhwa Dungeon"', type="video", maxResults=25, order="date")
             others = [{"id": x["id"]["videoId"], "title": x["snippet"]["title"], "channel": x["snippet"]["channelTitle"],
                        "published": x["snippet"]["publishedAt"]} for x in d.get("items", [])
                       if x["snippet"]["channelId"] != ch["id"]]
+            others_at = datetime.now(KST).isoformat(timespec="seconds")
         except Exception as e:
             errors.append({"what": "유튜브 다른 채널 검색", "why": str(e)[:200]})
-        st = ch["statistics"]
-        return {"via": "api", "channel_id": ch["id"], "subs": int(st.get("subscriberCount", 0)),
-                "total_views": int(st.get("viewCount", 0)), "videos": vids, "others": others}
-    # 키가 없으면: 채널 페이지에서 채널 번호 → RSS(최근 15편, 조회수는 들어 있다)
+    st = ch["statistics"]
+    return {"via": "api", "channel_id": ch["id"], "subs": int(st.get("subscriberCount", 0)),
+            "total_views": int(st.get("viewCount", 0)), "videos": vids, "others": others, "others_at": others_at}
+
+
+def youtube_rss():
+    """키 없이: 채널 페이지에서 채널 번호 → RSS(최근 15편, 조회수는 들어 있다)"""
     page = get("https://www.youtube.com/@%s?hl=en&gl=US" % YT_HANDLE, headers={"Cookie": "CONSENT=YES+cb; SOCS=CAI"})
     m = re.search(r'"(?:externalId|channelId)":"(UC[\w-]{22})"', page)
     if not m:
@@ -340,7 +358,12 @@ def main():
                 s["play_rank"]["%s.%s" % (cc, t)] = play_rank(cc, "ko" if cc == "kr" else "en", t)
             except Exception as e:
                 errors.append({"what": "플레이 검색 %s '%s'" % (cc, t), "why": str(e)[:200]})
-    s["youtube"] = step("유튜브", youtube)
+    prev = {}
+    try:
+        prev = json.load(open(os.path.join(out, "latest.json")))
+    except Exception:
+        pass
+    s["youtube"] = step("유튜브", youtube, prev.get("youtube"))
     s["errors"] = errors
     s["m"] = metrics(s)
     json.dump(s, open(os.path.join(out, "latest.json"), "w"), ensure_ascii=False, default=str)

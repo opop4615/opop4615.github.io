@@ -542,8 +542,9 @@ function renderYoutube(m) {
     const d = was != null && v.views != null && v.views !== was ? `<span class="${v.views > was ? "up" : "down"}">${v.views > was ? "+" : ""}${nf(v.views - was)}</span>` : was == null && b ? '<span class="muted">새</span>' : '<span class="muted">0</span>';
     return `<tr><td><a href="https://youtu.be/${esc(v.id)}" target="_blank" rel="noopener" style="color:inherit">${esc(v.title)}</a></td><td class="n">${esc(mdhm(Date.parse(v.published)))}</td><td class="n">${nf(v.views)}</td><td class="n">${d}</td></tr>`;
   }).join("") + "</tbody>" : `<tbody><tr><td class="empty">영상 목록이 없다.</td></tr></tbody>`;
-  const o = (S.snap && S.snap.youtube) ? S.snap.youtube.others : null;
+  const o = (S.snap && S.snap.youtube) ? S.snap.youtube.others : null, oat = S.snap && S.snap.youtube && S.snap.youtube.others_at;
   $("others").innerHTML = o == null ? `<p class="empty">유튜브 API 키(저장소 Secrets의 YT_API_KEY)가 있어야 찾는다.</p>` : o.length ? `<ul style="margin:0;padding-left:18px">${o.map(v => `<li><a href="https://youtu.be/${esc(v.id)}" target="_blank" rel="noopener">${esc(v.title)}</a> <span class="muted">· ${esc(v.channel)} · ${esc(mdhm(Date.parse(v.published)))}</span></li>`).join("")}</ul>` : `<p class="empty">없음 (“설화던전”·“Seolhwa Dungeon” 검색).</p>`;
+  if (oat) $("others").insertAdjacentHTML("beforeend", `<p class="sub" style="margin:6px 0 0">검색은 여섯 시간에 한 번 — 마지막 ${esc(mdhm(Date.parse(oat)))}</p>`);
 }
 
 function renderRanks(m) {
