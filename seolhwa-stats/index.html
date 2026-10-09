@@ -132,7 +132,7 @@ footer p { margin: 4px 0; }
 
   <section class="card">
     <h2>차트 · 스토어 페이지</h2>
-    <p class="sub">앱스토어 아이폰 무료 차트(200위까지)와 두 스토어의 나라별 페이지 상태.</p>
+    <p class="sub">앱스토어 아이폰 무료 차트(애플이 공개하는 목록은 100위까지 — 그 아래 순위는 앱스토어 앱에서만 보인다)와 두 스토어의 나라별 페이지 상태.</p>
     <div class="scroll"><table id="charts"></table></div>
     <div class="scroll" style="margin-top:14px"><table id="pages" class="wide"></table></div>
     <p class="sub" style="margin:8px 0 0">설명문이 ‘한국어’면 그 나라에 영문 등록 정보가 없어 한국어 글이 그대로 나간다는 뜻. 장르 낱말은 플레이 설명문에 그 낱말이 나온 횟수.</p>
@@ -171,7 +171,7 @@ footer p { margin: 4px 0; }
   </section>
 
   <footer>
-    <p>서버 수집은 한 시간마다(매시 17분 무렵) 깃허브 액션이 돈다 — 플레이 페이지·검색, 앱스토어 차트·리뷰, 유튜브(키가 없으면 최근 15편). 명예의 전당·앱스토어 페이지·검색은 새로고침할 때 이 브라우저가 직접 읽는다 <span class="tag live">실시간</span>.</p>
+    <p>서버 수집은 한 시간마다(매시 17분 무렵) 깃허브 액션이 돈다 — 플레이 페이지·검색, 앱스토어 차트·리뷰, 유튜브(키가 없으면 최근 15편). 명예의 전당·앱스토어 페이지·검색 순위는 새로고침할 때 이 브라우저가 직접 읽는다 <span class="tag live">실시간</span>.</p>
     <p>전당은 10월 2일부터, 이름을 정하고 올린 판만 센다(실제 플레이보다 적다). 시각은 전부 한국 시간.</p>
   </footer>
 </main>
@@ -442,7 +442,7 @@ function label(k) {
   return k;
 }
 const isRank = k => /^(ios\.rank|play\.rank|chart)\./.test(k);
-function rankOut(k) { return k.startsWith("play.rank") ? "30위 밖" : "200위 밖"; }
+function rankOut(k) { return k.startsWith("play.rank") ? "30위 밖" : k.startsWith("chart.") ? "100위 밖" : "200위 밖"; }
 function fmt(k, v) {
   if (isRank(k)) return v == null ? rankOut(k) : `${v}위`;
   if (v == null) return "—";

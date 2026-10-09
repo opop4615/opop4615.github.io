@@ -27,7 +27,7 @@ IOS_TERMS = {"kr": ["정통 로그라이크", "던전크롤", "던전", "로그�
              "us": ["Seolhwa Dungeon", "korean folklore", "roguelike", "dungeon crawl", "roguelike rpg", "dokkaebi"]}
 PLAY_TERMS = {"kr": ["정통 로그라이크", "던전크롤", "로그라이크", "설화"],
               "us": ["Seolhwa Dungeon", "korean folklore roguelike", "roguelike"]}
-# 애플 차트 (아이폰 무료, 장르 번호). 200위까지만 준다
+# 애플 차트 (아이폰 무료, 장르 번호). 공개 목록은 100위까지
 CHARTS = [("kr", 6014, "게임"), ("kr", 7014, "롤플레잉"), ("us", 6014, "게임"), ("us", 7014, "롤플레잉")]
 # 플레이 설명문에 장르 낱말이 들어갔는지 (2026-10-09: 옛 글엔 셋 다 0번이었다)
 GENRE_WORDS = {"kr": ["로그라이크", "턴제", "RPG", "던전 크롤", "도트"], "us": ["roguelike", "turn-based", "RPG", "dungeon crawl", "pixel"]}
@@ -89,12 +89,9 @@ def ios_rank(cc, term):
     return None
 
 
-CHART_SLUG = {6014: "games", 7014: "role-playing-games"}
-
-
 def ios_chart(cc, genre):
-    """(순위 또는 None, 본 목록 길이). 옛 RSS는 2026-10 현재 limit=200을 줘도 100개만 준다 —
-    거기 없으면 앱스토어 웹 차트 페이지(200개)에서 앱 번호가 나오는 차례로 다시 찾는다"""
+    """(순위 또는 None, 목록 길이). 애플 공개 RSS는 2026-10 현재 limit=200을 줘도 100개만 준다
+    (웹 차트 페이지도 처음엔 50개만 그린다) — 그 아래 순위는 앱스토어 앱에서만 보인다"""
     feed = get_json("https://itunes.apple.com/%s/rss/topfreeapplications/limit=200/genre=%d/json" % (cc, genre))["feed"]
     rows = feed.get("entry", [])
     if not rows:
@@ -102,17 +99,6 @@ def ios_chart(cc, genre):
     for i, e in enumerate(rows, 1):
         if e["id"]["attributes"].get("im:id") == str(IOS_ID):
             return i, len(rows)
-    try:
-        html = get("https://apps.apple.com/%s/charts/iphone/%s/%d?chart=top-free" % (cc, CHART_SLUG[genre], genre))
-        ids = []
-        for x in re.findall(r"/id(\d{6,})", html):
-            if x not in ids:
-                ids.append(x)
-        if len(ids) > len(rows):
-            return (ids.index(str(IOS_ID)) + 1 if str(IOS_ID) in ids else None), len(ids)
-        errors.append({"what": "앱스토어 웹 차트 %s %d" % (cc, genre), "why": "앱 번호가 %d개뿐이라 RSS(%d)를 썼다" % (len(ids), len(rows))})
-    except Exception as e:
-        errors.append({"what": "앱스토어 웹 차트 %s %d" % (cc, genre), "why": str(e)[:200]})
     return None, len(rows)
 
 
