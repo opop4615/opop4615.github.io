@@ -1,7 +1,7 @@
 # 설화던전 현황 수집 (페이지: https://opop4615.github.io/seolhwa-stats/)
 # 한 시간마다 + 손으로(Actions 탭 > seolhwa-stats > Run workflow, 또는 페이지의 새로고침이 토큰으로 부른다).
 # 결과는 main이 아니라 seolhwa-stats-data 가지에 한 커밋으로 덮어쓴다 — 사이트(main)는 안 건드리고 저장소도 안 불어난다.
-# 유튜브 Data API 키를 저장소 Secrets에 YT_API_KEY로 넣으면 구독자·전체 영상까지, 없으면 채널 RSS(최근 15편)만.
+# 유튜브는 키 없이도 모든 영상을 읽는다(RSS + 채널 탭 + 영상 페이지). Data API 키를 저장소 Secrets에 YT_API_KEY로 넣으면 좋아요·댓글 수까지.
 name: seolhwa-stats
 
 on:
