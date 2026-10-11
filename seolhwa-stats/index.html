@@ -306,7 +306,8 @@ footer p { margin: 4px 0; }
 "use strict";
 const REPO = "opop4615/opop4615.github.io", BRANCH = "seolhwa-stats-data", WORKFLOW = "seolhwa-stats.yml";
 const IOS_ID = 6814757012;
-const FS = "https://firestore.googleapis.com/v1/projects/seolhwa-dungeon/databases/(default)/documents/hall";
+const FS_DOCS = new URLSearchParams(location.search).get("fs") || "https://firestore.googleapis.com/v1/projects/seolhwa-dungeon/databases/(default)/documents"; // ?fs= 는 시험용
+const FS = FS_DOCS + "/hall";
 const FS_KEY = "AIzaSyCHvKcIPGZKwk5lwPmvg7AuU1iAhuMheRw"; // 게임에 들어 있는 공개 웹 키 (읽기 공개 규칙)
 const LAUNCH = Date.parse("2026-10-01T15:00:00Z"); // 10월 2일 0시(한국)
 const YT_HANDLE = "sungkisoft";
@@ -321,7 +322,7 @@ const CC = { kr: "한국", us: "미국" };
 const COOLDOWN_MIN = 10; // 이보다 최근에 모았으면 서버 수집을 다시 돌리지 않는다 (구글이 503으로 막는다)
 const WINDOWS = [["30", "30분 전"], ["60", "1시간 전"], ["180", "3시간 전"], ["midnight", "오늘 0시"], ["1440", "24시간 전"]];
 
-const S = { snap: null, hist: [], live: { m: {} }, liveErr: [], liveAt: null, busy: false, rows: [], pushed: false };
+const S = { snap: null, hist: [], hallRows: [], live: { m: {} }, liveErr: [], liveAt: null, busy: false, rows: [], pushed: false };
 const $ = id => document.getElementById(id);
 const store = {
   get(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
@@ -356,8 +357,10 @@ async function ghFile(path) {
 async function loadSnapshot() {
   const base = new URLSearchParams(location.search).get("data"); // 시험용: ?data=<폴더 주소>
   const read = base ? async p => { const r = await fetch(`${base}/${p}`, { cache: "no-store" }); return r.ok ? r.text() : null; } : ghFile;
-  const [a, b] = await Promise.all([read("latest.json"), read("history.jsonl")]);
+  const [a, b, c] = await Promise.all([read("latest.json"), read("history.jsonl"), read("hall_rows.json").catch(() => null)]);
   S.snap = a ? JSON.parse(a) : null;
+  S.hallRows = []; // 서버가 모아 둔 전당 기록 요약 (liveHall이 여기에 새 줄만 얹는다)
+  try { const j = c ? JSON.parse(c) : null; if (j) S.hallRows = j.rows.map(r => { const o = Object.fromEntries(j.cols.map((k, i) => [k, r[i]])); o.t = Date.parse(o.at); return o; }).filter(o => o.t); } catch (e) { /* 없는 것으로 */ }
   S.hist = (b || "").split("\n").filter(Boolean).map(l => { try { const o = JSON.parse(l); o.t = Date.parse(o.at); return o; } catch (e) { return null; } }).filter(Boolean);
 }
 
@@ -439,32 +442,48 @@ function hallSummary(rows) {
   };
 }
 
-async function liveHall() {
-  try {
-    const fields = ["uid", "name", "at", "depth", "dungeon", "by", "ver", "species", "cls", "win", "level", "score", "detail.story"];
-    let docs = [], tok = "";
-    do {
-      const q = new URLSearchParams([["key", FS_KEY], ["pageSize", "300"], ...fields.map(f => ["mask.fieldPaths", f])]);
-      if (tok) q.set("pageToken", tok);
-      const r = await fetch(`${FS}?${q}`, { cache: "no-store" });
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      const d = await r.json();
-      docs = docs.concat(d.documents || []);
-      tok = d.nextPageToken || "";
-    } while (tok);
-    const rows = [];
+// 전당은 통째로 읽지 않는다 (2026-10-12). Firestore 무료 요금제는 하루 읽기 5만 건을 "돌려준 문서 수"로 세는데, 옛 페이지는 열 때마다
+// 기록 전부(그날 320줄)를 읽어 한도를 다 썼고 게임 안 전당까지 429로 멎었다. 이제 서버가 모아 둔 줄(hall_rows.json)에
+// 그 뒤에 올라온 줄만 얹는다 — 한 번에 몇 건. 모아 둔 것이 없으면 서버 요약을 그대로 보인다.
+const HALL_OVERLAP = 30 * 60000; // 수집기와 같은 값: 규칙이 기록의 시각을 서버 시계 ±10분까지 받아, 늦은 시계로 올라온 줄을 놓치지 않게 겹쳐 읽는다
+
+async function hallSince(since) {
+  const fields = ["uid", "name", "at", "depth", "dungeon", "by", "ver", "species", "cls", "win", "level", "score", "detail.story"];
+  const out = [], seen = new Set();
+  for (;;) {
+    const q = { from: [{ collectionId: "hall" }], where: { fieldFilter: { field: { fieldPath: "at" }, op: "GREATER_THAN_OR_EQUAL", value: { timestampValue: since } } },
+                orderBy: [{ field: { fieldPath: "at" }, direction: "ASCENDING" }], limit: 300, select: { fields: fields.map(f => ({ fieldPath: f })) } };
+    const r = await fetch(`${FS_DOCS}:runQuery?key=${FS_KEY}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ structuredQuery: q }), cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const docs = (await r.json()).filter(e => e && e.document).map(e => e.document);
+    let fresh = 0;
     for (const d of docs) {
-      const r = Object.fromEntries(Object.entries(d.fields || {}).map(([k, v]) => [k, fsVal(v)]));
-      const t = Date.parse(r.at || "");
-      if (!t || t < LAUNCH) continue;
-      const story = ((r.detail || {}).story || []).join(" ");
-      rows.push({ t, id: (d.name || "").split("/").pop(), level: r.level || 0, score: r.score || 0, uid: r.uid || "", name: r.name || "", depth: r.depth || 0, dungeon: r.dungeon || "", by: r.by || "", ver: r.ver || "",
-                  species: r.species || "", cls: r.cls || "", win: r.win === true, en: !!story && !hangul(story) });
+      const o = Object.fromEntries(Object.entries(d.fields || {}).map(([k, v]) => [k, fsVal(v)]));
+      const t = Date.parse(o.at || ""), id = (d.name || "").split("/").pop();
+      if (!t || seen.has(id)) continue;
+      seen.add(id); fresh++;
+      const story = Array.isArray((o.detail || {}).story) ? o.detail.story.filter(x => typeof x === "string").join(" ") : "";
+      out.push({ t, at: o.at, id, level: o.level || 0, score: o.score || 0, uid: o.uid || "", name: o.name || "", depth: o.depth || 0, dungeon: o.dungeon || "", by: o.by || "", ver: o.ver || "",
+                 species: o.species || "", cls: o.cls || "", win: o.win === true, en: !!story && !hangul(story) });
     }
-    S.rows = rows;
-    const h = S.live.hall = hallSummary(rows);
-    for (const k of ["total_runs", "total_people", "today_runs", "today_people", "today_new", "en_runs"]) S.live.m["hall." + k] = h[k];
-  } catch (e) { S.liveErr.push({ what: "명예의 전당", why: e.message }); }
+    if (docs.length < 300 || !fresh) return out;
+    since = out[out.length - 1].at; // 다음 쪽: 마지막 줄의 시각부터 (같은 초의 줄은 번호로 거른다)
+  }
+}
+
+async function liveHall() {
+  if (!S.hallRows.length) return;
+  const rows = new Map(S.hallRows.map(r => [r.id, r]));
+  let live = false;
+  try {
+    const last = S.hallRows.reduce((m, r) => Math.max(m, r.t), 0);
+    for (const r of await hallSince(new Date(last - HALL_OVERLAP).toISOString())) rows.set(r.id, r);
+    live = true;
+  } catch (e) { S.liveErr.push({ what: "명예의 전당 새 기록", why: e.message }); }
+  S.rows = [...rows.values()].filter(r => r.t >= LAUNCH);
+  if (!live) return; // 새 줄을 못 읽었으면 서버 요약을 그대로 둔다 ("이 사람의 다른 판"만 모아 둔 줄로)
+  const h = S.live.hall = hallSummary(S.rows);
+  for (const k of ["total_runs", "total_people", "today_runs", "today_people", "today_new", "en_runs"]) S.live.m["hall." + k] = h[k];
 }
 
 async function liveYoutube() {

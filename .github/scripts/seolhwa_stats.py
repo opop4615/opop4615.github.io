@@ -4,6 +4,7 @@
   python3 seolhwa_stats.py <출력 폴더>
 
 출력 폴더에 latest.json(지금 값 전부)을 쓰고 history.jsonl(숫자만, 한 줄 = 한 번 수집)에 한 줄 덧붙인다.
+hall_rows.json은 전당 기록 요약을 모아 둔 것 — 전당을 통째로 다시 읽지 않으려고 둔다(읽기 한도, hall() 머리말).
 페이지(seolhwa-stats/index.html)는 이 둘을 읽어 "달라진 것"을 만든다.
 브라우저가 직접 못 읽는 곳(플레이·앱스토어 차트·리뷰·유튜브)은 여기서만 읽는다.
 
@@ -21,6 +22,11 @@ FS_KEY = "AIzaSyCHvKcIPGZKwk5lwPmvg7AuU1iAhuMheRw"  # 게임에 박혀 나가는
 KST = timezone(timedelta(hours=9))
 LAUNCH = datetime(2026, 10, 2, tzinfo=KST)  # 전당 "출시 뒤"를 세는 날 (marketing/calendar.md 점검과 같은 기준)
 KEEP = 24 * 21  # history.jsonl에 남길 줄 수(약 3주)
+# 전당 기록 요약을 모아 두는 파일(데이터 가지). 수집기도 페이지도 이 파일 + "그 뒤에 올라온 것"만 읽는다 — 아래 hall() 머리말
+HALL_CACHE = "hall_rows.json"
+HALL_COLS = ["id", "at", "uid", "name", "depth", "dungeon", "by", "ver", "species", "cls", "win", "level", "score", "en"]
+HALL_OVERLAP = timedelta(minutes=30)  # 규칙(firestore.rules)이 기록의 시각을 서버 시계 ±10분까지 받는다 — 늦은 시계로 올라온 줄을 안 놓치게 겹쳐 읽는다
+HALL_EPOCH = "2000-01-01T00:00:00Z"
 
 # 검색 순위를 볼 낱말. 페이지(index.html)의 같은 표와 맞춘다
 IOS_TERMS = {"kr": ["설화던전", "정통 로그라이크", "던전크롤", "던전", "턴제 로그라이크", "로그라이크", "한국 설화", "설화", "도깨비"],
@@ -37,12 +43,12 @@ UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML,
 errors = []
 
 
-def get(url, headers=None, tries=3):
+def get(url, headers=None, tries=3, data=None):
     h = {"User-Agent": UA, "Accept-Language": "ko-KR,ko;q=0.9,en;q=0.8"}
     h.update(headers or {})
     for i in range(tries):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=h), timeout=30) as r:
+            with urllib.request.urlopen(urllib.request.Request(url, data=data, headers=h), timeout=30) as r:
                 return r.read().decode("utf-8", "replace")
         except Exception:
             if i == tries - 1:
@@ -405,31 +411,96 @@ def fs_val(f):
     return v
 
 
-def hall():
-    fields = ["uid", "name", "at", "depth", "dungeon", "by", "ver", "species", "cls", "win", "score", "turn", "detail.story"]
-    docs, tok = [], ""
+# 읽기 한도 (2026-10-12): Firestore 무료 요금제는 하루 읽기 5만 건이고 "돌려준 문서 수"로 센다. 옛 수집기와 페이지는
+# 돌 때마다 hall을 통째로(기록 수만큼) 읽어, 기록이 320줄을 넘긴 날 한도를 다 쓰고 게임 안 전당까지 429로 멎었다.
+# 그래서 읽은 줄을 HALL_CACHE에 모아 두고, 마지막으로 본 시각 뒤에 올라온 줄만 읽는다(한 번에 몇 건).
+# 줄 수가 서버와 어긋나면(관리자가 지운 기록·놓친 줄) 하루에 한 번까지만 통째로 다시 읽는다.
+
+def fs_post(method, body):
+    return get_json("%s:%s?key=%s" % (FS_DOCS, method, FS_KEY), data=json.dumps(body).encode(), headers={"Content-Type": "application/json"})
+
+
+def hall_where(since):
+    return {"fieldFilter": {"field": {"fieldPath": "at"}, "op": "GREATER_THAN_OR_EQUAL", "value": {"timestampValue": since}}}
+
+
+def hall_row(d):
+    r = {k: fs_val(v) for k, v in d.get("fields", {}).items()}
+    if not isinstance(r.get("at"), str):
+        return None
+    story = r["detail"].get("story") if isinstance(r.get("detail"), dict) else None  # 남이 꾸민 기록이면 형이 엉뚱할 수 있다
+    story = " ".join(x for x in story if isinstance(x, str)) if isinstance(story, list) else ""
+    return {"id": d.get("name", "").split("/")[-1], "at": r["at"], "uid": r.get("uid", ""), "name": r.get("name", ""), "depth": r.get("depth", 0),
+            "dungeon": r.get("dungeon", ""), "by": r.get("by", ""), "ver": r.get("ver", ""), "species": r.get("species", ""), "cls": r.get("cls", ""),
+            "win": r.get("win") is True, "level": r.get("level", 0), "score": r.get("score", 0), "en": bool(story) and not hangul(story)}
+
+
+def hall_since(since):
+    """시각이 since 이후인 기록을 시각 차례로. 돌려받은 줄 수만큼만 읽기 한도를 쓴다"""
+    fields = ["uid", "name", "at", "depth", "dungeon", "by", "ver", "species", "cls", "win", "level", "score", "detail.story"]
+    out, seen = [], set()
     while True:
-        q = [("key", FS_KEY), ("pageSize", "300")] + [("mask.fieldPaths", f) for f in fields]
-        if tok:
-            q.append(("pageToken", tok))
-        d = get_json(FS_DOCS + "/hall?" + urllib.parse.urlencode(q))
-        docs += d.get("documents", [])
-        tok = d.get("nextPageToken", "")
-        if not tok:
-            break
+        q = {"from": [{"collectionId": "hall"}], "where": hall_where(since), "orderBy": [{"field": {"fieldPath": "at"}, "direction": "ASCENDING"}],
+             "limit": 300, "select": {"fields": [{"fieldPath": f} for f in fields]}}
+        docs = [e["document"] for e in fs_post("runQuery", {"structuredQuery": q}) if isinstance(e, dict) and "document" in e]
+        fresh = 0
+        for d in docs:
+            row = hall_row(d)
+            if row and row["id"] not in seen:
+                seen.add(row["id"])
+                out.append(row)
+                fresh += 1
+        if len(docs) < 300 or not fresh:
+            return out
+        since = out[-1]["at"]  # 다음 쪽: 마지막 줄의 시각부터(같은 초의 줄은 번호로 거른다)
+
+
+def hall_count():
+    """서버의 기록 수. 개수 세기는 색인 1,000줄에 읽기 1건이다"""
+    res = fs_post("runAggregationQuery", {"structuredAggregationQuery": {
+        "structuredQuery": {"from": [{"collectionId": "hall"}], "where": hall_where(HALL_EPOCH)}, "aggregations": [{"alias": "n", "count": {}}]}})
+    return int(res[0]["result"]["aggregateFields"]["n"]["integerValue"])
+
+
+def hall_time(at):
+    return datetime.fromisoformat(at.replace("Z", "+00:00"))
+
+
+def hall(out):
+    path = os.path.join(out, HALL_CACHE)
+    rows, full = {}, ""
+    try:
+        c = json.load(open(path))
+        rows = {r[0]: dict(zip(c["cols"], r)) for r in c["rows"]}
+        full = c.get("full", "")
+    except Exception:
+        pass
+    today = datetime.now(KST).date().isoformat()
+    try:
+        if rows:
+            last = max(hall_time(r["at"]) for r in rows.values())
+            for r in hall_since((last - HALL_OVERLAP).astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")):
+                rows[r["id"]] = r
+        if not rows or (hall_count() != len(rows) and full != today):
+            rows = {r["id"]: r for r in hall_since(HALL_EPOCH)}
+            full = today
+    except Exception as e:
+        if not rows:
+            raise
+        # 새 줄을 못 읽었으면(한도 초과 등) 모아 둔 줄로 요약한다 — 숫자가 비지 않고 조금 낡을 뿐이다
+        errors.append({"what": "명예의 전당 새 기록", "why": ("%s: %s" % (type(e).__name__, e))[:200]})
+    body = sorted(rows.values(), key=lambda r: (hall_time(r["at"]), r["id"]))
+    json.dump({"at": datetime.now(KST).isoformat(timespec="seconds"), "full": full, "cols": HALL_COLS, "rows": [[r.get(k) for k in HALL_COLS] for r in body]},
+              open(path, "w"), ensure_ascii=False, separators=(",", ":"))
+    return hall_summary(body)
+
+
+def hall_summary(cache):
     rows = []
-    for d in docs:
-        r = {k: fs_val(v) for k, v in d.get("fields", {}).items()}
-        if "at" not in r:
-            continue
-        t = datetime.fromisoformat(r["at"].replace("Z", "+00:00")).astimezone(KST)
-        if t < LAUNCH:
-            continue
-        story = " ".join((r.get("detail") or {}).get("story", []))
-        rows.append({"t": t, "id": d.get("name", "").split("/")[-1], "uid": r.get("uid", ""), "name": r.get("name", ""), "depth": r.get("depth", 0),
-                     "dungeon": r.get("dungeon", ""), "by": r.get("by", ""), "ver": r.get("ver", ""),
-                     "species": r.get("species", ""), "cls": r.get("cls", ""), "win": r.get("win", False),
-                     "en": bool(story) and not hangul(story)})
+    for r in cache:
+        t = hall_time(r["at"]).astimezone(KST)
+        if t >= LAUNCH:
+            rows.append(dict(r, t=t))
     rows.sort(key=lambda r: r["t"])
     today = datetime.now(KST).date()
     first = {}
@@ -514,7 +585,7 @@ def main():
         prev = json.load(open(os.path.join(out, "latest.json")))
     except Exception:
         pass
-    s["hall"] = step("명예의 전당", hall)
+    s["hall"] = step("명예의 전당", hall, out)
     s["ios"] = {cc: step("앱스토어 %s 페이지" % cc, ios_lookup, cc) for cc in ["kr", "us"]}
     s["ios_rank"] = {}
     for cc, terms in IOS_TERMS.items():

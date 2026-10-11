@@ -47,6 +47,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout --quiet --orphan next
-          git add latest.json history.jsonl
+          git add -A  # latest.json · history.jsonl · hall_rows.json(전당 기록 요약 — 전당을 통째로 다시 읽지 않으려고 모아 둔다)
           git commit --quiet -m "seolhwa-stats $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M') KST"
           git push --quiet --force origin next:seolhwa-stats-data
