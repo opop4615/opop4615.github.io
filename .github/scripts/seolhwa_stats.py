@@ -426,7 +426,7 @@ def hall():
         if t < LAUNCH:
             continue
         story = " ".join((r.get("detail") or {}).get("story", []))
-        rows.append({"t": t, "uid": r.get("uid", ""), "name": r.get("name", ""), "depth": r.get("depth", 0),
+        rows.append({"t": t, "id": d.get("name", "").split("/")[-1], "uid": r.get("uid", ""), "name": r.get("name", ""), "depth": r.get("depth", 0),
                      "dungeon": r.get("dungeon", ""), "by": r.get("by", ""), "ver": r.get("ver", ""),
                      "species": r.get("species", ""), "cls": r.get("cls", ""), "win": r.get("win", False),
                      "en": bool(story) and not hangul(story)})
@@ -450,6 +450,7 @@ def hall():
         e = who.setdefault(r["uid"], {"name": r["name"], "runs": 0, "new": first[r["uid"]] == today})
         e["runs"] += 1
         e["name"] = r["name"]
+        e["id"] = r["id"]
     lost = [r for r in rows if not r["win"]]
     spots, causes = {}, {}
     for r in lost:
@@ -463,9 +464,10 @@ def hall():
             "returned": back, "returned_of": sum(1 for f in first.values() if f < today),
             "today": sorted(who.values(), key=lambda e: -e["runs"]), "lost": len(lost), "spots": top(spots), "causes": top(causes),
             "days": [{"day": k, "runs": v["runs"], "people": len(v["people"]), "new": len(v["new"])} for k, v in sorted(days.items())],
-            "recent": [{"at": r["t"].isoformat(), "name": r["name"], "who": "%s %s" % (r["species"], r["cls"]),
+            # id = 전당 문서 번호. 페이지가 그 줄을 누르면 이 번호로 문서를 통째로 읽어 마지막 모습을 보인다
+            "recent": [{"id": r["id"], "at": r["t"].isoformat(), "name": r["name"], "who": "%s %s" % (r["species"], r["cls"]),
                         "dungeon": r["dungeon"], "depth": r["depth"], "by": r["by"], "ver": r["ver"], "win": r["win"]}
-                       for r in rows[-15:][::-1]]}
+                       for r in rows[-20:][::-1]]}
 
 
 # ---------------------------------------------------------------- 묶기

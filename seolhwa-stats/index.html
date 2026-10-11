@@ -118,6 +118,44 @@ h3.h { font-size: 14px; margin: 0 0 6px; }
 .bars .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: var(--sunk); overflow: hidden; }
 .bars .bar i { display: block; height: 100%; background: var(--series); border-radius: 2px; }
 .bars .n { font-variant-numeric: tabular-nums; color: var(--ink2); }
+.runs li[data-run], .who span[data-run] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.runs li[data-run]:active, .who span[data-run]:active { background: var(--sunk); }
+.runs li[data-run]:focus-visible, .who span[data-run]:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+.runs li.cur { background: var(--sunk); border-radius: 8px; padding-left: 8px; padding-right: 8px; }
+.runs .go { color: var(--muted); margin-left: 6px; }
+/* 한 판 자세히: 폰에서는 화면을 다 덮고, 넓으면 가운데 기둥 */
+.sheet { position: fixed; inset: 0; z-index: 50; display: none; }
+.sheet.on { display: block; }
+.sheet .bg { position: absolute; inset: 0; background: rgba(0, 0, 0, .5); }
+.sheet .panel { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: min(640px, 100%); background: var(--page); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+.sheet .shead { position: sticky; top: 0; z-index: 1; background: var(--page); display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: calc(10px + env(safe-area-inset-top, 0px)) 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.sheet .shead h2 { font-size: 18px; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rhead { display: grid; gap: 2px; margin-bottom: 10px; }
+.rhead .rwho { font-size: 15px; }
+.rhead .rwhere { font-size: 16px; }
+.rnums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.rnums div { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; min-width: 0; }
+.rnums span { display: block; font-size: 12px; color: var(--ink2); }
+.rnums b { font-size: 17px; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.blk { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+.blk .h { margin-bottom: 8px; }
+.log { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.log li { padding: 5px 0 5px 12px; border-left: 2px solid var(--grid); color: var(--ink2); }
+.log li.end { border-left-color: var(--bad); color: var(--ink); font-weight: 600; }
+.lines { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.lines li { padding: 3px 0; overflow-wrap: anywhere; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font-size: 13px; padding: 3px 9px; border-radius: 8px; background: var(--chip); }
+.sbar { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 13.5px; margin-bottom: 6px; }
+.sbar .bar { height: 8px; border-radius: 4px; background: var(--sunk); overflow: hidden; }
+.sbar .bar i { display: block; height: 100%; border-radius: 4px; }
+.sbar .n { font-variant-numeric: tabular-nums; color: var(--ink2); }
+.sgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.sgrid div { text-align: center; padding: 6px 2px; background: var(--sunk); border-radius: 8px; }
+.sgrid span { display: block; font-size: 12px; color: var(--ink2); }
+.sgrid b { font-size: 16px; font-variant-numeric: tabular-nums; }
+.sgrid i { font-style: normal; font-size: 12px; margin-left: 3px; }
 .ytt { display: block; color: inherit; text-decoration: none; }
 .ytd { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
 /* 폰 */
@@ -193,7 +231,7 @@ footer p { margin: 4px 0; }
       <div><h3 class="h">많이 죽는 자리</h3><ul class="bars" id="hallspots"></ul></div>
       <div><h3 class="h">사인</h3><ul class="bars" id="hallcauses"></ul></div>
     </div>
-    <h3 class="h" style="margin-top:16px">최근 기록</h3>
+    <h3 class="h" style="margin-top:16px">최근 기록 <span class="muted" style="font-weight:400">· 누르면 그 판의 마지막 모습</span></h3>
     <ul class="runs" id="hallrecent"></ul>
   </section>
 
@@ -256,6 +294,14 @@ footer p { margin: 4px 0; }
   </footer>
 </main>
 
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheettitle">
+  <div class="bg" id="sheetbg"></div>
+  <div class="panel">
+    <div class="shead"><h2 id="sheettitle"></h2><button type="button" id="sheetclose">닫기 ✕</button></div>
+    <div id="sheetbody"></div>
+  </div>
+</div>
+
 <script>
 "use strict";
 const REPO = "opop4615/opop4615.github.io", BRANCH = "seolhwa-stats-data", WORKFLOW = "seolhwa-stats.yml";
@@ -275,7 +321,7 @@ const CC = { kr: "한국", us: "미국" };
 const COOLDOWN_MIN = 10; // 이보다 최근에 모았으면 서버 수집을 다시 돌리지 않는다 (구글이 503으로 막는다)
 const WINDOWS = [["30", "30분 전"], ["60", "1시간 전"], ["180", "3시간 전"], ["midnight", "오늘 0시"], ["1440", "24시간 전"]];
 
-const S = { snap: null, hist: [], live: { m: {} }, liveErr: [], liveAt: null, busy: false };
+const S = { snap: null, hist: [], live: { m: {} }, liveErr: [], liveAt: null, busy: false, rows: [], pushed: false };
 const $ = id => document.getElementById(id);
 const store = {
   get(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
@@ -378,7 +424,7 @@ function hallSummary(rows) {
   const daysOf = u => new Set(rows.filter(r => r.uid === u).map(r => dayKey(r.t))).size;
   const olds = Object.keys(first).filter(u => first[u] < today);
   const who = {};
-  for (const r of tr) { const e = who[r.uid] || (who[r.uid] = { name: r.name, runs: 0, new: first[r.uid] === today }); e.runs++; e.name = r.name; }
+  for (const r of tr) { const e = who[r.uid] || (who[r.uid] = { name: r.name, runs: 0, new: first[r.uid] === today }); e.runs++; e.name = r.name; e.id = r.id; }
   const lost = rows.filter(r => !r.win), spots = {}, causes = {};
   for (const r of lost) { const k = `${r.dungeon} ${r.depth}층`; spots[k] = (spots[k] || 0) + 1; causes[r.by || "?"] = (causes[r.by || "?"] || 0) + 1; }
   const top = o => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([name, n]) => ({ name, n }));
@@ -389,13 +435,13 @@ function hallSummary(rows) {
     en_runs: rows.filter(r => r.en).length, wins: rows.filter(r => r.win).length,
     returned: olds.filter(u => daysOf(u) > 1).length, returned_of: olds.length,
     days: Object.keys(days).sort().map(k => ({ day: k, runs: days[k].runs, people: days[k].people.size, new: days[k].nw.size })),
-    recent: rows.slice(-16).reverse().map(r => ({ at: new Date(r.t).toISOString(), name: r.name, who: `${r.species} ${r.cls}`, dungeon: r.dungeon, depth: r.depth, by: r.by, ver: r.ver, win: r.win }))
+    recent: rows.slice(-20).reverse().map(r => ({ id: r.id, at: new Date(r.t).toISOString(), name: r.name, who: `${r.species} ${r.cls}`, dungeon: r.dungeon, depth: r.depth, by: r.by, ver: r.ver, win: r.win }))
   };
 }
 
 async function liveHall() {
   try {
-    const fields = ["uid", "name", "at", "depth", "dungeon", "by", "ver", "species", "cls", "win", "detail.story"];
+    const fields = ["uid", "name", "at", "depth", "dungeon", "by", "ver", "species", "cls", "win", "level", "score", "detail.story"];
     let docs = [], tok = "";
     do {
       const q = new URLSearchParams([["key", FS_KEY], ["pageSize", "300"], ...fields.map(f => ["mask.fieldPaths", f])]);
@@ -412,9 +458,10 @@ async function liveHall() {
       const t = Date.parse(r.at || "");
       if (!t || t < LAUNCH) continue;
       const story = ((r.detail || {}).story || []).join(" ");
-      rows.push({ t, uid: r.uid || "", name: r.name || "", depth: r.depth || 0, dungeon: r.dungeon || "", by: r.by || "", ver: r.ver || "",
+      rows.push({ t, id: (d.name || "").split("/").pop(), level: r.level || 0, score: r.score || 0, uid: r.uid || "", name: r.name || "", depth: r.depth || 0, dungeon: r.dungeon || "", by: r.by || "", ver: r.ver || "",
                   species: r.species || "", cls: r.cls || "", win: r.win === true, en: !!story && !hangul(story) });
     }
+    S.rows = rows;
     const h = S.live.hall = hallSummary(rows);
     for (const k of ["total_runs", "total_people", "today_runs", "today_people", "today_new", "en_runs"]) S.live.m["hall." + k] = h[k];
   } catch (e) { S.liveErr.push({ what: "명예의 전당", why: e.message }); }
@@ -697,11 +744,10 @@ function renderHall() {
   $("halldays").innerHTML = `<thead><tr><th>날짜</th><th class="n">판</th><th class="n">사람</th><th class="n">새 사람</th></tr></thead><tbody>` +
     h.days.slice().reverse().map(d => `<tr><td>${d.day.slice(5).replace("-", "/")}</td><td class="n">${d.runs}</td><td class="n">${d.people}</td><td class="n">${d.new}</td></tr>`).join("") + "</tbody>";
   const tl = h.today || [];
-  $("halltoday").innerHTML = tl.length ? tl.map(e => `<span class="${e.new ? "new" : ""}"><b>${esc(e.name)}</b> ${nf(e.runs)}판${e.new ? " · 처음" : ""}</span>`).join("") : `<span class="muted" style="background:none;padding-left:0">아직 없다</span>`;
+  $("halltoday").innerHTML = tl.length ? tl.map(e => `<span class="${e.new ? "new" : ""}"${e.id ? ` data-run="${esc(e.id)}" role="button" tabindex="0"` : ""}><b>${esc(e.name)}</b> ${nf(e.runs)}판${e.new ? " · 처음" : ""}</span>`).join("") : `<span class="muted" style="background:none;padding-left:0">아직 없다</span>`;
   const bars = (id, list) => { const max = Math.max(1, ...(list || []).map(x => x.n)); $(id).innerHTML = (list || []).length ? list.map(x => `<li><span>${esc(x.name)}</span><span class="n">${nf(x.n)}판</span><span class="bar"><i style="width:${Math.round(x.n / max * 100)}%"></i></span></li>`).join("") : `<li class="muted">아직 없다</li>`; };
   bars("hallspots", h.spots); bars("hallcauses", h.causes);
-  $("hallrecent").innerHTML = h.recent.map(r => `<li><div class="r1"><b>${esc(r.name)}</b><span class="cls">${esc(r.who)}</span><span class="tm">${esc(mdhm(Date.parse(r.at)))}</span></div>` +
-    `<div class="r2">${esc(r.dungeon)} ${r.win ? '<span class="up">승리</span>' : esc(r.depth) + "층 · " + esc(r.by)} <span class="tag">${esc(r.ver)}</span></div></li>`).join("");
+  $("hallrecent").innerHTML = h.recent.map(runLine).join("");
 }
 
 // 날짜별 판 수: 한 계열 세로 막대 (계열이 하나라 범례 없음 — 제목이 말한다)
@@ -734,6 +780,77 @@ function drawColumns(el, days) {
   };
   svg.addEventListener("pointermove", show); svg.addEventListener("pointerdown", show);
   svg.addEventListener("pointerleave", () => { tip.style.opacity = 0; });
+}
+
+// 기록 한 줄 (최근 기록 · 그 사람의 다른 판이 같이 쓴다). 문서 번호가 있으면 누를 수 있다
+function runLine(r, cur) {
+  const who = r.who || `${r.species || ""} ${r.cls || ""}`;
+  const at = r.at ? Date.parse(r.at) : r.t;
+  return `<li${r.id ? ` data-run="${esc(r.id)}" role="button" tabindex="0"` : ""}${cur === true ? ' class="cur"' : ""}><div class="r1"><b>${esc(r.name)}</b><span class="cls">${esc(who)}</span><span class="tm">${esc(mdhm(at))}${r.id ? '<span class="go">›</span>' : ""}</span></div>` +
+    `<div class="r2">${esc(r.dungeon)} ${r.win ? '<span class="up">승리</span>' : esc(r.depth) + "층 · " + esc(r.by)} <span class="tag">${esc(r.ver)}</span></div></li>`;
+}
+
+// 한 판의 마지막 모습: 게임의 전당 상세와 같은 내용(문서 하나를 통째로 읽는다). 맨 위는 죽기 직전 기록
+async function openRun(id) {
+  const sh = $("sheet");
+  if (sh.classList.contains("on")) history.replaceState({ run: id }, "", "#run-" + id);
+  else { history.pushState({ run: id }, "", "#run-" + id); S.pushed = true; }
+  showRun(id);
+}
+
+async function showRun(id) {
+  const sh = $("sheet"), body = $("sheetbody");
+  sh.classList.add("on"); document.body.style.overflow = "hidden";
+  $("sheettitle").textContent = "불러오는 중…"; body.innerHTML = "";
+  sh.querySelector(".panel").scrollTop = 0;
+  try {
+    const r = await fetch(`${FS}/${encodeURIComponent(id)}?key=${FS_KEY}`, { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status === 404 ? "그 기록이 없다" : "HTTP " + r.status);
+    const d = await r.json();
+    renderRun(id, Object.fromEntries(Object.entries(d.fields || {}).map(([k, v]) => [k, fsVal(v)])));
+  } catch (e) { $("sheettitle").textContent = "못 읽었다"; body.innerHTML = `<p class="empty">${esc(e.message)}</p>`; }
+}
+
+function closeRun() {
+  if (!$("sheet").classList.contains("on")) return;
+  if (S.pushed) { S.pushed = false; history.back(); return; } // 뒤로 가기가 popstate로 닫는다
+  hideRun(); history.replaceState(null, "", location.pathname + location.search);
+}
+function hideRun() { $("sheet").classList.remove("on"); document.body.style.overflow = ""; }
+
+function renderRun(id, o) {
+  const det = o.detail || {}, st = det.stats || {}, t = Date.parse(o.at || "");
+  const list = k => Array.isArray(det[k]) ? det[k].filter(x => x != null && String(x) !== "") : [];
+  $("sheettitle").textContent = o.name || "이름 없음";
+  let h = `<div class="rhead"><div class="rwho">${esc(o.species || "")} ${esc(o.cls || "")} <span class="muted">· ${nf(o.level)}레벨</span></div>` +
+    `<div class="rwhere">${esc(o.dungeon || "")} ${nf(o.depth)}층 · ${o.win === true ? '<b class="up">승리</b>' : `<b class="down">${esc(o.by || "?")}</b>에게 죽음`}</div>` +
+    `<div class="muted" style="font-size:12.5px">${t ? esc(mdhm(t)) : ""}${o.mode ? " · " + esc(o.mode) : ""}${o.ver ? " · 판 " + esc(o.ver) : ""}${o.seed != null ? " · 씨앗 " + esc(o.seed) : ""}</div></div>`;
+  h += `<div class="rnums">` + [["점수", o.score], ["턴", o.turn], ["잡은 적", o.kills], ["레벨", o.level]].map(([l, v]) => `<div><span>${l}</span><b>${nf(v)}</b></div>`).join("") + `</div>`;
+  const log = list("log");
+  if (log.length) h += `<div class="blk"><h3 class="h">${o.win === true ? "마지막 기록" : "죽기 직전"} <span class="muted" style="font-weight:400">· 아래가 마지막 줄</span></h3><ol class="log">${log.map((l, i) => `<li${i === log.length - 1 ? ' class="end"' : ""}>${esc(l)}</li>`).join("")}</ol></div>`;
+  const story = list("story");
+  if (story.length) h += `<div class="blk"><h3 class="h">이 판의 이야기</h3><ul class="lines">${story.map(l => `<li>${esc(l)}</li>`).join("")}</ul></div>`;
+  if (Object.keys(st).length) {
+    const n = k => Number(st[k]) || 0;
+    const bar = (l, a, b, c) => `<div class="sbar"><span>${l}</span><span class="bar"><i style="width:${Math.max(0, Math.min(100, Math.round(a / Math.max(1, b) * 100)))}%;background:${c}"></i></span><span class="n">${nf(a)} / ${nf(b)}</span></div>`;
+    h += `<div class="blk"><h3 class="h">마지막 능력치</h3>` + bar("체력", n("hp"), n("maxhp"), "var(--bad)") + bar("기력", n("mp"), n("maxmp"), "var(--series)") + `<div class="sgrid">` +
+      [["힘", "str"], ["민첩", "dex"], ["지능", "int"], ["운", "luck"]].map(([l, k]) => `<div><span>${l}</span><b>${nf(n(k))}</b>${n("hex_" + k) > 0 ? `<i class="down">−${nf(n("hex_" + k))}</i>` : ""}</div>`).join("") +
+      [["공격", nf(n("atk"))], ["방어", nf(n("ac"))], ["회피", nf(n("ev"))], ["치명타", "×" + nf(n("crit") || 2)]].map(([l, v]) => `<div><span>${l}</span><b>${v}</b></div>`).join("") + `</div></div>`;
+  }
+  for (const [k, title, tags] of [["gear", "걸친 것"], ["god", "신"], ["spells", "도술"], ["cards", "고른 카드", 1], ["inv", "가방", 1], ["walked", "발자취"]]) {
+    const v = list(k);
+    if (!v.length) continue;
+    h += `<div class="blk"><h3 class="h">${title}${tags ? ` <span class="muted" style="font-weight:400">· ${nf(v.length)}</span>` : ""}</h3>` +
+      (tags ? `<div class="tags">${v.map(x => `<span>${esc(x)}</span>`).join("")}</div>` : `<ul class="lines">${v.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`) + `</div>`;
+  }
+  const mine = o.uid ? S.rows.filter(x => x.uid === o.uid).sort((a, b) => b.t - a.t) : [];
+  if (mine.length > 1) {
+    const names = []; for (const x of mine.slice().reverse()) if (names[names.length - 1] !== x.name) names.push(x.name);
+    const days = new Set(mine.map(x => dayKey(x.t))).size, wins = mine.filter(x => x.win).length;
+    h += `<div class="blk"><h3 class="h">이 사람의 다른 판</h3><p class="sub" style="margin-bottom:6px">${nf(mine.length)}판 · ${nf(days)}일 · 이긴 판 ${nf(wins)} · 처음 ${esc(mdhm(mine[mine.length - 1].t))}${names.length > 1 ? ` · 쓴 이름 ${names.map(esc).join(" → ")}` : ""}</p>` +
+      `<ul class="runs" style="columns:auto">${mine.slice(0, 60).map(x => runLine(x, x.id === id)).join("")}</ul></div>`;
+  }
+  $("sheetbody").innerHTML = h;
 }
 
 function renderReviews() {
@@ -770,6 +887,17 @@ $("save").addEventListener("click", () => {
   $("saved").textContent = "저장했다 — 새로고침에 쓰인다.";
 });
 let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { const h = curOf("hall"); if (h) drawColumns($("hallchart"), h.days); }, 150); });
+const tapRun = ev => {
+  const el = ev.target.closest("[data-run]");
+  if (!el || (ev.type === "keydown" && ev.key !== "Enter" && ev.key !== " ")) return;
+  ev.preventDefault(); openRun(el.dataset.run);
+};
+for (const id of ["hallrecent", "halltoday", "sheetbody"]) { $(id).addEventListener("click", tapRun); $(id).addEventListener("keydown", tapRun); }
+$("sheetclose").addEventListener("click", closeRun);
+$("sheetbg").addEventListener("click", closeRun);
+addEventListener("keydown", ev => { if (ev.key === "Escape") closeRun(); });
+addEventListener("popstate", ev => { const id = ev.state && ev.state.run; if (id) showRun(id); else { S.pushed = false; hideRun(); } });
+{ const m = location.hash.match(/^#run-([\w-]+)$/); if (m) { history.replaceState({ run: m[1] }, "", location.hash); showRun(m[1]); } }
 refresh(false);
 </script>
 </body>
