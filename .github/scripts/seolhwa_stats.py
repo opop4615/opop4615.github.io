@@ -336,6 +336,19 @@ def yt_others(prev):
         return others, others_at
 
 
+def yt_feed(q, now):
+    """유튜브 RSS 한 장(최근 15편, 조회수가 들어 있다) → {영상 번호: 영상}"""
+    xml = get("https://www.youtube.com/feeds/videos.xml?" + q, tries=2)
+    vids = {}
+    for ent in re.findall(r"<entry>(.*?)</entry>", xml, re.S):
+        vid = re.search(r"<yt:videoId>(.*?)</yt:videoId>", ent).group(1)
+        title = re.search(r"<title>(.*?)</title>", ent, re.S).group(1)
+        pub = re.search(r"<published>(.*?)</published>", ent).group(1)
+        views = re.search(r'<media:statistics views="(\d+)"', ent)
+        vids[vid] = {"id": vid, "title": unescape(title), "published": pub, "views": int(views.group(1)) if views else None, "checked": now}
+    return vids
+
+
 def youtube_rss(prev):
     """키 없이: 채널 페이지에서 채널 번호·구독자 → RSS(최근 15편, 조회수는 들어 있다)
     → 채널의 쇼츠·동영상 탭에서 나머지 영상 번호 → 영상 페이지에서 조회수(한 번에 OLD_REFRESH편씩, 오래 안 본 것부터)"""
@@ -356,14 +369,19 @@ def youtube_rss(prev):
         i = max(page.find("subscriber"), page.find("구독자"))
         errors.append({"what": "유튜브 구독자 수(키 없이)", "why": "채널 페이지에서 못 찾음 — 길이 %d, 주변: %s" % (len(page), page[max(0, i - 80):i + 40].replace("\n", " ") if i >= 0 else "없음")})
     now = datetime.now(KST).isoformat(timespec="seconds")
-    xml = get("https://www.youtube.com/feeds/videos.xml?channel_id=" + cid)
-    vids = {}
-    for ent in re.findall(r"<entry>(.*?)</entry>", xml, re.S):
-        vid = re.search(r"<yt:videoId>(.*?)</yt:videoId>", ent).group(1)
-        title = re.search(r"<title>(.*?)</title>", ent, re.S).group(1)
-        pub = re.search(r"<published>(.*?)</published>", ent).group(1)
-        views = re.search(r'<media:statistics views="(\d+)"', ent)
-        vids[vid] = {"id": vid, "title": unescape(title), "published": pub, "views": int(views.group(1)) if views else None, "checked": now}
+    vids, feed_ok = {}, True
+    try:
+        vids = yt_feed("channel_id=" + cid, now)
+    except Exception as e:
+        # 채널 RSS는 가끔 통째로 404다 (2026-10-12: 이것 하나로 유튜브 갈래가 다 비었다). 긴 영상·쇼츠 피드를 따로 불러 보고,
+        # 거기에도 없는 영상은 아래에서 영상 페이지를 하나씩 열어 읽는다(이때는 한 번에 다 읽는다)
+        feed_ok = False
+        for pl in ["UULF", "UUSH"]:
+            try:
+                vids.update(yt_feed("playlist_id=" + pl + cid[2:], now))
+            except Exception:
+                pass
+        errors.append({"what": "유튜브 채널 RSS", "why": "%s — 영상 페이지에서 대신 읽었다" % str(e)[:120]})
     # 옛 영상: 지난 수집에서 알던 것 + 채널 탭에 보이는 것
     old = {v["id"]: dict(v) for v in (prev.get("videos") or []) if v.get("id") and v["id"] not in vids}
     try:
@@ -375,7 +393,7 @@ def youtube_rss(prev):
     except Exception as e:
         errors.append({"what": "유튜브 채널의 옛 영상 목록(키 없이)", "why": str(e)[:160]})
     failed = 0
-    for v in sorted(old.values(), key=lambda v: (v.get("views") is not None, v.get("checked") or ""))[:OLD_REFRESH]:
+    for v in sorted(old.values(), key=lambda v: (v.get("views") is not None, v.get("checked") or ""))[:OLD_REFRESH if feed_ok else 4 * OLD_REFRESH]:
         try:
             w = yt_watch(v["id"])
             if w["owner"] and w["owner"].lower() != YT_HANDLE:  # 채널 탭에 섞여 온 남의 영상
@@ -628,6 +646,9 @@ def main():
             except Exception as e:
                 errors.append({"what": "플레이 검색 %s '%s'" % (cc, t), "why": str(e)[:200]})
     s["youtube"] = step("유튜브", youtube, prev.get("youtube"))
+    for k in ["hall", "youtube"]:  # 통째로 못 읽은 갈래는 지난 값을 둔다(errors에는 남는다) — 비우면 페이지의 그 칸이 비고, 유튜브는 옛 영상 목록까지 잃는다
+        if s[k] is None and prev.get(k):
+            s[k] = prev[k]
     s["errors"] = errors
     s["m"] = metrics(s)
     json.dump(s, open(os.path.join(out, "latest.json"), "w"), ensure_ascii=False, default=str)
