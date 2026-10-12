@@ -123,6 +123,17 @@ h3.h { font-size: 14px; margin: 0 0 6px; }
 .runs li[data-run]:focus-visible, .who span[data-run]:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
 .runs li.cur { background: var(--sunk); border-radius: 8px; padding-left: 8px; padding-right: 8px; }
 .runs .go { color: var(--muted); margin-left: 6px; }
+/* 이름으로 찾기 */
+.find { display: flex; gap: 8px; margin: 0 0 8px; }
+.find input { flex: 1; min-width: 0; width: auto; font: inherit; font-size: 16px; min-height: 42px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); -webkit-appearance: none; appearance: none; }
+.find input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.find button { flex: none; }
+#hallfound { margin: 0 0 14px; }
+#hallfound:empty { display: none; }
+.runs li[data-who] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.runs li[data-who]:active { background: var(--sunk); }
+.runs li[data-who]:focus-visible, .linkbtn:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+.linkbtn { font: inherit; font-size: 13.5px; color: var(--series-hi); background: none; border: 0; padding: 6px 0; min-height: 0; cursor: pointer; }
 /* 한 판 자세히: 폰에서는 화면을 다 덮고, 넓으면 가운데 기둥 */
 .sheet { position: fixed; inset: 0; z-index: 50; display: none; }
 .sheet.on { display: block; }
@@ -223,6 +234,11 @@ footer p { margin: 4px 0; }
   <section class="card" id="hall">
     <h2>명예의 전당</h2>
     <p class="sub" id="hallsub"></p>
+    <form class="find" id="findform" role="search" autocomplete="off">
+      <input id="hallq" type="search" inputmode="search" enterkeyhint="search" placeholder="이름으로 찾기" aria-label="전당에 올린 이름으로 찾기">
+      <button type="button" id="hallall">모두 보기</button>
+    </form>
+    <ul class="runs" id="hallfound" style="columns:auto"></ul>
     <h3 class="h">오늘 온 사람</h3>
     <div class="who" id="halltoday"></div>
     <div class="chart" id="hallchart"></div>
@@ -542,6 +558,8 @@ async function refresh(server) {
     render();
     progress("명예의 전당·앱스토어·유튜브를 직접 읽는 중…");
     await Promise.all([liveHall(), liveIos(), liveYoutube()]);
+    renderFound();
+    if (S.sheet && S.sheet.who) showWho(S.sheet.who);
     S.liveAt = Date.now();
     render();
     let how = "none";
@@ -809,6 +827,62 @@ function runLine(r, cur) {
     `<div class="r2">${esc(r.dungeon)} ${r.win ? '<span class="up">승리</span>' : esc(r.depth) + "층 · " + esc(r.by)} <span class="tag">${esc(r.ver)}</span></div></li>`;
 }
 
+// ---- 사람(같은 기기 번호 = 한 사람)으로 묶기. 모아 둔 줄(S.rows)만 쓴다 — 전당을 새로 읽지 않는다
+function people() {
+  const by = new Map();
+  for (const r of S.rows) { let p = by.get(r.uid); if (!p) by.set(r.uid, p = { uid: r.uid, runs: [] }); p.runs.push(r); }
+  for (const p of by.values()) {
+    p.runs.sort((a, b) => b.t - a.t);
+    p.names = []; for (const x of p.runs.slice().reverse()) if (x.name && p.names[p.names.length - 1] !== x.name) p.names.push(x.name);
+    p.name = p.runs[0].name || "이름 없음"; p.last = p.runs[0].t; p.first = p.runs[p.runs.length - 1].t;
+    p.days = new Set(p.runs.map(x => dayKey(x.t))).size; p.wins = p.runs.filter(x => x.win).length;
+    p.best = Math.max(0, ...p.runs.map(x => x.score || 0));
+  }
+  return [...by.values()].sort((a, b) => b.last - a.last);
+}
+const norm = t => String(t || "").toLowerCase().replace(/\s+/g, "");
+function personLine(p, q) {
+  const other = p.names.filter(n => n !== p.name);
+  return `<li data-who="${esc(p.uid)}" role="button" tabindex="0"><div class="r1"><b>${esc(p.name)}</b>${other.length ? `<span class="cls">전에 ${other.map(esc).join(", ")}</span>` : ""}<span class="tm">${esc(mdhm(p.last))}<span class="go">›</span></span></div>` +
+    `<div class="r2">${nf(p.runs.length)}판 · ${nf(p.days)}일${p.wins ? ` · <span class="up">이긴 판 ${nf(p.wins)}</span>` : ""} · 최고 ${nf(p.best)}점</div></li>`;
+}
+function renderFound() {
+  const q = norm($("hallq").value), el = $("hallfound");
+  if (!q && !S.showAll) { el.innerHTML = ""; $("hallall").textContent = "모두 보기"; return; }
+  if (!S.rows.length) { el.innerHTML = `<li class="muted">전당 기록을 아직 못 읽었다 — 새로고침해 보세요.</li>`; return; }
+  const all = people(), hit = q ? all.filter(p => p.names.some(n => norm(n).includes(q))) : all;
+  $("hallall").textContent = S.showAll && !q ? "접기" : "모두 보기";
+  el.innerHTML = hit.length ? `<li class="muted" style="font-size:13px;padding:2px 0 6px">${q ? `“${esc($("hallq").value.trim())}” · ` : ""}${nf(hit.length)}명${q ? "" : " (마지막으로 온 차례)"}</li>` + hit.slice(0, 80).map(p => personLine(p, q)).join("")
+    : `<li class="muted">“${esc($("hallq").value.trim())}”이 든 이름이 없다. 전당에 이름을 올린 ${nf(all.length)}명 가운데서 찾는다.</li>`;
+}
+
+// 한 사람의 모든 판
+function openWho(uid) {
+  const st = { who: uid };
+  if ($("sheet").classList.contains("on")) history.replaceState(st, "", "#who-" + uid);
+  else { history.pushState(st, "", "#who-" + uid); S.pushed = true; }
+  showWho(uid);
+}
+function showWho(uid) {
+  const sh = $("sheet");
+  S.sheet = { who: uid };
+  sh.classList.add("on"); document.body.style.overflow = "hidden";
+  sh.querySelector(".panel").scrollTop = 0;
+  const p = people().find(x => x.uid === uid);
+  if (!p) { $("sheettitle").textContent = S.rows.length ? "그 사람이 없다" : "불러오는 중…"; $("sheetbody").innerHTML = ""; return; }
+  $("sheettitle").textContent = p.name;
+  const count = (f) => { const c = {}; for (const r of p.runs) { const k = f(r); if (k) c[k] = (c[k] || 0) + 1; } return Object.entries(c).sort((a, b) => b[1] - a[1]); };
+  const chars = count(r => `${r.species} ${r.cls}`), killers = count(r => r.win ? "" : r.by), deep = p.runs.reduce((a, b) => (b.depth || 0) > (a.depth || 0) ? b : a);
+  let h = `<div class="rhead">${p.names.length > 1 ? `<div class="rwho">쓴 이름 · ${p.names.map(esc).join(" → ")}</div>` : ""}` +
+    `<div class="muted" style="font-size:13px">처음 ${esc(mdhm(p.first))} · 마지막 ${esc(mdhm(p.last))} (${esc(ago(p.last))})</div></div>`;
+  h += `<div class="rnums">` + [["판", nf(p.runs.length)], ["온 날", nf(p.days) + "일"], ["이긴 판", nf(p.wins)], ["최고 점수", nf(p.best)]].map(([l, v]) => `<div><span>${l}</span><b>${v}</b></div>`).join("") + `</div>`;
+  h += `<div class="blk"><h3 class="h">가장 깊이 간 곳</h3><ul class="lines"><li>${esc(deep.dungeon)} ${nf(deep.depth)}층 · ${esc(deep.species)} ${esc(deep.cls)} ${nf(deep.level)}레벨${deep.win ? ' · <span class="up">승리</span>' : ""}</li></ul></div>`;
+  h += `<div class="blk"><h3 class="h">고른 캐릭터</h3><div class="tags">${chars.slice(0, 12).map(([k, n]) => `<span>${esc(k)} ${nf(n)}</span>`).join("")}</div></div>`;
+  if (killers.length) h += `<div class="blk"><h3 class="h">죽은 까닭</h3><div class="tags">${killers.slice(0, 12).map(([k, n]) => `<span>${esc(k)} ${nf(n)}</span>`).join("")}</div></div>`;
+  h += `<div class="blk"><h3 class="h">모든 판 <span class="muted" style="font-weight:400">· ${nf(p.runs.length)} · 누르면 그 판의 마지막 모습</span></h3><ul class="runs" style="columns:auto">${p.runs.slice(0, 200).map(x => runLine(x)).join("")}</ul></div>`;
+  $("sheetbody").innerHTML = h;
+}
+
 // 한 판의 마지막 모습: 게임의 전당 상세와 같은 내용(문서 하나를 통째로 읽는다). 맨 위는 죽기 직전 기록
 async function openRun(id) {
   const sh = $("sheet");
@@ -819,6 +893,7 @@ async function openRun(id) {
 
 async function showRun(id) {
   const sh = $("sheet"), body = $("sheetbody");
+  S.sheet = { run: id };
   sh.classList.add("on"); document.body.style.overflow = "hidden";
   $("sheettitle").textContent = "불러오는 중…"; body.innerHTML = "";
   sh.querySelector(".panel").scrollTop = 0;
@@ -835,7 +910,7 @@ function closeRun() {
   if (S.pushed) { S.pushed = false; history.back(); return; } // 뒤로 가기가 popstate로 닫는다
   hideRun(); history.replaceState(null, "", location.pathname + location.search);
 }
-function hideRun() { $("sheet").classList.remove("on"); document.body.style.overflow = ""; }
+function hideRun() { $("sheet").classList.remove("on"); document.body.style.overflow = ""; S.sheet = null; }
 
 function renderRun(id, o) {
   const det = o.detail || {}, st = det.stats || {}, t = Date.parse(o.at || "");
@@ -866,7 +941,7 @@ function renderRun(id, o) {
   if (mine.length > 1) {
     const names = []; for (const x of mine.slice().reverse()) if (names[names.length - 1] !== x.name) names.push(x.name);
     const days = new Set(mine.map(x => dayKey(x.t))).size, wins = mine.filter(x => x.win).length;
-    h += `<div class="blk"><h3 class="h">이 사람의 다른 판</h3><p class="sub" style="margin-bottom:6px">${nf(mine.length)}판 · ${nf(days)}일 · 이긴 판 ${nf(wins)} · 처음 ${esc(mdhm(mine[mine.length - 1].t))}${names.length > 1 ? ` · 쓴 이름 ${names.map(esc).join(" → ")}` : ""}</p>` +
+    h += `<div class="blk"><h3 class="h">이 사람의 다른 판</h3><button type="button" class="linkbtn" data-who="${esc(o.uid)}">이 사람 한눈에 보기 ›</button><p class="sub" style="margin-bottom:6px">${nf(mine.length)}판 · ${nf(days)}일 · 이긴 판 ${nf(wins)} · 처음 ${esc(mdhm(mine[mine.length - 1].t))}${names.length > 1 ? ` · 쓴 이름 ${names.map(esc).join(" → ")}` : ""}</p>` +
       `<ul class="runs" style="columns:auto">${mine.slice(0, 60).map(x => runLine(x, x.id === id)).join("")}</ul></div>`;
   }
   $("sheetbody").innerHTML = h;
@@ -907,15 +982,20 @@ $("save").addEventListener("click", () => {
 });
 let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { const h = curOf("hall"); if (h) drawColumns($("hallchart"), h.days); }, 150); });
 const tapRun = ev => {
-  const el = ev.target.closest("[data-run]");
-  if (!el || (ev.type === "keydown" && ev.key !== "Enter" && ev.key !== " ")) return;
-  ev.preventDefault(); openRun(el.dataset.run);
+  const el = ev.target.closest("[data-run], [data-who]");
+  if (!el || (ev.type === "keydown" && (ev.target.tagName === "INPUT" || (ev.key !== "Enter" && ev.key !== " ")))) return;
+  ev.preventDefault();
+  if (el.dataset.who) openWho(el.dataset.who); else openRun(el.dataset.run);
 };
-for (const id of ["hallrecent", "halltoday", "sheetbody"]) { $(id).addEventListener("click", tapRun); $(id).addEventListener("keydown", tapRun); }
+for (const id of ["hallrecent", "halltoday", "hallfound", "sheetbody"]) { $(id).addEventListener("click", tapRun); $(id).addEventListener("keydown", tapRun); }
 $("sheetclose").addEventListener("click", closeRun);
 $("sheetbg").addEventListener("click", closeRun);
 addEventListener("keydown", ev => { if (ev.key === "Escape") closeRun(); });
-addEventListener("popstate", ev => { const id = ev.state && ev.state.run; if (id) showRun(id); else { S.pushed = false; hideRun(); } });
+addEventListener("popstate", ev => { const st = ev.state || {}; if (st.run) showRun(st.run); else if (st.who) showWho(st.who); else { S.pushed = false; hideRun(); } });
+$("hallq").addEventListener("input", renderFound);
+$("findform").addEventListener("submit", ev => { ev.preventDefault(); $("hallq").blur(); renderFound(); });
+$("hallall").addEventListener("click", () => { S.showAll = !S.showAll || !!$("hallq").value; $("hallq").value = ""; renderFound(); });
+{ const m = location.hash.match(/^#who-([\w-]+)$/); if (m) { history.replaceState({ who: m[1] }, "", location.hash); showWho(m[1]); } }
 { const m = location.hash.match(/^#run-([\w-]+)$/); if (m) { history.replaceState({ run: m[1] }, "", location.hash); showRun(m[1]); } }
 refresh(false);
 </script>
