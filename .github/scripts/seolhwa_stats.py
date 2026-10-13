@@ -27,6 +27,16 @@ HALL_CACHE = "hall_rows.json"
 HALL_COLS = ["id", "at", "uid", "name", "depth", "dungeon", "by", "ver", "species", "cls", "win", "level", "score", "en"]
 HALL_OVERLAP = timedelta(minutes=30)  # 규칙(firestore.rules)이 기록의 시각을 서버 시계 ±10분까지 받는다 — 늦은 시계로 올라온 줄을 안 놓치게 겹쳐 읽는다
 HALL_EPOCH = "2000-01-01T00:00:00Z"
+# 디스코드 #명예의-전당-hall 알림 (2026-10-13): 새 기록이 제 던전(게임 전당의 갈래와 같다)에서 5등 안이면 웹훅으로 올린다.
+# 웹훅 주소는 저장소 Secrets의 DISCORD_HALL_WEBHOOK — 없으면(맥에서 손으로 돌릴 때) 새 줄을 pending에 적어 두고 다음 번에 올린다
+HALL_TOP = 5
+HALL_TELL_AGE = timedelta(hours=24)  # 이보다 묵은 줄은 알리지 않는다(통째로 다시 읽은 날 옛 기록이 쏟아지지 않게)
+HALL_TELL_MAX = 8  # 한 번에 올리는 글 수
+HALL_EN = {"거인": "Giant", "곰사람": "Bear Folk", "광대": "Clown", "구렁이": "Serpent", "구미호의 굴": "Gumiho's Den", "까마귀": "Crow", "도깨비": "Dokkaebi",
+           "도사": "Taoist", "돌하르방": "Dol Hareubang", "무당": "Shaman", "무사": "Warrior", "문어": "Octopus", "반요": "Half-Yokai",
+           "버려진 은광": "Abandoned Silver Mine", "사냥꾼": "Hunter", "산사람": "Mountain Folk", "선인": "Immortal", "설화의 길": "Folktale Road",
+           "술사": "Sorcerer", "승려": "Monk", "안개 늪": "Misty Marsh", "약초꾼": "Herbalist", "여우": "Fox", "옛 왕릉": "Old Royal Tomb", "이무기": "Imugi",
+           "인간": "Human", "자객": "Assassin", "장사": "Strongman", "저승": "Underworld", "천손": "Heaven's Child", "퇴마사": "Exorcist", "풍수사": "Geomancer"}
 
 # 검색 순위를 볼 낱말. 페이지(index.html)의 같은 표와 맞춘다
 IOS_TERMS = {"kr": ["설화던전", "정통 로그라이크", "던전크롤", "던전", "턴제 로그라이크", "로그라이크", "한국 설화", "설화", "도깨비"],
@@ -484,15 +494,55 @@ def hall_time(at):
     return datetime.fromisoformat(at.replace("Z", "+00:00"))
 
 
+def hall_text(s, n=40):
+    """남이 적은 글자(이름·사인)를 디스코드 글에 넣기 전에: 꾸밈 기호·멘션·줄바꿈을 걷는다"""
+    return re.sub(r"[\\*_~`|>@#\[\]()<:/\s]+", " ", str(s)).strip()[:n]
+
+
+def hall_tell(rows, pending):
+    """pending(새로 읽은 기록 번호) 가운데 제 던전 5등 안인 것을 디스코드에 올리고, 아직 못 올린 번호를 돌려준다"""
+    hook = os.environ.get("DISCORD_HALL_WEBHOOK", "").strip()
+    now = datetime.now(timezone.utc)
+    fresh = [rows[i] for i in pending if i in rows and now - hall_time(rows[i]["at"]) <= HALL_TELL_AGE]
+    if not hook:
+        return [r["id"] for r in fresh]
+    left = []
+    for r in sorted(fresh, key=lambda r: hall_time(r["at"]))[-HALL_TELL_MAX:]:
+        if not isinstance(r.get("score"), int) or isinstance(r.get("score"), bool):
+            continue
+        rank = 1 + sum(1 for o in rows.values() if o.get("dungeon") == r.get("dungeon") and isinstance(o.get("score"), int) and o["score"] > r["score"])
+        if rank > HALL_TOP:
+            continue
+        dn, sp, cl, by = [hall_text(r.get(k, "")) for k in ["dungeon", "species", "cls", "by"]]
+        end = "정복" if r.get("win") else ("%s에게 쓰러짐" % by if by else "쓰러짐")
+        ko = "%s %s · 레벨 %s · %s층 · %s점 · %s" % (sp, cl, hall_text(r.get("level")), hall_text(r.get("depth")), format(r["score"], ","), end)
+        en = "%s %s · Lv %s · F%s · %s pts · %s" % (HALL_EN.get(sp, sp), HALL_EN.get(cl, cl), hall_text(r.get("level")), hall_text(r.get("depth")),
+                                                   format(r["score"], ","), "Conquered" if r.get("win") else "Fallen")
+        body = {"allowed_mentions": {"parse": []}, "embeds": [{
+            "title": "%s %d위 · %s" % (dn, rank, hall_text(r.get("name"), 16) or "?"),
+            "description": "%s\n%s · %s #%d" % (ko, en, HALL_EN.get(dn, dn), rank),
+            "color": 0xE8BD45 if rank == 1 else 0x8C6A3F, "timestamp": r["at"], "footer": {"text": "v%s" % hall_text(r.get("ver"), 12)}}]}
+        try:
+            get(hook + "?wait=true", data=json.dumps(body).encode(), headers={"Content-Type": "application/json"}, tries=1)
+            time.sleep(1)
+        except Exception as e:
+            left.append(r["id"])
+            errors.append({"what": "디스코드 전당 알림", "why": type(e).__name__})  # 주소가 새지 않게 까닭은 종류만
+    return left
+
+
 def hall(out):
     path = os.path.join(out, HALL_CACHE)
-    rows, full = {}, ""
+    rows, full, pending, had = {}, "", [], False
     try:
         c = json.load(open(path))
         rows = {r[0]: dict(zip(c["cols"], r)) for r in c["rows"]}
         full = c.get("full", "")
+        pending = [i for i in c.get("pending", []) if isinstance(i, str)]
+        had = True
     except Exception:
         pass
+    known = set(rows)
     today = datetime.now(KST).date().isoformat()
     try:
         if rows:
@@ -508,7 +558,9 @@ def hall(out):
         # 새 줄을 못 읽었으면(한도 초과 등) 모아 둔 줄로 요약한다 — 숫자가 비지 않고 조금 낡을 뿐이다
         errors.append({"what": "명예의 전당 새 기록", "why": ("%s: %s" % (type(e).__name__, e))[:200]})
     body = sorted(rows.values(), key=lambda r: (hall_time(r["at"]), r["id"]))
-    json.dump({"at": datetime.now(KST).isoformat(timespec="seconds"), "full": full, "cols": HALL_COLS, "rows": [[r.get(k) for k in HALL_COLS] for r in body]},
+    if had:  # 모아 둔 것이 없던 첫 판에는 알리지 않는다(전부가 새 줄이다)
+        pending = step("디스코드 전당 알림", hall_tell, rows, pending + [i for i in rows if i not in known and i not in pending]) or []
+    json.dump({"at": datetime.now(KST).isoformat(timespec="seconds"), "full": full, "pending": pending, "cols": HALL_COLS, "rows": [[r.get(k) for k in HALL_COLS] for r in body]},
               open(path, "w"), ensure_ascii=False, separators=(",", ":"))
     return hall_summary(body)
 

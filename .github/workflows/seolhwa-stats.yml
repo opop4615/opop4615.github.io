@@ -34,6 +34,7 @@ jobs:
       - name: Collect
         env:
           YT_API_KEY: ${{ secrets.YT_API_KEY }}
+          DISCORD_HALL_WEBHOOK: ${{ secrets.DISCORD_HALL_WEBHOOK }}  # 디스코드 #명예의-전당-hall 웹훅 — 새 기록이 던전 5등 안이면 올린다
           GH_TOKEN: ${{ github.token }}
         run: |
           url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
