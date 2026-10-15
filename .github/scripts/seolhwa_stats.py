@@ -506,13 +506,16 @@ def hall_tell(rows, pending):
     fresh = [rows[i] for i in pending if i in rows and now - hall_time(rows[i]["at"]) <= HALL_TELL_AGE]
     if not hook:
         return [r["id"] for r in fresh]
-    left = []
-    for r in sorted(fresh, key=lambda r: hall_time(r["at"]))[-HALL_TELL_MAX:]:
+    # 5등 안을 먼저 고르고 나서 수를 자른다 — 거꾸로 하면 새 줄이 많이 쌓인 날 5등 안 기록이 잘려 나가 영영 안 올라갔다(2026-10-14, 45줄 중 마지막 8줄만 보고 다섯을 잃음)
+    cand = []
+    for r in sorted(fresh, key=lambda r: hall_time(r["at"])):
         if not isinstance(r.get("score"), int) or isinstance(r.get("score"), bool):
             continue
         rank = 1 + sum(1 for o in rows.values() if o.get("dungeon") == r.get("dungeon") and isinstance(o.get("score"), int) and o["score"] > r["score"])
-        if rank > HALL_TOP:
-            continue
+        if rank <= HALL_TOP:
+            cand.append((r, rank))
+    left = [r["id"] for r, _ in cand[HALL_TELL_MAX:]]  # 넘친 것은 다음 번에
+    for r, rank in cand[:HALL_TELL_MAX]:
         dn, sp, cl, by = [hall_text(r.get(k, "")) for k in ["dungeon", "species", "cls", "by"]]
         end = "정복" if r.get("win") else ("%s에게 쓰러짐" % by if by else "쓰러짐")
         ko = "%s %s · 레벨 %s · %s층 · %s점 · %s" % (sp, cl, hall_text(r.get("level")), hall_text(r.get("depth")), format(r["score"], ","), end)
