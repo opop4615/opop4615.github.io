@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /seolhwa-stats/
+Disallow: /yokai/r/
+
+Sitemap: https://opop4615.github.io/sitemap.xml
