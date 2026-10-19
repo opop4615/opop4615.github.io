@@ -251,6 +251,15 @@ footer p { margin: 4px 0; }
     <ul class="runs" id="hallrecent"></ul>
   </section>
 
+  <section class="card" id="yokai">
+    <h2>요괴 테스트</h2>
+    <p class="sub" id="yksub"><a href="../yokai/" target="_blank" rel="noopener">opop4615.github.io/yokai</a> · 공개 주소에서 생긴 수만 센다 (방문·시작·결과·공유, 개인정보 없음)</p>
+    <div class="grid2">
+      <div><h3 class="h">흐름</h3><ul class="bars" id="ykflow"></ul></div>
+      <div><h3 class="h">결과</h3><ul class="bars" id="ykres"></ul></div>
+    </div>
+  </section>
+
   <section class="card" id="youtube">
     <h2>유튜브</h2>
     <p class="sub" id="ytsub"></p>
@@ -502,6 +511,39 @@ async function liveHall() {
   for (const k of ["total_runs", "total_people", "today_runs", "today_people", "today_new", "en_runs"]) S.live.m["hall." + k] = h[k];
 }
 
+// 요괴 테스트 수: yokai/s0~s9를 더한다 (페이지 ping()·tools/yokai_counters.py와 같은 칸)
+const YK_NAMES = { reaper: "저승사자", gumiho: "구미호", changgwi: "창귀", water: "물귀신", king: "도깨비 대왕", daejeok: "지하국 대적", foxsis: "여우 누이", jangsan: "장산범", geuseun: "그슨대", imugi: "이무기", yeoksin: "역신", egg: "달걀귀신" };
+async function liveYokai() {
+  const tot = {};
+  await Promise.all([...Array(10).keys()].map(async i => {
+    try {
+      const r = await fetch(`${FS_DOCS}/yokai/s${i}?key=${FS_KEY}`);
+      if (!r.ok) return;
+      const d = await r.json();
+      for (const [k, v] of Object.entries(d.fields || {})) tot[k] = (tot[k] || 0) + Number(v.integerValue || 0);
+    } catch (e) {}
+  }));
+  S.live.yokai = tot;
+}
+function renderYokai() {
+  const t = S.live.yokai;
+  if (!t) return;
+  const g = k => t[k] || 0;
+  const done = Object.keys(YK_NAMES).reduce((a, k) => a + g("r_" + k), 0);
+  const line = (id, list, unit) => { const max = Math.max(1, ...list.map(x => x.n)); $(id).innerHTML = list.map(x => `<li><span>${esc(x.name)}</span><span class="n">${nf(x.n)}${unit}</span><span class="bar"><i style="width:${Math.round(x.n / max * 100)}%"></i></span></li>`).join(""); };
+  line("ykflow", [
+    { name: `방문 (한국어 ${nf(g("visit_ko"))} · 영어 ${nf(g("visit_en"))})`, n: g("visit_ko") + g("visit_en") },
+    { name: "친구 링크로 들어옴", n: g("friend") },
+    { name: "시작", n: g("start") },
+    { name: "끝까지 함", n: done },
+    { name: "공유하기 누름", n: g("share") },
+    { name: "링크 복사·카카오톡", n: g("copy") + g("kakao") },
+    { name: "트레일러까지 내려옴", n: g("trailer") },
+    { name: `스토어로 감 (플레이 ${nf(g("play"))} · 앱스토어 ${nf(g("ios"))})`, n: g("play") + g("ios") },
+  ], "");
+  line("ykres", Object.entries(YK_NAMES).map(([k, n]) => ({ name: n, n: g("r_" + k) })).sort((a, b) => b.n - a.n), "명");
+}
+
 async function liveYoutube() {
   const key = store.get("yt_key");
   if (!key) return;
@@ -557,7 +599,7 @@ async function refresh(server) {
     try { await loadSnapshot(); } catch (e) { S.liveErr.push({ what: "서버 수집본", why: e.message }); }
     render();
     progress("명예의 전당·앱스토어·유튜브를 직접 읽는 중…");
-    await Promise.all([liveHall(), liveIos(), liveYoutube()]);
+    await Promise.all([liveHall(), liveIos(), liveYoutube(), liveYokai()]);
     renderFound();
     if (S.sheet && S.sheet.who) showWho(S.sheet.who);
     S.liveAt = Date.now();
@@ -652,6 +694,7 @@ function render() {
   $("notice").innerHTML = !snap && !S.busy ? `<div class="warnbox"><b>아직 서버 수집본이 없다.</b> 첫 수집이 돌면(매시 17분 무렵, 또는 오른쪽 위 ‘서버 수집 ↗’에서 Run workflow) 플레이·차트·리뷰가 채워진다.</div>` : "";
   renderKpis(m);
   renderChanges(m);
+  renderYokai();
   renderYoutube(m);
   renderRanks(m);
   renderCharts(m);
