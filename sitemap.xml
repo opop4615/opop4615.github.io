@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://seolhwadungeon.com/</loc></url>
+  <url><loc>https://seolhwadungeon.com/en/</loc></url>
+  <url><loc>https://seolhwadungeon.com/ja/</loc></url>
   <url><loc>https://seolhwadungeon.com/yokai/</loc><lastmod>2026-10-19</lastmod></url>
   <url><loc>https://seolhwadungeon.com/seolhwa-privacy/support.html</loc></url>
 </urlset>

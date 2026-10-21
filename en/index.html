@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* ?lang= 이 있으면 그 언어로. /en/·/ja/는 주소대로 둔다(공유한 주소가 받는 사람 설정에 안 바뀌게). 뿌리(/)만 기억한 언어 > 브라우저 언어로 넘긴다. */
+(function () {
+  var here = "en", P = {"ko": "/", "en": "/en/", "ja": "/ja/"}, q = (location.search.match(/[?&]lang=(ko|en|ja)/) || [])[1], s = null;
+  try { s = localStorage.getItem("site_lang"); } catch (e) {}
+  var nav = (navigator.language || "").toLowerCase(), want = q || (here !== "ko" ? here : s || (nav.indexOf("ko") === 0 ? "ko" : nav.indexOf("ja") === 0 ? "ja" : "en"));
+  if (q) try { localStorage.setItem("site_lang", q); } catch (e) {}
+  if (want !== here && P[want]) location.replace(P[want] + location.hash);
+})();
+</script>
+<title>Seolhwa Dungeon · 설화던전</title>
+<meta name="description" content="A turn-based roguelike RPG from Korean folklore. The grim reaper, the nine-tailed fox, the imugi and the dokkaebi play by the rules of their own stories. Free, offline, one-handed.">
+<link rel="canonical" href="https://seolhwadungeon.com/en/">
+<link rel="alternate" hreflang="ko" href="https://seolhwadungeon.com/">
+<link rel="alternate" hreflang="en" href="https://seolhwadungeon.com/en/">
+<link rel="alternate" hreflang="ja" href="https://seolhwadungeon.com/ja/">
+<link rel="alternate" hreflang="x-default" href="https://seolhwadungeon.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Seolhwa Dungeon · A turn-based roguelike RPG from Korean folklore">
+<meta property="og:description" content="The reaper calls your name, the imugi becomes a dragon, and the dokkaebi want to wrestle. Free · Offline · One-handed.">
+<meta property="og:image" content="https://seolhwadungeon.com/assets/keyart.png">
+<meta property="og:url" content="https://seolhwadungeon.com/en/">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="apple-itunes-app" content="app-id=6814757012">
+<link rel="icon" href="/assets/icon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap">
+<style>
+/* 공식 페이지. 첫 화면은 게임 키아트(밤의 서낭당 앞) 위에 이름과 스토어 단추, 아래로는 게임 재료 그대로: 단청 뇌록과 옻칠 판이 번갈아,
+   마디마다 단청 띠, 제목은 갈무리 도트 글꼴, 그림은 도트 그대로 키운다. 번지는 빛·그라데이션·둥근 카드는 쓰지 않는다. */
+@font-face { font-family: "Galmuri"; src: url(data:font/ttf;base64,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) format("truetype"); font-weight: 700; font-display: swap; }
+:root {
+  --green: #2b5848; --lac: #24150f; --lac-2: #3a2219; --edge: #120a07; --gold: #e0ad48; --paper: #ecc458;
+  --cream: #f7f0dc; --mute: #c3d6cb; --mute-d: #cdbfa4;
+  --pix: "Galmuri", "Gowun Dodum", monospace; --body: "Gowun Dodum", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color-scheme: dark;
+}
+html, body { background: var(--lac); color: var(--cream); }
+body { margin: 0; font: 17px/1.75 var(--body); }
+html[lang="ja"] { --body: "Zen Maru Gothic", "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif; --pix: "Galmuri", "Zen Maru Gothic", monospace; }
+img.px, .hero { image-rendering: pixelated; }
+a { color: var(--paper); }
+:focus-visible { outline: 3px solid var(--cream); outline-offset: 3px; }
+h1, h2, h3 { font-family: var(--pix); font-weight: 700; text-wrap: balance; letter-spacing: -.01em; }
+
+/* 첫 화면 */
+.hero { position: relative; min-height: clamp(560px, 86svh, 860px); display: flex; align-items: flex-start;
+  background: #0d1424 url(/assets/keyart.png) center bottom / cover no-repeat; }
+.hero-in { width: 100%; max-width: 1120px; margin: 0 auto; padding: clamp(56px, 10vh, 120px) 20px 220px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; }
+.kicker { margin: 0; font: 700 15px/1.4 var(--pix); color: var(--paper); letter-spacing: .04em; }
+.hero h1 { margin: 0; font-size: clamp(56px, 13vw, 112px); line-height: 1; color: var(--cream); text-shadow: 6px 6px 0 var(--edge); }
+html[lang="ja"] .hero h1 { font-size: clamp(40px, 13.5vw, 112px); white-space: nowrap; }
+.sub { margin: 4px 0 0; max-width: 34em; font-size: clamp(16px, 2.2vw, 19px); color: #e6e0cf; text-shadow: 2px 2px 0 var(--edge); }
+.badges { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+.badges img { height: 54px; width: auto; display: block; }
+.free { margin: 0; font: 700 13px var(--pix); color: var(--mute); letter-spacing: .06em; text-shadow: 2px 2px 0 var(--edge); }
+.langs { position: absolute; top: max(16px, env(safe-area-inset-top, 0px)); right: 16px; display: flex; gap: 0;
+  background: var(--lac); box-shadow: 0 0 0 2px var(--edge), 0 0 0 4px var(--gold); }
+.langs a { color: var(--mute-d); text-decoration: none; padding: 6px 11px; font: 700 13px var(--pix); }
+.langs a + a { border-left: 2px solid var(--edge); }
+.langs a[aria-current] { background: var(--gold); color: var(--edge); }
+.rv p.tr { color: #6b4a2e; font-size: 15px; border-top: 2px solid #e2d3b2; padding-top: 10px; }
+.rv p.tr::before { content: none; }
+
+.band { height: 42px; background: url(/assets/band.png) repeat-x 0 0 / 48px 42px; image-rendering: pixelated; border-block: 4px solid var(--edge); }
+
+/* 마디 */
+.sec { background: var(--green); padding-block: clamp(56px, 9vw, 96px); }
+.sec.dark { background: var(--lac); }
+.in { max-width: 1120px; margin: 0 auto; padding-inline: 20px; display: flex; flex-direction: column; gap: 24px; }
+.sec h2 { margin: 0; font-size: clamp(28px, 4.6vw, 44px); line-height: 1.25; }
+.lede { margin: -8px 0 0; max-width: 46em; color: var(--mute); }
+.sec.dark .lede { color: var(--mute-d); }
+.h3 { margin: 16px 0 0; font-size: 22px; color: var(--paper); }
+
+.video { aspect-ratio: 16 / 9; width: calc(100% - 16px); margin: 8px; background: #000; box-shadow: 0 0 0 4px var(--edge), 0 0 0 8px var(--gold); }
+.video iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+/* 손돌 이야기: 쇼츠 · 이야기 · 정보 창 */
+.tale { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr) minmax(0, .9fr); gap: 28px; align-items: start; }
+.tale + .tale { margin-top: 28px; padding-top: 40px; border-top: 4px solid var(--edge); }
+.tale.flip .short { order: 3; } .tale.flip .sheet { order: 1; } .tale.flip .story { order: 2; }
+.short { aspect-ratio: 9 / 16; background: #000; box-shadow: 0 0 0 4px var(--edge), 0 0 0 8px var(--gold); margin: 8px; }
+.short iframe { width: 100%; height: 100%; border: 0; display: block; }
+.story h3 { margin: 0 0 12px; font-size: clamp(20px, 2.6vw, 26px); color: var(--paper); }
+.story p { margin: 0 0 12px; color: var(--mute-d); }
+.sheet { margin: 0; }
+.sheet img { width: 100%; height: auto; display: block; box-shadow: 0 0 0 4px var(--edge); }
+.sheet figcaption { margin-top: 10px; font-size: 14px; color: var(--mute-d); }
+
+/* 옛이야기가 규칙이 된다: 장면과 글이 번갈아 */
+.rules { display: flex; flex-direction: column; gap: 40px; }
+.rule { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; align-items: center; }
+.rule:nth-child(even) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }
+.rule:nth-child(even) img { order: 2; }
+.rule img { width: 100%; height: auto; box-shadow: 0 0 0 4px var(--edge); image-rendering: pixelated; }
+.rule h3 { margin: 0 0 8px; font-size: clamp(22px, 3vw, 28px); color: var(--paper); }
+.rule p { margin: 0; }
+
+.shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.shot { margin: 0; }
+.shot img { width: 100%; height: auto; display: block; box-shadow: 0 0 0 4px var(--edge); image-rendering: pixelated; }
+.shot figcaption { margin-top: 10px; font: 700 15px var(--pix); color: var(--paper); }
+
+.roster { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 18px 8px; align-items: end; }
+.sp { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.sp img { max-width: 100%; height: auto; }
+.sp figcaption { font: 700 12px/1.3 var(--pix); text-align: center; color: var(--cream); }
+
+.gods { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px; }
+.god { display: flex; align-items: center; gap: 16px; background: var(--lac-2); box-shadow: 0 0 0 3px var(--edge); padding: 12px 16px; min-width: 0; }
+.god img { flex: none; width: 72px; height: auto; }
+.god b { font: 700 18px var(--pix); color: var(--paper); }
+.god p { margin: 2px 0 0; font-size: 15px; color: var(--mute-d); }
+
+.dns { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; }
+.dn { margin: 0; }
+.dn img { width: 100%; height: auto; display: block; box-shadow: 0 0 0 3px var(--edge); }
+.dn figcaption { margin-top: 8px; font: 700 14px var(--pix); }
+
+.rvs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.rv { margin: 0; background: var(--cream); color: #2b1a10; padding: 20px 22px; box-shadow: 0 0 0 4px var(--edge), 6px 6px 0 4px rgba(0,0,0,.35); display: flex; flex-direction: column; gap: 10px; }
+.rv p { margin: 0; font-size: 17px; }
+.rv p::before { content: "★★★★★"; display: block; color: #c08a1e; letter-spacing: .1em; font-size: 14px; margin-bottom: 6px; }
+.rv cite { font: 700 12px var(--pix); color: #7a5a3a; font-style: normal; }
+
+.cta { flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.cta > div { flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.btn { background: var(--paper); color: #2a1a05; text-decoration: none; font: 700 20px var(--pix); padding: 16px 26px; box-shadow: inset 0 -6px 0 #b8862c, 0 0 0 4px var(--edge); }
+.btn:active { box-shadow: inset 0 -2px 0 #b8862c, 0 0 0 4px var(--edge); transform: translateY(2px); }
+
+.get { align-items: center; text-align: center; }
+.get img { box-shadow: 0 0 0 3px var(--edge), 0 0 0 6px var(--gold); }
+.get .badges { justify-content: center; }
+
+.foot { background: var(--edge); color: var(--mute-d); padding-block: 36px 48px; font-size: 14px; }
+.foot nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.foot nav a { color: var(--cream); text-decoration: none; font: 700 14px var(--pix); }
+.foot p { margin: 0; }
+
+@media (max-width: 760px) {
+  .rule, .rule:nth-child(even) { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .rule:nth-child(even) img { order: 0; }
+  .shots, .rvs, .gods { grid-template-columns: minmax(0, 1fr); }
+  .tale { grid-template-columns: minmax(0, 1fr); }
+  .tale.flip .short, .tale.flip .sheet, .tale.flip .story { order: 0; }
+  .short { width: min(320px, calc(100% - 16px)); justify-self: center; }
+  .sheet { width: min(360px, 100%); justify-self: center; }
+  .roster { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .hero { background-position: 62% bottom; }
+  .hero-in { padding-bottom: 200px; }
+}
+
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <p class="kicker">A turn-based roguelike RPG from Korean folklore</p>
+    <h1>Seolhwa Dungeon</h1>
+    <p class="sub">The reaper calls your name, the imugi becomes a dragon, and the dokkaebi want to wrestle.<br>Die once and you start over, in a dungeon that changes every run.</p>
+    <div class="badges">
+  <a href="https://apps.apple.com/app/id6814757012" aria-label="App Store"><img src="/assets/app_store_en.png" alt="App Store" height="54"></a>
+  <a href="https://play.google.com/store/apps/details?id=com.sungkisoft.seolhwadungeon&referrer=utm_source%3Dsite%26utm_medium%3Dweb%26utm_campaign%3Dlanding" aria-label="Google Play"><img src="/assets/google_play_en.png" alt="Google Play" height="54"></a>
+</div>
+    <p class="free">Free · Offline · One-handed</p>
+  </div>
+  <nav class="langs" aria-label="Language"><a href="/" data-l="ko" lang="ko">한국어</a><a href="/en/" data-l="en" lang="en" aria-current=page>English</a><a href="/ja/" data-l="ja" lang="ja">日本語</a></nav>
+</header>
+<div class="band"></div>
+
+<section class="sec dark" id="trailer">
+  <div class="in">
+    <h2>Trailer</h2>
+    <div class="video"><iframe src="https://www.youtube-nocookie.com/embed/V7Z7DVyPpEg?rel=0&playsinline=1" title="Seolhwa Dungeon trailer" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+  </div>
+</section>
+
+<section class="sec" id="rules">
+  <div class="in">
+    <h2>The old tales are the rules</h2>
+    <p class="lede">The creatures aren't decoration. They behave the way their stories say, and every one you meet goes into a codex with its original tale. There are more than 200.</p>
+    <div class="rules"><article class="rule">
+  <img src="/presskit/gif/imugi.gif" alt="" width="640" height="360" loading="lazy">
+  <div><h3>The Imugi becomes a dragon</h3><p>The thousand-year serpent grows as the fight drags on, until it ascends as a dragon, breathes fire and floods the floor.</p></div>
+</article><article class="rule">
+  <img src="/presskit/gif/uturi_fly.gif" alt="" width="640" height="360" loading="lazy">
+  <div><h3>Uturi hid his wings</h3><p>He bursts out of a splitting boulder on the last floor of Mt. Jiri. At half health the wings under his arms unfold: he swoops in, strikes, flies off, and finally charges on his dragon-horse.</p></div>
+</article><article class="rule">
+  <img src="/presskit/gif/daejeok.gif" alt="" width="640" height="360" loading="lazy">
+  <div><h3>The bandit who hid his life</h3><p>The bandit of the underground kingdom keeps his life in a jar. Until you find it and smash it, no blow can bring him down.</p></div>
+</article></div>
+  </div>
+</section>
+<div class="band"></div>
+
+<section class="sec dark" id="tales">
+  <div class="in">
+    <h2>Creatures from the old tales</h2>
+    <p class="lede">Watch the tale in a short video, then meet the creature in the game. Tap a monster and a sheet like these opens, and every creature you meet goes into the codex with its tale.</p>
+    <div class="tale">
+      <div class="short"><iframe src="https://www.youtube-nocookie.com/embed/GkumFkn-Rt4?rel=0&playsinline=1" title="Sondol: a man&#x27;s name on the autumn wind" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+      <div class="story"><h3>Sondol: a man&#x27;s name on the autumn wind</h3><p>A Goryeo king fleeing by boat to Ganghwa Island grew suspicious when the boat turned into a narrow strait that looked like a dead end, and had the boatman, Sondol, beheaded.</p><p>Before he died, Sondol set a gourd on the water and told them to follow it, and the boat passed safely. Every year since, around the 20th day of the tenth lunar month, a bitter wind blows. People call it the Sondol wind, and the strait Sondol&#x27;s Neck.</p><p>In the game, Sondol is a vengeful spirit whose wind knocks you back two tiles and off your feet every four turns. If there&#x27;s water or poison behind you, that&#x27;s where you land.</p></div>
+      <figure class="sheet"><img src="/assets/sondol_sheet_en.jpg" alt="" width="720" height="1280" loading="lazy"></figure>
+    </div><div class="tale flip">
+      <div class="short"><iframe src="https://www.youtube-nocookie.com/embed/qFwTNINc9-A?rel=0&playsinline=1" title="Haetae: the stone beasts of Gwanghwamun" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+      <div class="story"><h3>Haetae: the stone beasts of Gwanghwamun</h3><p>The haetae is a mythical beast said to tell right from wrong and gore the guilty with its horn. It became a symbol of law and justice, and was also believed to hold back fire.</p><p>When Gyeongbokgung Palace was rebuilt, stone haetae were set before Gwanghwamun Gate, it is said, to guard the palace against fire. Two of them still stand there today.</p><p>In the game, the haetae&#x27;s stone body shrugs off fire and poison. Every five turns it lowers its horn to aim, then charges down that line next turn, knocking you two tiles back. Step out of the line.</p></div>
+      <figure class="sheet"><img src="/assets/haetae_sheet_en.jpg" alt="" width="720" height="1280" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+<div class="band"></div>
+
+<section class="sec" id="show">
+  <div class="in">
+    <h2>Chain your spells</h2>
+    <p class="lede">Wood, fire, earth, underworld, water. Cast in order and each spell gets a bonus; complete the circle and the next spell hits twice as hard. Lightning on water spreads the shock.</p>
+    <div class="shots"><figure class="shot"><img src="/presskit/gif/wx.gif" alt="" width="640" height="360" loading="lazy"><figcaption>Five-Element Cycle</figcaption></figure><figure class="shot"><img src="/presskit/gif/jeonuchi.gif" alt="" width="640" height="360" loading="lazy"><figcaption>Jeon U-chi and his doubles</figcaption></figure><figure class="shot"><img src="/presskit/gif/tsunami_shock.gif" alt="" width="640" height="360" loading="lazy"><figcaption>Tidal wave, then lightning</figcaption></figure><figure class="shot"><img src="/presskit/gif/jigwi.gif" alt="" width="640" height="360" loading="lazy"><figcaption>Jigwi's sea of fire</figcaption></figure></div>
+  </div>
+</section>
+<div class="band"></div>
+
+<section class="sec dark" id="roster">
+  <div class="in">
+    <h2>14 species × 12 classes</h2>
+    <p class="lede">A dokkaebi warrior, a fox conjurer, an imugi shaman, a crow assassin… each of the 168 combinations plays differently.</p>
+    <div class="roster"><figure class="sp"><img class="px" src="/assets/sp_human.png" alt="" width="51" height="66"><figcaption>Human</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_sansaram.png" alt="" width="54" height="63"><figcaption>Mountain Folk</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_seonin.png" alt="" width="51" height="69"><figcaption>Immortal</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_gomsaram.png" alt="" width="51" height="66"><figcaption>Bear Folk</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_geoin.png" alt="" width="57" height="75"><figcaption>Giant</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_gureongi.png" alt="" width="60" height="69"><figcaption>Serpent</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_dokkaebi_p.png" alt="" width="54" height="72"><figcaption>Dokkaebi</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_muneo.png" alt="" width="69" height="63"><figcaption>Octopus</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_yeou_p.png" alt="" width="66" height="69"><figcaption>Fox</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_banyo.png" alt="" width="75" height="63"><figcaption>Half-Yokai</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_cheonson.png" alt="" width="51" height="75"><figcaption>Heaven's Child</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_dolhareubang.png" alt="" width="48" height="75"><figcaption>Dol Hareubang</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_crow.png" alt="" width="57" height="66"><figcaption>Crow</figcaption></figure><figure class="sp"><img class="px" src="/assets/sp_imugi.png" alt="" width="72" height="84"><figcaption>Imugi</figcaption></figure></div>
+  </div>
+</section>
+<div class="band"></div>
+
+<section class="sec" id="gods">
+  <div class="in">
+    <h2>Eight gods</h2>
+    <p class="lede">Serve a god at a shrine and receive their blessings. But every god has a taboo, and breaking it is punished.</p>
+    <ul class="gods"><li class="god"><img class="px" src="/assets/god_sanshin.png" alt="" width="69" height="78"><div><b>Sanshin</b><p>God of the mountain who commands tigers</p></div></li><li class="god"><img class="px" src="/assets/god_yongwang.png" alt="" width="69" height="81"><div><b>Dragon King</b><p>King of the Dragon Palace, ruler of sea and rain</p></div></li><li class="god"><img class="px" src="/assets/god_samshin.png" alt="" width="60" height="60"><div><b>Samsin Halmi</b><p>The grandmother god who grants life</p></div></li><li class="god"><img class="px" src="/assets/god_chilseong.png" alt="" width="54" height="90"><div><b>Chilseong</b><p>The Seven Stars who grant luck and long life</p></div></li><li class="god"><img class="px" src="/assets/god_bari.png" alt="" width="60" height="72"><div><b>Princess Bari</b><p>The abandoned princess who keeps the road to the Underworld</p></div></li><li class="god"><img class="px" src="/assets/god_jowang.png" alt="" width="72" height="87"><div><b>Jowang</b><p>God of fire who keeps the hearth</p></div></li><li class="god"><img class="px" src="/assets/god_dokkaebi.png" alt="" width="75" height="90"><div><b>Dokkaebi Chief</b><p>Leader of the dokkaebi, lover of wrestling and pranks</p></div></li><li class="god"><img class="px" src="/assets/god_mago.png" alt="" width="90" height="90"><div><b>Mago Halmi</b><p>The giant grandmother who piled up mountains and islands</p></div></li></ul>
+  </div>
+</section>
+
+<section class="sec dark" id="dungeons">
+  <div class="in">
+    <h2>Four dungeons, the Underworld, and seven side dungeons</h2>
+    <p class="lede">Only those who gather the orbs can open the gate to the Underworld. Along the way, side dungeons open into the tales themselves: Mt. Jiri, the Dragon Palace, the Dokkaebi Market.</p>
+    <div class="dns"><figure class="dn"><img class="px" src="/assets/dn_mine.png" alt="" width="192" height="128"><figcaption>Abandoned Silver Mine</figcaption></figure><figure class="dn"><img class="px" src="/assets/dn_tomb.png" alt="" width="192" height="128"><figcaption>Old Royal Tomb</figcaption></figure><figure class="dn"><img class="px" src="/assets/dn_swamp.png" alt="" width="192" height="128"><figcaption>Misty Marsh</figcaption></figure><figure class="dn"><img class="px" src="/assets/dn_den.png" alt="" width="192" height="128"><figcaption>Gumiho's Den</figcaption></figure><figure class="dn"><img class="px" src="/assets/dn_nether.png" alt="" width="192" height="128"><figcaption>Underworld</figcaption></figure></div>
+    <h3 class="h3">Side dungeons</h3>
+    <div class="dns"><figure class="dn"><img class="px" src="/assets/dn_market.png" alt="" width="192" height="128"><figcaption>Dokkaebi Market</figcaption></figure><figure class="dn"><img class="px" src="/assets/dn_palace.png" alt="" width="192" height="128"><figcaption>Dragon Palace</figcaption></figure><figure class="dn"><img class="px" src="/assets/dn_threshold.png" alt="" width="192" height="128"><figcaption>Underworld Threshold</figcaption></figure><figure class="dn"><img class="px" src="/assets/dn_jirisan.png" alt="" width="192" height="128"><figcaption>Mt. Jiri</figcaption></figure><figure class="dn"><img class="px" src="/assets/dn_ratden.png" alt="" width="192" height="128"><figcaption>Rat Warren</figcaption></figure><figure class="dn"><img class="px" src="/assets/dn_sansuhwa.png" alt="" width="192" height="128"><figcaption>The Painted Landscape</figcaption></figure><figure class="dn"><img class="px" src="/assets/dn_simhwa.png" alt="" width="192" height="128"><figcaption>Tower of Heart's Fire</figcaption></figure></div>
+  </div>
+</section>
+<div class="band"></div>
+
+<section class="sec" id="reviews">
+  <div class="in">
+    <h2>From players</h2>
+    <p class="lede">Reviews from the Korean stores, translated.</p>
+    <div class="rvs"><blockquote class="rv"><p>한국 설화배경의 정통로그라이크 갓갬!!! 다채로운 조합과 도술손맛에 시간 가는 줄 모릅니다.</p><p class=tr>A true roguelike set in Korean folklore. Amazing!!! The builds and the feel of the spells make the hours disappear.</p><cite>Google Play</cite></blockquote><blockquote class="rv"><p>신당에서 신을 모신다니 ㅎㅎㅎ 아이디어도 새롭고 재밌네요</p><p class=tr>Serving gods at shrines, haha. A fresh idea, and fun.</p><cite>Google Play</cite></blockquote><blockquote class="rv"><p>도트 그래픽이라 귀엽고 아기자기해서 시작했는데 생각보다 난이도가 있어서 계속 도전하게 되네요ㅋㅋ … 틈틈이 한국 설화에 대한 내용도 알게 돼서 좋았어요!</p><p class=tr>I started because the pixel art was cute, but it&#x27;s harder than I expected, so I keep going back lol … and I liked picking up Korean folktales along the way!</p><cite>App Store</cite></blockquote><blockquote class="rv"><p>간만에 도트 감성이 좋고 동양느낌 물씬이라 재밌네요!</p><p class=tr>Lovely pixel art and a strong East Asian feel. Fun!</p><cite>Google Play</cite></blockquote></div>
+  </div>
+</section>
+
+<section class="sec dark" id="test">
+  <div class="in cta">
+    <div>
+      <h2>Born in old Korea, which monster would have taken you?</h2>
+      <p class="lede">A ten-question test. Every monster in the results is in the game.</p>
+    </div>
+    <a class="btn" href="/yokai/?lang=en">Take the test</a>
+  </div>
+</section>
+
+<section class="sec" id="get">
+  <div class="in get">
+    <img src="/assets/icon.png" alt="" width="96" height="96">
+    <h2>Play free now</h2>
+    <div class="badges">
+  <a href="https://apps.apple.com/app/id6814757012" aria-label="App Store"><img src="/assets/app_store_en.png" alt="App Store" height="54"></a>
+  <a href="https://play.google.com/store/apps/details?id=com.sungkisoft.seolhwadungeon&referrer=utm_source%3Dsite%26utm_medium%3Dweb%26utm_campaign%3Dlanding" aria-label="Google Play"><img src="/assets/google_play_en.png" alt="Google Play" height="54"></a>
+</div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="in">
+    <nav>
+      <a href="https://discord.gg/S8vNAkQ6rc">Discord</a>
+      <a href="/presskit/">Press kit</a>
+      <a href="/seolhwa-privacy/support.html">Support</a>
+      <a href="/seolhwa-privacy/">Privacy</a>
+    </nav>
+    <p>Sungki Soft · solo developer · opop4615@gmail.com</p>
+  </div>
+</footer>
+<script>
+document.querySelectorAll(".langs a").forEach(function (a) { a.onclick = function () { try { localStorage.setItem("site_lang", a.dataset.l); } catch (e) {} }; });
+</script>
+</body>
+</html>
