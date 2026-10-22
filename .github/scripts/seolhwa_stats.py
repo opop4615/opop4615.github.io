@@ -24,7 +24,7 @@ LAUNCH = datetime(2026, 10, 2, tzinfo=KST)  # 전당 "출시 뒤"를 세는 날 
 KEEP = 24 * 21  # history.jsonl에 남길 줄 수(약 3주)
 # 전당 기록 요약을 모아 두는 파일(데이터 가지). 수집기도 페이지도 이 파일 + "그 뒤에 올라온 것"만 읽는다 — 아래 hall() 머리말
 HALL_CACHE = "hall_rows.json"
-HALL_COLS = ["id", "at", "uid", "name", "depth", "dungeon", "by", "ver", "species", "cls", "win", "level", "score", "en"]
+HALL_COLS = ["id", "at", "uid", "name", "depth", "dungeon", "by", "ver", "species", "cls", "win", "level", "score", "en", "ja"]  # ja: 일본어로 한 판 (2026-10-21). 칸이 바뀌면 hall()이 한 번 통째로 다시 읽는다
 HALL_OVERLAP = timedelta(minutes=30)  # 규칙(firestore.rules)이 기록의 시각을 서버 시계 ±10분까지 받는다 — 늦은 시계로 올라온 줄을 안 놓치게 겹쳐 읽는다
 HALL_EPOCH = "2000-01-01T00:00:00Z"
 # 디스코드 #명예의-전당-hall 알림 (2026-10-13): 새 기록이 제 던전(게임 전당의 갈래와 같다)에서 5등 안이면 웹훅으로 올린다.
@@ -40,14 +40,21 @@ HALL_EN = {"거인": "Giant", "곰사람": "Bear Folk", "광대": "Clown", "구�
 
 # 검색 순위를 볼 낱말. 페이지(index.html)의 같은 표와 맞춘다
 IOS_TERMS = {"kr": ["설화던전", "정통 로그라이크", "던전크롤", "던전", "턴제 로그라이크", "로그라이크", "한국 설화", "설화", "도깨비"],
-             "us": ["Seolhwa Dungeon", "korean folklore", "traditional roguelike", "roguelike", "dungeon crawl", "roguelike rpg", "dokkaebi"]}
+             "us": ["Seolhwa Dungeon", "korean folklore", "traditional roguelike", "roguelike", "dungeon crawl", "roguelike rpg", "dokkaebi"],
+             # 일본 (2026-10-21 일본어판 출시): 앱 이름과 일본어 등록정보 키워드(legal/app_store.md 4절)에서
+             "jp": ["説話ダンジョン", "本格ローグライク", "ローグライク", "ダンジョン", "ターン制 RPG", "韓国 妖怪", "トッケビ", "九尾狐"]}
 PLAY_TERMS = {"kr": ["설화던전", "한국 설화 게임", "정통 로그라이크", "던전크롤", "로그라이크", "설화"],
-              "us": ["Seolhwa Dungeon", "korean folklore roguelike", "traditional roguelike", "roguelike"]}
+              "us": ["Seolhwa Dungeon", "korean folklore roguelike", "traditional roguelike", "roguelike"],
+              "jp": ["説話ダンジョン", "本格ローグライク", "ローグライク", "韓国 昔話"]}
+COUNTRIES = ["kr", "us", "jp"]
+LANG = {"kr": "ko", "us": "en", "jp": "ja"}
+CC_NAME = {"kr": "한국", "us": "미국", "jp": "일본"}
 # 애플 차트 (무료, 기기·장르 번호). 웹 차트 페이지에 200위까지 실려 온다(2026-10-10) — 못 읽으면 공개 RSS(100위까지)로
 CHARTS = [("kr", "iphone", 7014, "롤플레잉"), ("kr", "iphone", 7001, "액션"), ("kr", "iphone", 6014, "게임"), ("kr", "ipad", 7014, "롤플레잉"),
-          ("us", "iphone", 7014, "롤플레잉"), ("us", "iphone", 6014, "게임")]
+          ("us", "iphone", 7014, "롤플레잉"), ("us", "iphone", 6014, "게임"), ("jp", "iphone", 7014, "롤플레잉"), ("jp", "iphone", 6014, "게임")]
 # 플레이 설명문에 장르 낱말이 들어갔는지 (2026-10-09: 옛 글엔 셋 다 0번이었다)
-GENRE_WORDS = {"kr": ["로그라이크", "턴제", "RPG", "던전크롤", "도트"], "us": ["roguelike", "turn-based", "RPG", "dungeon crawl", "pixel"]}
+GENRE_WORDS = {"kr": ["로그라이크", "턴제", "RPG", "던전크롤", "도트"], "us": ["roguelike", "turn-based", "RPG", "dungeon crawl", "pixel"],
+               "jp": ["ローグライク", "ターン制", "RPG", "ダンジョン", "ドット"]}
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
 
 errors = []
@@ -84,6 +91,15 @@ def hangul(s):
     return bool(re.search("[가-힣]", s or ""))
 
 
+def kana(s):
+    return bool(re.search("[\u3040-\u30ff]", s or ""))
+
+
+def lang_of(s):
+    """글의 말: 한글이 있으면 ko, 가나가 있으면 ja, 둘 다 없으면 en"""
+    return "ko" if hangul(s) else "ja" if kana(s) else "en"
+
+
 # ---------------------------------------------------------------- 앱스토어
 
 def ios_lookup(cc):
@@ -93,7 +109,7 @@ def ios_lookup(cc):
     r = d["results"][0]
     return {"listed": True, "name": r.get("trackName"), "version": r.get("version"),
             "updated": r.get("currentVersionReleaseDate"), "rating": r.get("averageUserRating"),
-            "ratings": r.get("userRatingCount", 0), "english": not hangul(r.get("description", "")[:300]),
+            "ratings": r.get("userRatingCount", 0), "english": not hangul(r.get("description", "")[:300]), "lang": lang_of(r.get("description", "")[:300]),
             "desc_head": (r.get("description") or "")[:140], "shots": len(r.get("screenshotUrls") or [])}
 
 
@@ -184,11 +200,11 @@ def play_app(cc, lang):
     from google_play_scraper import app
     r = app(PLAY_ID, lang=lang, country=cc)
     desc = r.get("description") or ""
-    words = GENRE_WORDS["kr" if lang == "ko" else "us"]
+    words = GENRE_WORDS[cc]
     return {"title": r.get("title"), "installs": r.get("installs"), "real": r.get("realInstalls"),
             "score": round(r["score"], 2) if r.get("score") else None, "ratings": r.get("ratings") or 0,
             "reviews": r.get("reviews") or 0, "version": r.get("version"), "updated": r.get("updated"),
-            "english": not hangul(desc[:300]), "desc_head": desc[:140],
+            "english": not hangul(desc[:300]), "lang": lang_of(desc[:300]), "desc_head": desc[:140],
             # 한국어는 띄어쓰기를 지우고 센다 — '던전 크롤'과 '던전크롤'을 같은 낱말로
             "genre_words": {w: (desc.replace(" ", "") if lang == "ko" else desc).lower().count(w.lower()) for w in words}}
 
@@ -200,7 +216,7 @@ def play_rank(cc, lang, term):
     ids = []
     for i in range(3):
         try:
-            page = get(url, headers={"Accept-Language": "ko-KR,ko;q=0.9" if lang == "ko" else "en-US,en;q=0.9"}, tries=1)
+            page = get(url, headers={"Accept-Language": {"ko": "ko-KR,ko;q=0.9", "ja": "ja-JP,ja;q=0.9"}.get(lang, "en-US,en;q=0.9")}, tries=1)
             for m in re.finditer(r"/store/apps/details\?id=([\w.]+)", page):
                 if m.group(1) not in ids:
                     ids.append(m.group(1))
@@ -460,7 +476,8 @@ def hall_row(d):
     story = " ".join(x for x in story if isinstance(x, str)) if isinstance(story, list) else ""
     return {"id": d.get("name", "").split("/")[-1], "at": r["at"], "uid": r.get("uid", ""), "name": r.get("name", ""), "depth": r.get("depth", 0),
             "dungeon": r.get("dungeon", ""), "by": r.get("by", ""), "ver": r.get("ver", ""), "species": r.get("species", ""), "cls": r.get("cls", ""),
-            "win": r.get("win") is True, "level": r.get("level", 0), "score": r.get("score", 0), "en": bool(story) and not hangul(story)}
+            "win": r.get("win") is True, "level": r.get("level", 0), "score": r.get("score", 0),
+            "en": bool(story) and lang_of(story) == "en", "ja": bool(story) and lang_of(story) == "ja"}  # 일본어 판은 한글이 없어 옛 셈에선 영어로 잡혔다
 
 
 def hall_since(since):
@@ -536,16 +553,19 @@ def hall_tell(rows, pending):
 
 def hall(out):
     path = os.path.join(out, HALL_CACHE)
-    rows, full, pending, had = {}, "", [], False
+    rows, full, pending, had, stale_ids = {}, "", [], False, set()
     try:
         c = json.load(open(path))
         rows = {r[0]: dict(zip(c["cols"], r)) for r in c["rows"]}
         full = c.get("full", "")
+        if c.get("cols") != HALL_COLS:  # 칸이 늘었다(2026-10-21 ja): 아래에서 통째로 다시 읽는다. 알던 줄 번호는 남겨 디스코드에 옛 기록을 다시 알리지 않는다
+            stale_ids = set(rows)
+            rows, full = {}, ""
         pending = [i for i in c.get("pending", []) if isinstance(i, str)]
         had = True
     except Exception:
         pass
-    known = set(rows)
+    known = set(rows) | stale_ids
     today = datetime.now(KST).date().isoformat()
     try:
         if rows:
@@ -604,7 +624,7 @@ def hall_summary(cache):
     top = lambda d: [{"name": k, "n": n} for k, n in sorted(d.items(), key=lambda kv: -kv[1])[:6]]
     return {"total_runs": len(rows), "total_people": len(first), "today_runs": len(tr),
             "today_people": len({r["uid"] for r in tr}), "today_new": sum(1 for f in first.values() if f == today),
-            "en_runs": sum(r["en"] for r in rows), "wins": sum(1 for r in rows if r["win"]),
+            "en_runs": sum(bool(r.get("en")) for r in rows), "ja_runs": sum(bool(r.get("ja")) for r in rows), "wins": sum(1 for r in rows if r["win"]),
             "returned": back, "returned_of": sum(1 for f in first.values() if f < today),
             "today": sorted(who.values(), key=lambda e: -e["runs"]), "lost": len(lost), "spots": top(spots), "causes": top(causes),
             "days": [{"day": k, "runs": v["runs"], "people": len(v["people"]), "new": len(v["new"])} for k, v in sorted(days.items())],
@@ -620,10 +640,10 @@ def metrics(s):
     """history.jsonl 한 줄에 들어갈 숫자들. 열쇠는 페이지(index.html)의 LABEL과 맞춘다"""
     m = {}
     h = s.get("hall") or {}
-    for k in ["total_runs", "total_people", "today_runs", "today_people", "today_new", "en_runs"]:
+    for k in ["total_runs", "total_people", "today_runs", "today_people", "today_new", "en_runs", "ja_runs"]:
         if k in h:
             m["hall." + k] = h[k]
-    for cc in ["kr", "us"]:
+    for cc in COUNTRIES:
         a = (s.get("ios") or {}).get(cc) or {}
         if a.get("listed"):
             m["ios.%s.ratings" % cc] = a.get("ratings", 0)
@@ -659,7 +679,7 @@ def main():
     except Exception:
         pass
     s["hall"] = step("명예의 전당", hall, out)
-    s["ios"] = {cc: step("앱스토어 %s 페이지" % cc, ios_lookup, cc) for cc in ["kr", "us"]}
+    s["ios"] = {cc: step("앱스토어 %s 페이지" % cc, ios_lookup, cc) for cc in COUNTRIES}
     s["ios_rank"] = {}
     for cc, terms in IOS_TERMS.items():
         for t in terms:
@@ -676,18 +696,19 @@ def main():
         except Exception as e:
             errors.append({"what": "앱스토어 차트 %s %s %s" % (cc, device, name), "why": str(e)[:200]})
         time.sleep(1)
-    s["reviews"] = {cc: step("앱스토어 %s 리뷰" % cc, ios_reviews, cc) for cc in ["kr", "us"]}
-    for cc in ["kr", "us"]:  # 애플 리뷰 목록은 가끔 비어 온다 — 그럴 땐 지난 목록을 그대로 둔다
+    s["reviews"] = {cc: step("앱스토어 %s 리뷰" % cc, ios_reviews, cc) for cc in COUNTRIES}
+    for cc in COUNTRIES:  # 애플 리뷰 목록은 가끔 비어 온다 — 그럴 땐 지난 목록을 그대로 둔다
         old = (prev.get("reviews") or {}).get(cc)
         if not s["reviews"][cc] and old:
             s["reviews"][cc] = old
-    s["play"] = {"kr": step("플레이 한국 페이지", play_app, "kr", "ko")}
-    time.sleep(2)
-    s["play"]["us"] = step("플레이 미국 페이지", play_app, "us", "en")
-    s["play_reviews"] = {"kr": step("플레이 한국 리뷰", play_reviews, "kr", "ko")}
-    time.sleep(2)
-    s["play_reviews"]["us"] = step("플레이 미국 리뷰", play_reviews, "us", "en")
-    for cc in ["kr", "us"]:
+    s["play"], s["play_reviews"] = {}, {}
+    for cc in COUNTRIES:
+        s["play"][cc] = step("플레이 %s 페이지" % CC_NAME[cc], play_app, cc, LANG[cc])
+        time.sleep(2)
+    for cc in COUNTRIES:
+        s["play_reviews"][cc] = step("플레이 %s 리뷰" % CC_NAME[cc], play_reviews, cc, LANG[cc])
+        time.sleep(2)
+    for cc in COUNTRIES:
         old = (prev.get("play_reviews") or {}).get(cc)
         if not s["play_reviews"][cc] and old:
             s["play_reviews"][cc] = old
@@ -697,7 +718,7 @@ def main():
             time.sleep(3)  # 몰아서 읽으면 구글이 503으로 막는다 (2026-10-09)
             try:
                 k = "%s.%s" % (cc, t)
-                s["play_rank"][k], s["play_rank_n"][k] = play_rank(cc, "ko" if cc == "kr" else "en", t)
+                s["play_rank"][k], s["play_rank_n"][k] = play_rank(cc, LANG[cc], t)
             except Exception as e:
                 errors.append({"what": "플레이 검색 %s '%s'" % (cc, t), "why": str(e)[:200]})
     s["youtube"] = step("유튜브", youtube, prev.get("youtube"))

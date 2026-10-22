@@ -281,6 +281,7 @@ footer p { margin: 4px 0; }
     <div class="grid2">
       <div><h3 class="h">한국</h3><div class="scroll"><table id="rank-kr"></table></div></div>
       <div><h3 class="h">미국</h3><div class="scroll"><table id="rank-us"></table></div></div>
+      <div><h3 class="h">일본</h3><div class="scroll"><table id="rank-jp"></table></div></div>
     </div>
   </section>
 
@@ -292,7 +293,7 @@ footer p { margin: 4px 0; }
 
   <section class="card" id="reviews">
     <h2>글 리뷰</h2>
-    <div class="grid2"><div id="rev-ios-kr"></div><div id="rev-play-kr"></div><div id="rev-ios-us"></div><div id="rev-play-us"></div></div>
+    <div class="grid2"><div id="rev-ios-kr"></div><div id="rev-play-kr"></div><div id="rev-ios-us"></div><div id="rev-play-us"></div><div id="rev-ios-jp"></div><div id="rev-play-jp"></div></div>
   </section>
 
   <section class="card" id="errwrap">
@@ -338,12 +339,20 @@ const LAUNCH = Date.parse("2026-10-01T15:00:00Z"); // 10월 2일 0시(한국)
 const YT_HANDLE = "sungkisoft";
 // 수집기(.github/scripts/seolhwa_stats.py)와 같은 표
 const IOS_TERMS = { kr: ["설화던전", "정통 로그라이크", "던전크롤", "던전", "턴제 로그라이크", "로그라이크", "한국 설화", "설화", "도깨비"],
-                    us: ["Seolhwa Dungeon", "korean folklore", "traditional roguelike", "roguelike", "dungeon crawl", "roguelike rpg", "dokkaebi"] };
+                    us: ["Seolhwa Dungeon", "korean folklore", "traditional roguelike", "roguelike", "dungeon crawl", "roguelike rpg", "dokkaebi"],
+                    jp: ["説話ダンジョン", "本格ローグライク", "ローグライク", "ダンジョン", "ターン制 RPG", "韓国 妖怪", "トッケビ", "九尾狐"] };
 const PLAY_TERMS = { kr: ["설화던전", "한국 설화 게임", "정통 로그라이크", "던전크롤", "로그라이크", "설화"],
-                     us: ["Seolhwa Dungeon", "korean folklore roguelike", "traditional roguelike", "roguelike"] };
+                     us: ["Seolhwa Dungeon", "korean folklore roguelike", "traditional roguelike", "roguelike"],
+                     jp: ["説話ダンジョン", "本格ローグライク", "ローグライク", "韓国 昔話"] };
 const CHARTS = [["kr.7014", "한국 · 롤플레잉", "아이폰"], ["kr.7001", "한국 · 액션", "아이폰"], ["kr.6014", "한국 · 게임 전체", "아이폰"], ["kr.7014.ipad", "한국 · 롤플레잉", "아이패드"],
-                ["us.7014", "미국 · 롤플레잉", "아이폰"], ["us.6014", "미국 · 게임 전체", "아이폰"]];
-const CC = { kr: "한국", us: "미국" };
+                ["us.7014", "미국 · 롤플레잉", "아이폰"], ["us.6014", "미국 · 게임 전체", "아이폰"],
+                ["jp.7014", "일본 · 롤플레잉", "아이폰"], ["jp.6014", "일본 · 게임 전체", "아이폰"]];
+const CC = { kr: "한국", us: "미국", jp: "일본" };
+const COUNTRIES = ["kr", "us", "jp"]; // 일본 (2026-10-21 일본어판 출시)
+const LANG_NAME = { ko: "한국어", en: "영어", ja: "일본어" };
+const WANT_LANG = { kr: "ko", us: "en", jp: "ja" };
+const kana = s => /[\u3040-\u30ff]/.test(s || "");
+const langOf = s => hangul(s) ? "ko" : kana(s) ? "ja" : "en";
 const COOLDOWN_MIN = 10; // 이보다 최근에 모았으면 서버 수집을 다시 돌리지 않는다 (구글이 503으로 막는다)
 const WINDOWS = [["30", "30분 전"], ["60", "1시간 전"], ["180", "3시간 전"], ["midnight", "오늘 0시"], ["1440", "24시간 전"]];
 
@@ -409,18 +418,18 @@ async function pool(tasks, n = 3) {
 
 async function liveIos() {
   const m = S.live.m, ios = S.live.ios = {}, rank = S.live.ios_rank = {};
-  const tasks = ["kr", "us"].map(cc => async () => {
+  const tasks = COUNTRIES.map(cc => async () => {
     try {
       const d = await jsonp(`https://itunes.apple.com/lookup?id=${IOS_ID}&country=${cc}`);
       const r = (d.results || [])[0];
       if (!r) { ios[cc] = { listed: false }; return; }
       ios[cc] = { listed: true, name: r.trackName, version: r.version, rating: r.averageUserRating, ratings: r.userRatingCount || 0,
-                  english: !hangul((r.description || "").slice(0, 300)), shots: (r.screenshotUrls || []).length };
+                  english: !hangul((r.description || "").slice(0, 300)), lang: langOf((r.description || "").slice(0, 300)), shots: (r.screenshotUrls || []).length };
       m[`ios.${cc}.ratings`] = r.userRatingCount || 0;
       if (r.averageUserRating != null) m[`ios.${cc}.rating`] = Math.round(r.averageUserRating * 100) / 100;
     } catch (e) { S.liveErr.push({ what: `앱스토어 ${CC[cc]} 페이지`, why: e.message }); }
   });
-  for (const cc of ["kr", "us"]) for (const t of IOS_TERMS[cc]) tasks.push(async () => {
+  for (const cc of COUNTRIES) for (const t of IOS_TERMS[cc]) tasks.push(async () => {
     try {
       const q = new URLSearchParams({ term: t, country: cc, entity: "software", limit: 200 });
       const d = await jsonp("https://itunes.apple.com/search?" + q);
@@ -460,7 +469,7 @@ function hallSummary(rows) {
     today: Object.values(who).sort((a, b) => b.runs - a.runs), lost: lost.length, spots: top(spots), causes: top(causes),
     total_runs: rows.length, total_people: Object.keys(first).length, today_runs: tr.length,
     today_people: new Set(tr.map(r => r.uid)).size, today_new: Object.values(first).filter(d => d === today).length,
-    en_runs: rows.filter(r => r.en).length, wins: rows.filter(r => r.win).length,
+    en_runs: rows.filter(r => r.en).length, ja_runs: rows.filter(r => r.ja).length, wins: rows.filter(r => r.win).length,
     returned: olds.filter(u => daysOf(u) > 1).length, returned_of: olds.length,
     days: Object.keys(days).sort().map(k => ({ day: k, runs: days[k].runs, people: days[k].people.size, new: days[k].nw.size })),
     recent: rows.slice(-20).reverse().map(r => ({ id: r.id, at: new Date(r.t).toISOString(), name: r.name, who: `${r.species} ${r.cls}`, dungeon: r.dungeon, depth: r.depth, by: r.by, ver: r.ver, win: r.win }))
@@ -489,7 +498,7 @@ async function hallSince(since) {
       seen.add(id); fresh++;
       const story = Array.isArray((o.detail || {}).story) ? o.detail.story.filter(x => typeof x === "string").join(" ") : "";
       out.push({ t, at: o.at, id, level: o.level || 0, score: o.score || 0, uid: o.uid || "", name: o.name || "", depth: o.depth || 0, dungeon: o.dungeon || "", by: o.by || "", ver: o.ver || "",
-                 species: o.species || "", cls: o.cls || "", win: o.win === true, en: !!story && !hangul(story) });
+                 species: o.species || "", cls: o.cls || "", win: o.win === true, en: !!story && langOf(story) === "en", ja: !!story && langOf(story) === "ja" });
     }
     if (docs.length < 300 || !fresh) return out;
     since = out[out.length - 1].at; // 다음 쪽: 마지막 줄의 시각부터 (같은 초의 줄은 번호로 거른다)
@@ -508,7 +517,7 @@ async function liveHall() {
   S.rows = [...rows.values()].filter(r => r.t >= LAUNCH);
   if (!live) return; // 새 줄을 못 읽었으면 서버 요약을 그대로 둔다 ("이 사람의 다른 판"만 모아 둔 줄로)
   const h = S.live.hall = hallSummary(S.rows);
-  for (const k of ["total_runs", "total_people", "today_runs", "today_people", "today_new", "en_runs"]) S.live.m["hall." + k] = h[k];
+  for (const k of ["total_runs", "total_people", "today_runs", "today_people", "today_new", "en_runs", "ja_runs"]) S.live.m["hall." + k] = h[k];
 }
 
 // 요괴 테스트 수: yokai/s0~s9를 더한다 (페이지 ping()·tools/yokai_counters.py와 같은 칸)
@@ -645,12 +654,12 @@ function label(k) {
   let m;
   if ((m = k.match(/^yt\.v\.(.+)$/))) { const v = videos().find(x => x.id === m[1]); return v ? `유튜브 · ${v.title.split(" | ")[0]}` : `유튜브 영상 ${m[1]}`; }
   if (k === "yt.subs") return "유튜브 구독자";
-  const H = { total_runs: "전당 누적 판 (10/2~)", total_people: "전당 누적 사람", today_runs: "오늘 전당 판", today_people: "오늘 전당 사람", today_new: "오늘 새 사람", en_runs: "영어로 한 판 (누적)" };
+  const H = { total_runs: "전당 누적 판 (10/2~)", total_people: "전당 누적 사람", today_runs: "오늘 전당 판", today_people: "오늘 전당 사람", today_new: "오늘 새 사람", en_runs: "영어로 한 판 (누적)", ja_runs: "일본어로 한 판 (누적)" };
   if ((m = k.match(/^hall\.(.+)$/))) return H[m[1]] || k;
-  if ((m = k.match(/^ios\.(kr|us)\.(ratings|rating)$/))) return `앱스토어 ${CC[m[1]]} ${m[2] === "ratings" ? "별점 수" : "평균 별점"}`;
-  if ((m = k.match(/^play\.(kr|us)\.(real|ratings)$/))) return m[2] === "real" ? "플레이 설치 수" : `플레이 ${CC[m[1]]} 별점 수`;
-  if ((m = k.match(/^ios\.rank\.(kr|us)\.(.+)$/))) return `앱스토어 ${CC[m[1]]} 검색 “${m[2]}”`;
-  if ((m = k.match(/^play\.rank\.(kr|us)\.(.+)$/))) return `플레이 ${CC[m[1]]} 검색 “${m[2]}”`;
+  if ((m = k.match(/^ios\.(kr|us|jp)\.(ratings|rating)$/))) return `앱스토어 ${CC[m[1]]} ${m[2] === "ratings" ? "별점 수" : "평균 별점"}`;
+  if ((m = k.match(/^play\.(kr|us|jp)\.(real|ratings)$/))) return m[2] === "real" ? "플레이 설치 수" : `플레이 ${CC[m[1]]} 별점 수`;
+  if ((m = k.match(/^ios\.rank\.(kr|us|jp)\.(.+)$/))) return `앱스토어 ${CC[m[1]]} 검색 “${m[2]}”`;
+  if ((m = k.match(/^play\.rank\.(kr|us|jp)\.(.+)$/))) return `플레이 ${CC[m[1]]} 검색 “${m[2]}”`;
   if ((m = k.match(/^chart\.(.+)$/))) { const c = CHARTS.find(x => x[0] === m[1]); return `앱스토어 차트 ${c ? `${c[1]} (${c[2]})` : m[1]}`; }
   return k;
 }
@@ -668,7 +677,7 @@ function fmt(k, v) {
   return nf(v) + (k.startsWith("yt.v.") ? "회" : k === "yt.subs" ? "명" : "");
 }
 function order(k) {
-  const P = ["hall.today", "hall.", "chart.", "yt.subs", "yt.v.", "play.kr", "play.us", "ios.kr", "ios.us", "ios.rank.kr", "ios.rank.us", "play.rank"];
+  const P = ["hall.today", "hall.", "chart.", "yt.subs", "yt.v.", "play.kr", "play.us", "play.jp", "ios.kr", "ios.us", "ios.jp", "ios.rank.kr", "ios.rank.us", "ios.rank.jp", "play.rank"];
   const i = P.findIndex(p => k.startsWith(p)); return i < 0 ? 99 : i;
 }
 // 좋아졌나: 순위는 숫자가 작을수록, 나머지는 클수록
@@ -722,13 +731,13 @@ function shortDelta(k, m) {
 function renderKpis(m) {
   const hall = curOf("hall") || {}, play = ((S.snap || {}).play || {}).kr || {}, ios = curOf("ios") || {};
   const y = curOf("youtube") || {};
-  const ck = "chart.kr.7014", us = "chart.us.7014";
+  const ck = "chart.kr.7014", us = "chart.us.7014", jp = "chart.jp.7014";
   const tiles = [
     ["오늘 전당 판", nf(m["hall.today_runs"]), `사람 ${nf(m["hall.today_people"])} · 새 사람 ${nf(m["hall.today_new"])}`, "hall.today_runs"],
-    ["한국 롤플레잉 차트", ck in m ? fmt(ck, m[ck]) : "—", `앱스토어 아이폰 무료 · 미국 ${us in m ? fmt(us, m[us]) : "—"}`, ck],
-    ["전당 누적 사람", nf(m["hall.total_people"]), `판 ${nf(m["hall.total_runs"])} · 영어 판 ${nf(m["hall.en_runs"])}${hall.returned_of ? ` · 다시 온 사람 ${hall.returned}/${hall.returned_of}` : ""}`, "hall.total_people"],
+    ["한국 롤플레잉 차트", ck in m ? fmt(ck, m[ck]) : "—", `앱스토어 아이폰 무료 · 미국 ${us in m ? fmt(us, m[us]) : "—"} · 일본 ${jp in m ? fmt(jp, m[jp]) : "—"}`, ck],
+    ["전당 누적 사람", nf(m["hall.total_people"]), `판 ${nf(m["hall.total_runs"])} · 영어 판 ${nf(m["hall.en_runs"])} · 일본어 판 ${nf(m["hall.ja_runs"])}${hall.returned_of ? ` · 다시 온 사람 ${hall.returned}/${hall.returned_of}` : ""}`, "hall.total_people"],
     ["플레이 다운로드", play.installs || "—", play.real != null ? `정확한 수 ${nf(play.real)}` : "서버 수집에서", "play.kr.real"],
-    ["앱스토어 별점", ios.kr && ios.kr.listed ? `${nf(ios.kr.ratings)}개` : "—", `한국 ${ios.kr && ios.kr.rating ? ios.kr.rating.toFixed(1) : "—"} · 미국 ${ios.us && ios.us.listed ? nf(ios.us.ratings) + "개" : "—"}`, "ios.kr.ratings"],
+    ["앱스토어 별점", ios.kr && ios.kr.listed ? `${nf(ios.kr.ratings)}개` : "—", `한국 ${ios.kr && ios.kr.rating ? ios.kr.rating.toFixed(1) : "—"} · 미국 ${ios.us && ios.us.listed ? nf(ios.us.ratings) + "개" : "—"} · 일본 ${ios.jp && ios.jp.listed ? nf(ios.jp.ratings) + "개" : "—"}`, "ios.kr.ratings"],
     ["유튜브 구독자", y.subs != null ? nf(y.subs) : "—", y.total_views != null ? `영상 ${nf((y.videos || []).length)}편 · 조회 ${nf(y.total_views)}` : "", "yt.subs"],
   ];
   $("kpis").innerHTML = tiles.map(([l, v, s, k]) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div>${delta(k, m)}</div>`).join("");
@@ -779,7 +788,7 @@ function renderYoutube(m) {
 
 function renderRanks(m) {
   const live = isLive(["ios.rank."]);
-  for (const cc of ["kr", "us"]) {
+  for (const cc of COUNTRIES) {
     const rows = [];
     for (const t of IOS_TERMS[cc]) rows.push(["앱스토어", t, `ios.rank.${cc}.${t}`]);
     for (const t of PLAY_TERMS[cc]) rows.push(["플레이", t, `play.rank.${cc}.${t}`]);
@@ -799,7 +808,7 @@ function renderCharts(m) {
 
 function renderPages() {
   const ios = curOf("ios") || {}, play = (S.snap && S.snap.play) || {};
-  const col = [["앱스토어 한국", ios.kr, "ios", "kr"], ["플레이 한국", play.kr, "play", "kr"], ["앱스토어 미국", ios.us, "ios", "us"], ["플레이 미국", play.us, "play", "us"]];
+  const col = [["앱스토어 한국", ios.kr, "ios", "kr"], ["플레이 한국", play.kr, "play", "kr"], ["앱스토어 미국", ios.us, "ios", "us"], ["플레이 미국", play.us, "play", "us"], ["앱스토어 일본", ios.jp, "ios", "jp"], ["플레이 일본", play.jp, "play", "jp"]];
   const bad = t => `<span class="down">✕ ${t}</span>`;
   $("pagecards").innerHTML = col.map(([l, o, shop, cc]) => {
     const live = shop === "ios" && S.live.ios && S.live.ios[cc] ? ' <span class="tag live">실시간</span>' : "";
@@ -807,7 +816,7 @@ function renderPages() {
     if (o.listed === false) return `<div class="pgc"><h4>${l}${live}</h4><p style="margin:0">${bad("이 나라에 없음")}</p></div>`;
     const rows = [["이름", esc(o.name || o.title || "—")], ["버전", esc(o.version || "—")],
       ["별점", o.ratings != null ? `${o.ratings ? (o.rating != null && o.rating ? Number(o.rating).toFixed(1) : o.score != null ? Number(o.score).toFixed(1) : "—") + " · " : ""}${nf(o.ratings)}개${shop === "play" && o.reviews != null ? ` · 글 ${nf(o.reviews)}` : ""}` : "—"],
-      ["설명문", o.english ? "✓ 영어" : cc === "us" ? bad("한국어") : "한국어"]];
+      ["설명문", (() => { const lg = o.lang || (o.english ? "en" : "ko"); return lg === WANT_LANG[cc] ? (cc === "kr" ? LANG_NAME[lg] : "✓ " + LANG_NAME[lg]) : bad(LANG_NAME[lg]); })()]];
     if (shop === "play") {
       rows.push(["다운로드", esc(o.installs || "—") + (o.real != null ? ` (${nf(o.real)})` : "")]);
       if (o.genre_words) rows.push(["장르 낱말", Object.entries(o.genre_words).map(([w, n]) => n ? `${esc(w)} ${n}` : `<span class="down">${esc(w)} 0</span>`).join(" · ")]);
@@ -819,7 +828,7 @@ function renderPages() {
 function renderHall() {
   const h = curOf("hall");
   if (!h) { $("hallsub").textContent = "아직 못 읽었다."; return; }
-  $("hallsub").innerHTML = `${S.live.hall ? '<span class="tag live">실시간</span> ' : ""}출시 뒤 ${nf(h.total_runs)}판 · ${nf(h.total_people)}명 · 이긴 판 ${nf(h.wins)} · 영어로 한 판 ${nf(h.en_runs)} · 다른 날 다시 온 사람 ${nf(h.returned)}/${nf(h.returned_of)}`;
+  $("hallsub").innerHTML = `${S.live.hall ? '<span class="tag live">실시간</span> ' : ""}출시 뒤 ${nf(h.total_runs)}판 · ${nf(h.total_people)}명 · 이긴 판 ${nf(h.wins)} · 영어로 한 판 ${nf(h.en_runs)} · 일본어로 한 판 ${nf(h.ja_runs)} · 다른 날 다시 온 사람 ${nf(h.returned)}/${nf(h.returned_of)}`;
   drawColumns($("hallchart"), h.days);
   $("halldays").innerHTML = `<thead><tr><th>날짜</th><th class="n">판</th><th class="n">사람</th><th class="n">새 사람</th></tr></thead><tbody>` +
     h.days.slice().reverse().map(d => `<tr><td>${d.day.slice(5).replace("-", "/")}</td><td class="n">${d.runs}</td><td class="n">${d.people}</td><td class="n">${d.new}</td></tr>`).join("") + "</tbody>";
@@ -998,7 +1007,7 @@ function renderReviews() {
       list.map(r => `<div class="review"><div><span class="stars" aria-label="별 ${r.rating}개">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span>${r.title ? ` <b>${esc(r.title)}</b>` : ""}</div><div style="font-size:13.5px;margin-top:2px;overflow-wrap:anywhere">${esc(r.text)}</div><div class="muted" style="font-size:12px;margin-top:2px">${esc(r.date)}${r.ver ? " · " + esc(r.ver) : ""}${r.replied === true ? " · 답글 달았음" : r.replied === false && r.rating <= 3 ? ' · <span class="down">답글 없음</span>' : ""}</div></div>`).join(""));
   };
   const rv = snap.reviews || {}, pv = snap.play_reviews || {};
-  for (const cc of ["kr", "us"]) {
+  for (const cc of COUNTRIES) {
     block("rev-ios-" + cc, "앱스토어 " + CC[cc], rv[cc], (ios[cc] || {}).ratings);
     block("rev-play-" + cc, "플레이 " + CC[cc], pv[cc], (play[cc] || {}).ratings);
   }
