@@ -685,7 +685,8 @@ def naver(tab):
             continue
         seen.add(url)
         where = re.search(r"(?:cafe|blog)\.naver\.com/([\w-]+)/", url)
-        out.append({"kind": tab, "via": "네이버", "lang": "ko", "title": title[:120], "url": url, "where": where.group(1) if where else "", "date": ""})
+        host = urllib.parse.urlparse(url).netloc.replace("www.", "")  # 기사는 매체 주소를 출처로(gamechosun.co.kr)
+        out.append({"kind": tab, "via": "네이버", "lang": "ko", "title": title[:120], "url": url, "where": where.group(1) if where else host, "date": ""})
     return out[:15]
 
 
