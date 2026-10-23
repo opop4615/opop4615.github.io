@@ -211,7 +211,7 @@ footer p { margin: 4px 0; }
       </div>
     </div>
     <nav class="jump" aria-label="갈래로 건너뛰기">
-      <a href="#changes">달라진 것</a><a href="#hall">전당</a><a href="#youtube">유튜브</a><a href="#charts">차트</a><a href="#ranks">검색</a><a href="#pages">스토어</a><a href="#reviews">리뷰</a>
+      <a href="#changes">달라진 것</a><a href="#hall">전당</a><a href="#youtube">유튜브</a><a href="#mentions">다룬 곳</a><a href="#charts">차트</a><a href="#ranks">검색</a><a href="#pages">스토어</a><a href="#reviews">리뷰</a>
     </nav>
   </header>
   <div class="progress" id="progress" role="status" aria-live="polite"></div>
@@ -265,8 +265,12 @@ footer p { margin: 4px 0; }
     <p class="sub" id="ytsub"></p>
     <div class="scroll"><table id="yt"></table></div>
     <details id="ytmorewrap" style="margin-top:8px"><summary></summary><div class="scroll"><table id="ytmore"></table></div></details>
-    <h2 style="margin-top:16px;font-size:15px">다른 채널이 올린 영상</h2>
-    <div id="others"></div>
+  </section>
+
+  <section class="card" id="mentions">
+    <h2>다른 곳에서 다룬 것</h2>
+    <p class="sub" id="mensub"></p>
+    <div id="mentionlist"></div>
   </section>
 
   <section class="card" id="charts">
@@ -705,6 +709,7 @@ function render() {
   renderChanges(m);
   renderYokai();
   renderYoutube(m);
+  renderMentions();
   renderRanks(m);
   renderCharts(m);
   renderPages();
@@ -743,6 +748,8 @@ function renderKpis(m) {
   $("kpis").innerHTML = tiles.map(([l, v, s, k]) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div>${delta(k, m)}</div>`).join("");
 }
 
+const YT_MIN = 100; // 유튜브 영상 조회 변화가 이보다 작으면 '달라진 것'·유튜브 표에 안 보인다
+
 function renderChanges(m) {
   const b = baseline();
   if (!b) { $("baseinfo").textContent = "견줄 지난 수집이 아직 없다 — 서버 수집이 두 번 돌면 생긴다."; $("changed").innerHTML = ""; $("same").innerHTML = ""; return; }
@@ -755,6 +762,7 @@ function renderChanges(m) {
     if (crossDay && k.startsWith("hall.today")) continue;
     if (!(k in b.m)) { fresh.push(`<li><span class="nm">${esc(label(k))}</span><span class="vals">${esc(fmt(k, m[k]))}</span><span class="dv muted">새 항목</span></li>`); continue; }
     if (b.m[k] === m[k]) { same.push(`<li>${esc(label(k))}: ${esc(fmt(k, m[k]))}</li>`); continue; }
+    if (k.startsWith("yt.v.") && Math.abs(m[k] - b.m[k]) < YT_MIN) continue; // 2026-10-22 사용자: 조회 변화 100 미만은 안 보여도 된다
     const [c, t] = verdict(k, b.m[k], m[k]);
     ch.push(`<li><span class="nm">${esc(label(k))}</span><span class="vals">${esc(fmt(k, b.m[k]))} → <b style="color:var(--ink);font-weight:600">${esc(fmt(k, m[k]))}</b></span><span class="dv ${c}">${esc(t)}</span></li>`);
   }
@@ -772,7 +780,7 @@ function renderYoutube(m) {
   const head = `<thead><tr><th>영상</th><th class="w-only">올린 날</th><th class="n">조회</th><th class="n">변화</th></tr></thead><tbody>`;
   const row = v => {
     const k = "yt.v." + v.id, was = b && b.m[k];
-    const d = was != null && v.views != null && v.views !== was ? `<span class="${v.views > was ? "up" : "down"}">${v.views > was ? "+" : ""}${nf(v.views - was)}</span>` : was == null && b ? '<span class="muted">새</span>' : '<span class="muted">0</span>';
+    const d = was != null && v.views != null && Math.abs(v.views - was) >= YT_MIN ? `<span class="${v.views > was ? "up" : "down"}">${v.views > was ? "+" : ""}${nf(v.views - was)}</span>` : was == null && b ? '<span class="muted">새</span>' : "";
     const when = Date.parse(v.published) ? mdhm(Date.parse(v.published)) : "";
     return `<tr><td><a class="ytt" href="https://youtu.be/${esc(v.id)}" target="_blank" rel="noopener">${esc(v.title)}</a><span class="ytd m-only">${esc(when)}</span></td><td class="n w-only">${esc(when)}</td><td class="n">${nf(v.views)}</td><td class="n">${d}</td></tr>`;
   };
@@ -781,9 +789,29 @@ function renderYoutube(m) {
   $("ytmorewrap").style.display = vs.length > TOP ? "" : "none";
   $("ytmorewrap").querySelector("summary").textContent = `그 전 영상 ${nf(Math.max(0, vs.length - TOP))}편`;
   $("ytmore").innerHTML = head + vs.slice(TOP).map(row).join("") + "</tbody>";
-  const o = (S.snap && S.snap.youtube) ? S.snap.youtube.others : null, oat = S.snap && S.snap.youtube && S.snap.youtube.others_at;
-  $("others").innerHTML = o == null ? `<p class="empty">아직 못 찾아봤다 — 다음 서버 수집에서 찾는다.</p>` : o.length ? `<ul style="margin:0;padding-left:18px">${o.map(v => `<li style="margin:0 0 6px"><a href="https://youtu.be/${esc(v.id)}" target="_blank" rel="noopener">${esc(v.title)}</a> <span class="muted">· ${esc(v.channel)}${Date.parse(v.published) ? " · " + esc(mdhm(Date.parse(v.published))) : v.when ? " · " + esc(v.when) : ""}${v.views_text ? " · " + esc(v.views_text) : ""}</span></li>`).join("")}</ul>` : `<p class="empty">없음 (“설화던전”·“Seolhwa Dungeon” 검색).</p>`;
-  if (oat) $("others").insertAdjacentHTML("beforeend", `<p class="sub" style="margin:6px 0 0">검색은 여섯 시간에 한 번 — 마지막 ${esc(mdhm(Date.parse(oat)))}</p>`);
+}
+
+// 다른 곳에서 다룬 것 (2026-10-22): 기사·매체 / 카페·블로그 / 다른 유튜브 — 서버 수집이 돌 때마다 구글 뉴스(한·영·일)·네이버·유튜브 검색에서 모은다
+function renderMentions() {
+  const mn = S.snap && S.snap.mentions;
+  if (!mn) { $("mensub").textContent = "아직 못 모았다 — 다음 서버 수집에서 모은다."; $("mentionlist").innerHTML = ""; return; }
+  const b = baseline(), since = b ? b.t : Date.now() - 86400000;
+  const items = mn.items || [];
+  const fresh = items.filter(x => Date.parse(x.first) > since).length;
+  $("mensub").textContent = `구글 뉴스(한·영·일) · 네이버 뉴스·카페·블로그 · 유튜브 검색에서 ‘설화던전 / Seolhwa Dungeon / 説話ダンジョン’이 제목·요약에 그대로 든 것. 서버 수집마다 다시 찾는다 — 마지막 ${mdhm(Date.parse(mn.at))}. ${items.length}건${fresh ? `, 기준 뒤 새로 ${fresh}건` : ""}.`;
+  const LG = { ko: "한", en: "영", ja: "일" };
+  const groups = [["기사·매체", x => x.kind === "news"], ["카페·블로그", x => x.kind === "cafe" || x.kind === "blog"], ["다른 유튜브", x => x.kind === "youtube"]];
+  const li = x => {
+    const when = Date.parse(x.date) ? mdhm(Date.parse(x.date)) : x.when || "";
+    const isNew = Date.parse(x.first) > since;
+    const bits = [x.where, when, x.views_text, x.kind === "blog" ? "블로그" : x.kind === "cafe" ? "카페" : ""].filter(Boolean).map(esc).join(" · ");
+    return `<li style="margin:0 0 7px"><span class="tag">${LG[x.lang] || esc(x.lang)}</span> ${isNew ? '<span class="tag live">새</span> ' : ""}<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>${bits ? ` <span class="muted">· ${bits}</span>` : ""}</li>`;
+  };
+  $("mentionlist").innerHTML = groups.map(([name, f]) => {
+    const g = items.filter(f);
+    return `<h3 style="margin:14px 0 6px;font-size:14.5px">${name} <span class="muted" style="font-weight:400">${g.length}</span></h3>` +
+      (g.length ? `<ul style="margin:0;padding-left:0;list-style:none">${g.map(li).join("")}</ul>` : `<p class="empty">아직 없다.</p>`);
+  }).join("");
 }
 
 function renderRanks(m) {

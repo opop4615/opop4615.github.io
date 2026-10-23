@@ -636,6 +636,114 @@ def hall_summary(cache):
 
 # ---------------------------------------------------------------- 묶기
 
+# ---------------------------------------------------------------- 다른 곳에서 다룬 것 (2026-10-22 사용자 "한·영·일로 뉴스나 매체, 다른 유튜버가 다뤄 준 것을 좀 더 자주")
+# 수집할 때마다(한 시간에 한 번 꼴) 읽는다 — 셋 다 키가 없고 가볍다: 구글 뉴스 RSS(한·영·일), 네이버 뉴스·블로그·카페 탭, 유튜브 검색(키 없이, 한·영·일).
+# 제목·요약에 게임 이름이 그대로 든 것만 남긴다(네이버는 '설화던전'을 '설화'·'던전'으로 쪼개 찾아 엉뚱한 글이 섞인다).
+# 한 번 본 것은 지난 수집본에서 이어 받아 처음 본 때(first)를 지킨다 — 페이지가 '새'를 붙인다.
+NAMES = re.compile(r"설화\s?던전|seolhwa\s?dungeon|説話ダンジョン", re.I)
+OWN = re.compile(r"seolhwadungeon\.com|opop4615\.github\.io|play\.google\.com|apps\.apple\.com|youtube\.com/@sungkisoft", re.I)
+MENTION_KEEP = 300
+
+
+def gnews(q, hl, gl, ceid, lang):
+    xml = get("https://news.google.com/rss/search?" + urllib.parse.urlencode({"q": '"%s"' % q, "hl": hl, "gl": gl, "ceid": ceid}), tries=2)
+    out = []
+    for it in re.findall(r"<item>(.*?)</item>", xml, re.S):
+        g = lambda tag: (re.search(r"<%s[^>]*>(.*?)</%s>" % (tag, tag), it, re.S) or [None, ""])[1]
+        title, desc = unescape(g("title")), unescape(re.sub(r"<[^>]+>", " ", unescape(g("description"))))
+        if not NAMES.search(title + " " + desc):
+            continue
+        try:
+            when = datetime.strptime(g("pubDate").strip(), "%a, %d %b %Y %H:%M:%S %Z").replace(tzinfo=timezone.utc).isoformat()
+        except Exception:
+            when = ""
+        src = unescape(g("source"))
+        if src and title.endswith(" - " + src):
+            title = title[: -len(src) - 3]
+        out.append({"kind": "news", "via": "구글 뉴스", "lang": lang, "title": title, "url": g("link").strip(), "where": src, "date": when})
+    return out
+
+
+def naver(tab):
+    """네이버 검색 탭(news·blog·cafe) 최신순. 결과마다 앞뒤 글에 '설화던전'이 그대로 있어야 남긴다"""
+    page = get("https://search.naver.com/search.naver?" + urllib.parse.urlencode({"ssc": "tab.%s.all" % tab, "query": "설화던전", "sm": "tab_opt", "nso": "so:dd,p:all"}), tries=2)
+    dom = {"news": r"https?://[^\"\s]+", "blog": r"https://(?:m\.)?blog\.naver\.com/[^\"\s]+", "cafe": r"https://(?:m\.)?cafe\.naver\.com/[^\"\s]+"}[tab]
+    out, seen = [], set()
+    for m in re.finditer(r'<a[^>]+href="(%s)"[^>]*>(.*?)</a>' % dom, page, re.S):
+        url = unescape(m.group(1))
+        if tab in ("blog", "cafe"):
+            if not re.search(r"\.naver\.com/[\w-]+/\d+", url):  # 글 번호가 없는 주소는 카페·블로그 첫 화면
+                continue
+            url = url.split("?")[0]  # ?art= 꼬리는 검색할 때마다 바뀐다 — 같은 글이 겹치지 않게
+        if url in seen or "pstatic" in url or "search.naver" in url or "keep.naver" in url or OWN.search(url):
+            continue
+        title = unescape(re.sub(r"<[^>]+>", "", m.group(2))).replace("새 창 열림", "").strip()
+        if "바로가기" in title:
+            continue
+        around = unescape(re.sub(r"<[^>]+>", " ", page[m.start(): m.start() + 1500]))
+        if len(title) < 6 or not NAMES.search(title + " " + around):
+            continue
+        seen.add(url)
+        where = re.search(r"(?:cafe|blog)\.naver\.com/([\w-]+)/", url)
+        out.append({"kind": tab, "via": "네이버", "lang": "ko", "title": title[:120], "url": url, "where": where.group(1) if where else "", "date": ""})
+    return out[:15]
+
+
+def yt_search(q, hl, gl, lang):
+    page = get("https://www.youtube.com/results?search_query=%s&sp=CAI%%253D&hl=%s&gl=%s" % (urllib.parse.quote(q), hl, gl), headers=YT_COOKIE, tries=2)
+    m = re.search(r"var ytInitialData = (\{.*?\});</script>", page, re.S)
+    if not m:
+        raise RuntimeError("유튜브 검색 결과를 못 읽었다 ('%s')" % q)
+    out, stack = [], [json.loads(m.group(1))]
+    while stack:
+        o = stack.pop()
+        if isinstance(o, dict):
+            v = o.get("videoRenderer")
+            if isinstance(v, dict) and v.get("videoId"):
+                title = "".join(r.get("text", "") for r in v.get("title", {}).get("runs", []))
+                ch = "".join(r.get("text", "") for r in v.get("ownerText", {}).get("runs", []))
+                url = "https://youtu.be/" + v["videoId"]
+                nav = json.dumps(v.get("ownerText", {}))
+                if NAMES.search(title) and ch.lower() != YT_HANDLE and "@sungkisoft" not in nav.lower():
+                    out.append({"kind": "youtube", "via": "유튜브", "lang": lang_of(title) if lang_of(title) != "en" else lang, "title": title, "url": url, "where": ch,
+                                "date": "", "when": v.get("publishedTimeText", {}).get("simpleText", ""), "views_text": v.get("viewCountText", {}).get("simpleText", "")})
+            stack.extend(o.values())
+        elif isinstance(o, list):
+            stack.extend(o)
+    return out
+
+
+def mentions(prev):
+    now = datetime.now(KST).isoformat(timespec="seconds")
+    found = []
+    for args in (("설화던전", "ko", "KR", "KR:ko", "ko"), ("Seolhwa Dungeon", "en-US", "US", "US:en", "en"), ("説話ダンジョン", "ja", "JP", "JP:ja", "ja")):
+        try:
+            found += gnews(*args)
+        except Exception as e:
+            errors.append({"what": "구글 뉴스 '%s'" % args[0], "why": str(e)[:200]})
+        time.sleep(1)
+    for tab in ("news", "blog", "cafe"):
+        try:
+            found += naver(tab)
+        except Exception as e:
+            errors.append({"what": "네이버 %s" % tab, "why": str(e)[:200]})
+        time.sleep(2)
+    for args in (("설화던전", "ko", "KR", "ko"), ("Seolhwa Dungeon", "ko", "US", "en"), ("説話ダンジョン", "ko", "JP", "ja")):  # 검색 화면 말은 ko로 고정(ja 화면은 ytInitialData를 못 읽었다) — 찾는 말과 나라만 바꾼다
+        try:
+            found += yt_search(*args)
+        except Exception as e:
+            errors.append({"what": "유튜브 검색 '%s'" % args[0], "why": str(e)[:200]})
+        time.sleep(2)
+    old = {x["url"]: x for x in ((prev or {}).get("items") or [])}
+    items = dict(old)
+    for x in found:
+        x["first"] = old.get(x["url"], {}).get("first", now)
+        items[x["url"]] = x
+    keyf = lambda x: x.get("date") or x.get("first") or ""
+    lst = sorted(items.values(), key=keyf, reverse=True)[:MENTION_KEEP]
+    return {"at": now, "items": lst}
+
+
 def metrics(s):
     """history.jsonl 한 줄에 들어갈 숫자들. 열쇠는 페이지(index.html)의 LABEL과 맞춘다"""
     m = {}
@@ -722,7 +830,8 @@ def main():
             except Exception as e:
                 errors.append({"what": "플레이 검색 %s '%s'" % (cc, t), "why": str(e)[:200]})
     s["youtube"] = step("유튜브", youtube, prev.get("youtube"))
-    for k in ["hall", "youtube"]:  # 통째로 못 읽은 갈래는 지난 값을 둔다(errors에는 남는다) — 비우면 페이지의 그 칸이 비고, 유튜브는 옛 영상 목록까지 잃는다
+    s["mentions"] = step("다른 곳에서 다룬 것", mentions, prev.get("mentions"))
+    for k in ["hall", "youtube", "mentions"]:  # 통째로 못 읽은 갈래는 지난 값을 둔다(errors에는 남는다) — 비우면 페이지의 그 칸이 비고, 유튜브는 옛 영상 목록까지 잃는다
         if s[k] is None and prev.get(k):
             s[k] = prev[k]
     s["errors"] = errors
