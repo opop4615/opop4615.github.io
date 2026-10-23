@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* /presskit/ 뿌리만 기억한 언어 > 브라우저 언어로 넘긴다. /en/·/ja/는 주소대로 둔다(보낸 주소가 받는 사람 설정에 안 바뀌게). ?lang= 이 있으면 그 언어로. */
+(function () {
+  var here = "en", P = {"ko": "/presskit/", "en": "/presskit/en/", "ja": "/presskit/ja/"}, q = (location.search.match(/[?&]lang=(ko|en|ja)/) || [])[1], s = null;
+  try { s = localStorage.getItem("pk_lang"); } catch (e) {}
+  var nav = (navigator.language || "").toLowerCase(), want = q || (here !== "ko" ? here : s || (nav.indexOf("ko") === 0 ? "ko" : nav.indexOf("ja") === 0 ? "ja" : "en"));
+  if (q) try { localStorage.setItem("pk_lang", q); } catch (e) {}
+  if (want !== here && P[want]) location.replace(P[want] + location.hash);
+})();
+</script>
+<title>Seolhwa Dungeon Press Kit</title>
+<meta name="description" content="Seolhwa Dungeon press kit: about the game, trailer, boss and folktale GIFs and clips, screenshots, icon, contact.">
+<meta property="og:title" content="Seolhwa Dungeon Press Kit">
+<meta property="og:description" content="A turn-based roguelike RPG built from Korean folktales. GIFs, clips and screenshots free to use.">
+<meta property="og:image" content="https://seolhwadungeon.com/presskit/img/thumb_en.jpg">
+<link rel="canonical" href="https://seolhwadungeon.com/presskit/en/">
+<link rel="alternate" hreflang="ko" href="https://seolhwadungeon.com/presskit/">
+<link rel="alternate" hreflang="en" href="https://seolhwadungeon.com/presskit/en/">
+<link rel="alternate" hreflang="ja" href="https://seolhwadungeon.com/presskit/ja/">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Hahmlet:wght@700&display=swap">
+<style>
+/* 한 기둥 + 장면 격자. 게임 재료: 단청 뇌록 바탕, 옻칠 판, 금테. 문서라 장식은 띠 하나만. */
+:root { --green:#2b5848; --green-2:#234a3c; --lac:#35201a; --edge:#160d0a; --gold:#e0ad48; --cream:#f7f0dc; --mute:#b9d1c4; --paper:#ecc458;
+  --head:"Hahmlet","Nanum Myeongjo","Hiragino Mincho ProN","Yu Mincho",serif; --body:"Gowun Dodum","Apple SD Gothic Neo","Hiragino Sans","Yu Gothic","Malgun Gothic",system-ui,sans-serif; color-scheme:dark; }
+html,body { background:var(--green); color:var(--cream); }
+body { margin:0; font:16px/1.7 var(--body); }
+.wrap { max-width:1080px; margin:0 auto; padding-inline:18px; padding-block:24px 64px; display:flex; flex-direction:column; gap:36px; }
+header { display:flex; gap:20px; align-items:center; flex-wrap:wrap; }
+header img { width:88px; height:88px; box-shadow:0 0 0 3px var(--edge),0 0 0 6px var(--gold); }
+header div { flex:1 1 300px; min-width:0; }
+h1 { font:700 clamp(28px,5vw,40px)/1.2 var(--head); margin:0; }
+h1 small { font-size:.5em; color:var(--mute); margin-left:8px; }
+.lead { margin:6px 0 0; color:var(--mute); max-width:60ch; }
+.langs { align-self:flex-start; background:var(--lac); box-shadow:0 0 0 2px var(--edge),0 0 0 4px var(--gold); padding:6px 14px; }
+.langs a { color:var(--cream); text-decoration:none; }
+.langs a[aria-current] { color:var(--paper); font-weight:700; }
+h2 { font:700 24px/1.3 var(--head); margin:0 0 12px; }
+h3 { font:700 20px/1.3 var(--head); margin:0 0 12px; color:var(--paper); }
+.trailer { position:relative; aspect-ratio:16/9; width:100%; box-shadow:0 0 0 4px var(--edge),0 0 0 8px var(--gold); background:#000; }
+.trailer iframe, .trailer video { width:100%; height:100%; border:0; display:block; }
+.facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px 24px; margin:0; }
+.facts div { display:flex; flex-direction:column; border-top:2px solid var(--edge); padding-top:6px; min-width:0; }
+.facts dt { font-size:13px; color:var(--mute); }
+.facts dd { margin:0; }
+.panel { background:var(--lac); box-shadow:0 0 0 3px var(--edge); padding:20px; }
+.panel p { margin:0 0 10px; } .panel p:last-child { margin:0; }
+.panel ul { margin:0; padding-left:1.2em; display:grid; gap:10px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; }
+.scene { margin:0; background:var(--lac); box-shadow:0 0 0 3px var(--edge); display:flex; flex-direction:column; min-width:0; }
+.scene img { width:100%; height:auto; display:block; image-rendering:pixelated; }
+.scene figcaption { padding:12px 14px 14px; display:flex; flex-direction:column; gap:6px; }
+.scene h4 { margin:0; font:700 17px/1.4 var(--head); }
+.scene h4 small { font:400 14px/1.4 var(--body); color:var(--mute); margin-left:6px; }
+.scene p { margin:0; font-size:14.5px; color:#e9e1c8; }
+.dl a, a { color:var(--paper); }
+.dl { font-size:13px !important; }
+.shots { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+.shots img { width:100%; height:auto; box-shadow:0 0 0 3px var(--edge); }
+.assets { display:flex; flex-wrap:wrap; gap:12px; }
+.assets a { background:var(--cream); color:var(--edge); text-decoration:none; padding:10px 14px; box-shadow:inset 0 -4px 0 #cbbf9c,0 0 0 3px var(--edge); }
+.stores { display:flex; flex-wrap:wrap; gap:12px; }
+.stores a { background:var(--paper); color:#2a1a05; text-decoration:none; font-weight:700; padding:12px 18px; box-shadow:inset 0 -4px 0 #b8862c,0 0 0 3px var(--edge); }
+:focus-visible { outline:3px solid var(--cream); outline-offset:3px; }
+@media (max-width:640px) { .shots { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <img src="../img/icon_512.png" alt="">
+  <div>
+    <h1>Seolhwa Dungeon<small>Press Kit</small></h1>
+    <p class="lead">A turn-based roguelike RPG built from Korean folktales. The grim reaper, the gumiho and the dokkaebi play by the rules of their original stories.</p>
+  </div>
+  <nav class="langs"><a href="/presskit/" data-l="ko">한국어</a> · <a href="/presskit/en/" data-l="en" aria-current="page">English</a> · <a href="/presskit/ja/" data-l="ja">日本語</a></nav>
+</header>
+
+<section>
+  <h2>Trailer</h2>
+  <div class="trailer"><iframe src="https://www.youtube-nocookie.com/embed/V7Z7DVyPpEg?rel=0" title="Trailer" allowfullscreen loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen"></iframe></div>
+</section>
+
+<section>
+  <h2>At a glance</h2>
+  <dl class="facts">
+    <div><dt>Developer</dt><dd>Sungki Soft (solo developer, South Korea)</dd></div>
+    <div><dt>Release</dt><dd>October 2026 · iOS, Android</dd></div>
+    <div><dt>Genre</dt><dd>Turn-based roguelike RPG (permadeath, new dungeon every run)</dd></div>
+    <div><dt>Price</dt><dd>Free · one in-app purchase · optional revive ad only</dd></div>
+    <div><dt>Languages</dt><dd>Korean, English, Japanese</dd></div>
+    <div><dt>Content</dt><dd>14 species × 12 classes, 8 gods, 4 dungeons + the underworld, 7 side dungeons, 155 yokai</dd></div>
+  </dl>
+  <div class="stores" style="margin-top:16px"><a href="https://apps.apple.com/app/id6814757012">App Store</a><a href="https://play.google.com/store/apps/details?id=com.sungkisoft.seolhwadungeon&referrer=utm_source%3Dpresskit%26utm_medium%3Dweb%26utm_campaign%3Dpresskit">Google Play</a></div>
+</section>
+
+<section class="panel">
+  <h2>About the game</h2>
+  <p>I grew up on Dungeon Crawl Stone Soup and wanted something like it that felt good on a phone, so I made one. It's a classic roguelike played one-handed in portrait, fully offline.</p>
+  <p>The setting is Korean folklore. The creatures behave the way their stories say, and every one you meet goes into an in-game codex with its original tale.</p>
+  <ul>
+    <li><b>Sondol</b><br>A boatman executed on a king's suspicion, whose grudge is said to bring a bitter wind every late autumn. In the game, his wind knocks you back and off your feet.</li>
+    <li><b>Gawi ghost</b><br>The ghost of sleep paralysis that sits on your chest. It drifts through walls, and while it pins you, you can't cast or use skills.</li>
+    <li><b>Changgwi</b><br>The ghost of a tiger's victim, freed only by leading the next person to the tiger. It calls to you from out of sight in a familiar voice.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Scenes</h2>
+  <p style="margin:0 0 18px;color:var(--mute)">Use these freely. GIFs are for previews and posts, MP4s are 1920×1080 silent originals. All footage is real gameplay.</p>
+  <section class="group"><h3>Highlights</h3><div class="grid"><figure class="scene">
+  <img src="../gif/wx.gif" alt="The Five-Element Cycle" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>The Five-Element Cycle</h4>
+    <p>Cast spells in the order wood, fire, earth, underworld, water and each one in the chain gets a bonus. Complete the circle and your energy refills and the next spell hits twice as hard.</p>
+    <p class="dl"><a href="../gif/wx.gif" download>GIF</a> · <a href="../mp4/wx.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/jeonuchi.gif" alt="Jeon U-chi" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Jeon U-chi <small>doubles and the scroll</small></h4>
+    <p>He splits into three doubles and casts fire pillars, lightning and whirlwinds. When hurt, he vanishes into a hanging scroll and steps back out in a spray of ink.</p>
+    <p class="dl"><a href="../gif/jeonuchi.gif" download>GIF</a> · <a href="../mp4/jeonuchi.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/tsunami_shock.gif" alt="Tidal Wave, then Lightning" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Tidal Wave, then Lightning</h4>
+    <p>The tidal wave washes the poison pools into water. Strike an enemy standing in water with lightning and the shock spreads through the connected water to the whole group.</p>
+    <p class="dl"><a href="../gif/tsunami_shock.gif" download>GIF</a> · <a href="../mp4/tsunami_shock.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/jigwi.gif" alt="Jigwi" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Jigwi <small>sea of fire</small></h4>
+    <p>Jigwi became a fire spirit out of longing for Queen Seondeok. He seals the entrance with flame, throws fireballs and fire pillars, then floods half the room with fire.</p>
+    <p class="dl"><a href="../gif/jigwi.gif" download>GIF</a> · <a href="../mp4/jigwi.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/uturi_fly.gif" alt="Uturi" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Uturi <small>when the wings unfold</small></h4>
+    <p>At half health his wings unfold and his millet soldiers crumble. He swoops in, strikes and flaps away, then charges on his dragon-horse.</p>
+    <p class="dl"><a href="../gif/uturi_fly.gif" download>GIF</a> · <a href="../mp4/uturi_fly.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure></div></section><section class="group"><h3>Boss fights</h3><div class="grid"><figure class="scene">
+  <img src="../gif/daejeok.gif" alt="Jihaguk Daejeok" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Jihaguk Daejeok <small>the hidden life</small></h4>
+    <p>He keeps his life in a jar in another room, so until it breaks no blow brings him below 1 HP. Run, find the jar, smash it, and only then can he fall.</p>
+    <p class="dl"><a href="../gif/daejeok.gif" download>GIF</a> · <a href="../mp4/daejeok.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/ratking.gif" alt="The Rat King" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>The Rat King <small>my double</small></h4>
+    <p>As in the tale of the rat that ate discarded fingernails, once it drops to 70% health it takes your shape and copies your own skills. A cat is the answer.</p>
+    <p class="dl"><a href="../gif/ratking.gif" download>GIF</a> · <a href="../mp4/ratking.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/reaper.gif" alt="Jeoseung Saja, the Grim Reaper" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Jeoseung Saja, the Grim Reaper</h4>
+    <p>He calls your name while he can see you, and after three turns it hits hard, armor or not. Break line of sight and the count resets, or set out one of the Offering Tables in the room and he stops calling.</p>
+    <p class="dl"><a href="../gif/reaper.gif" download>GIF</a> · <a href="../mp4/reaper.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/imugi.gif" alt="Imugi" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Imugi <small>the serpent who would be a dragon</small></h4>
+    <p>It grows every ten turns, and on the third growth it becomes a dragon and breathes fire. At half health it floods the whole floor.</p>
+    <p class="dl"><a href="../gif/imugi.gif" download>GIF</a> · <a href="../mp4/imugi.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/king.gif" alt="The Dokkaebi King" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>The Dokkaebi King</h4>
+    <p>He summons goblin fire, breathes flame and throws you in a wrestling hold. At 60% health his club turns you into a squirrel.</p>
+    <p class="dl"><a href="../gif/king.gif" download>GIF</a> · <a href="../mp4/king.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure></div></section><section class="group"><h3>Folktale moments</h3><div class="grid"><figure class="scene">
+  <img src="../gif/site_flute.gif" alt="Daewangam Rock" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Daewangam Rock</h4>
+    <p>Wait for low tide, walk out to the rock and take the flute Manpasikjeok. Play it and everything near the water falls asleep.</p>
+    <p class="dl"><a href="../gif/site_flute.gif" download>GIF</a> · <a href="../mp4/site_flute.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/site_sword.gif" alt="Kim Yu-sin&#x27;s Sword" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Kim Yu-sin&#x27;s Sword</h4>
+    <p>Plant a blade on the altar and hold out bare-handed against what comes for you. Survive, and the sword is yours.</p>
+    <p class="dl"><a href="../gif/site_sword.gif" download>GIF</a> · <a href="../mp4/site_sword.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/site_suns.gif" alt="The Yard of Two Suns" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>The Yard of Two Suns</h4>
+    <p>Walk through the scorching light and shoot one of the suns down with a great bow, as Daebyeolwang did in the Jeju creation myth.</p>
+    <p class="dl"><a href="../gif/site_suns.gif" download>GIF</a> · <a href="../mp4/site_suns.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/march_wedding.gif" alt="Fox Wedding Procession" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Fox Wedding Procession</h4>
+    <p>A fox wedding procession sleeps in one of the rooms. Whether you sneak past is up to you.</p>
+    <p class="dl"><a href="../gif/march_wedding.gif" download>GIF</a> · <a href="../mp4/march_wedding.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/march_nanjang.gif" alt="Dokkaebi Carnival" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Dokkaebi Carnival</h4>
+    <p>A goblin party that has partied itself to sleep. Walk through quietly.</p>
+    <p class="dl"><a href="../gif/march_nanjang.gif" download>GIF</a> · <a href="../mp4/march_nanjang.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/samsi.gif" alt="Samsichung" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Samsichung <small>the worm within</small></h4>
+    <p>Get hit and the worm crawls inside you. Drink, and it can&#x27;t stand it and crawls back out, so strike then.</p>
+    <p class="dl"><a href="../gif/samsi.gif" download>GIF</a> · <a href="../mp4/samsi.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/byeoljubu.gif" alt="The Dragon Palace" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>The Dragon Palace</h4>
+    <p>In the Dragon Palace side dungeon you meet the turtle Byeoljubu and can free the captive rabbit.</p>
+    <p class="dl"><a href="../gif/byeoljubu.gif" download>GIF</a> · <a href="../mp4/byeoljubu.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure></div></section><section class="group"><h3>Gods</h3><div class="grid"><figure class="scene">
+  <img src="../gif/god.gif" alt="Serving a God" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Serving a God</h4>
+    <p>At a shrine you can serve one of eight gods from Korean folk religion. Each brings blessings and a taboo.</p>
+    <p class="dl"><a href="../gif/god.gif" download>GIF</a> · <a href="../mp4/god.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/rain.gif" alt="The Dragon King&#x27;s Rain" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>The Dragon King&#x27;s Rain</h4>
+    <p>Serve the Dragon King and you can call down rain that puts out fires and slows enemies.</p>
+    <p class="dl"><a href="../gif/rain.gif" download>GIF</a> · <a href="../mp4/rain.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure></div></section><section class="group"><h3>Treasures</h3><div class="grid"><figure class="scene">
+  <img src="../gif/gamtu.gif" alt="The Dokkaebi Hat" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>The Dokkaebi Hat</h4>
+    <p>Put it on and you turn invisible. Enemies won&#x27;t notice you until you&#x27;re right next to them.</p>
+    <p class="dl"><a href="../gif/gamtu.gif" download>GIF</a> · <a href="../mp4/gamtu.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure></div></section><section class="group"><h3>Skills and spells</h3><div class="grid"><figure class="scene">
+  <img src="../gif/assassin.gif" alt="Assassin" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Assassin <small>stealth, shadow step, ambush, one cut</small></h4>
+    <p>Vanish into stealth, step through the shadows behind the enemy, strike from behind, then finish a weakened foe in one cut.</p>
+    <p class="dl"><a href="../gif/assassin.gif" download>GIF</a> · <a href="../mp4/assassin.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/sulsa.gif" alt="Conjurer" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Conjurer <small>wisps, dokkaebi and jiangshi</small></h4>
+    <p>Summon little goblin fires, a dokkaebi and jiangshi to fight beside you, and detonate a wisp next to the enemy.</p>
+    <p class="dl"><a href="../gif/sulsa.gif" download>GIF</a> · <a href="../mp4/sulsa.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/crow.gif" alt="Crow Warrior" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Crow Warrior <small>dash strike</small></h4>
+    <p>A crow-folk warrior cuts through a line of enemies. There are 14 species and 12 classes, 168 combinations.</p>
+    <p class="dl"><a href="../gif/crow.gif" download>GIF</a> · <a href="../mp4/crow.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/spell_tsunami.gif" alt="Spell" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Spell <small>tidal wave</small></h4>
+    <p>A tidal wave sweeps the room. Each school of magic has its own spells.</p>
+    <p class="dl"><a href="../gif/spell_tsunami.gif" download>GIF</a> · <a href="../mp4/spell_tsunami.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="../gif/spell_gate.gif" alt="Spell" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>Spell <small>gate of the underworld</small></h4>
+    <p>Open a gate to the underworld and drag enemies through it.</p>
+    <p class="dl"><a href="../gif/spell_gate.gif" download>GIF</a> · <a href="../mp4/spell_gate.mp4" download>MP4 1080p</a></p>
+  </figcaption>
+</figure></div></section>
+</section>
+
+<section>
+  <h2>Screenshots</h2>
+  <div class="shots"><a href="../img/shot_en_01_hook.jpg"><img src="../img/shot_en_01_hook.jpg" alt="" loading="lazy"></a><a href="../img/shot_en_04_gods.jpg"><img src="../img/shot_en_04_gods.jpg" alt="" loading="lazy"></a><a href="../img/shot_en_07_boss.jpg"><img src="../img/shot_en_07_boss.jpg" alt="" loading="lazy"></a><a href="../img/shot_en_06_tales.jpg"><img src="../img/shot_en_06_tales.jpg" alt="" loading="lazy"></a></div>
+</section>
+
+<section>
+  <h2>Icon and key art</h2>
+  <div class="assets">
+    <a href="../img/icon_1024.png" download>Icon 1024</a>
+    <a href="../img/keyart_wide.png" download>Key art 1920×1080</a>
+    <a href="../img/keyart.png" download>Key art (portrait)</a>
+    <a href="../img/thumb_en.jpg" download>Trailer thumbnail</a>
+    
+  </div>
+</section>
+
+<section class="panel">
+  <h2>For creators</h2>
+  <p>You're welcome to make and monetize videos of the game, and to use any GIF, clip or image on this page.</p>
+  <p>If you'd like a code that unlocks the in-app purchase, just email me and I'll send one right away.</p>
+  <p>AI tools helped with the base code structure and the art. The design, folklore research and balance are my own.</p>
+  <p>Contact: <a href="mailto:opop4615@gmail.com">opop4615@gmail.com</a> · Discord: <a href="https://discord.gg/S8vNAkQ6rc">discord.gg/S8vNAkQ6rc</a></p>
+</section>
+</div>
+<script>
+document.querySelectorAll(".langs a").forEach(function (a) { a.onclick = function () { try { localStorage.setItem("pk_lang", a.dataset.l); } catch (e) {} }; });
+</script>
+</body>
+</html>

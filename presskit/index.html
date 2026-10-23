@@ -1,23 +1,36 @@
 <!doctype html>
-<html lang="ko" data-lang="ko">
+<html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* /presskit/ 뿌리만 기억한 언어 > 브라우저 언어로 넘긴다. /en/·/ja/는 주소대로 둔다(보낸 주소가 받는 사람 설정에 안 바뀌게). ?lang= 이 있으면 그 언어로. */
+(function () {
+  var here = "ko", P = {"ko": "/presskit/", "en": "/presskit/en/", "ja": "/presskit/ja/"}, q = (location.search.match(/[?&]lang=(ko|en|ja)/) || [])[1], s = null;
+  try { s = localStorage.getItem("pk_lang"); } catch (e) {}
+  var nav = (navigator.language || "").toLowerCase(), want = q || (here !== "ko" ? here : s || (nav.indexOf("ko") === 0 ? "ko" : nav.indexOf("ja") === 0 ? "ja" : "en"));
+  if (q) try { localStorage.setItem("pk_lang", q); } catch (e) {}
+  if (want !== here && P[want]) location.replace(P[want] + location.hash);
+})();
+</script>
 <title>설화던전 프레스킷</title>
-<meta name="description" content="설화던전(Seolhwa Dungeon) 프레스킷: 게임 소개, 트레일러, 보스전·설화 장면 GIF와 영상, 스크린샷, 아이콘, 연락처.">
-<meta property="og:title" content="설화던전 프레스킷 · Seolhwa Dungeon Press Kit">
+<meta name="description" content="설화던전 프레스킷: 게임 소개, 트레일러, 보스전·설화 장면 GIF와 영상, 스크린샷, 아이콘, 연락처.">
+<meta property="og:title" content="설화던전 프레스킷">
 <meta property="og:description" content="한국 옛이야기를 담은 턴제 로그라이크 RPG. 장면 GIF·영상·스크린샷을 자유롭게 쓰세요.">
 <meta property="og:image" content="https://seolhwadungeon.com/presskit/img/thumb_ko.jpg">
+<link rel="canonical" href="https://seolhwadungeon.com/presskit/">
+<link rel="alternate" hreflang="ko" href="https://seolhwadungeon.com/presskit/">
+<link rel="alternate" hreflang="en" href="https://seolhwadungeon.com/presskit/en/">
+<link rel="alternate" hreflang="ja" href="https://seolhwadungeon.com/presskit/ja/">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Hahmlet:wght@700&display=swap">
 <style>
 /* 한 기둥 + 장면 격자. 게임 재료: 단청 뇌록 바탕, 옻칠 판, 금테. 문서라 장식은 띠 하나만. */
 :root { --green:#2b5848; --green-2:#234a3c; --lac:#35201a; --edge:#160d0a; --gold:#e0ad48; --cream:#f7f0dc; --mute:#b9d1c4; --paper:#ecc458;
-  --head:"Hahmlet","Nanum Myeongjo",serif; --body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif; color-scheme:dark; }
+  --head:"Hahmlet","Nanum Myeongjo","Hiragino Mincho ProN","Yu Mincho",serif; --body:"Gowun Dodum","Apple SD Gothic Neo","Hiragino Sans","Yu Gothic","Malgun Gothic",system-ui,sans-serif; color-scheme:dark; }
 html,body { background:var(--green); color:var(--cream); }
 body { margin:0; font:16px/1.7 var(--body); }
-html[data-lang="ko"] [lang="en"], html[data-lang="en"] [lang="ko"] { display:none !important; }
 .wrap { max-width:1080px; margin:0 auto; padding-inline:18px; padding-block:24px 64px; display:flex; flex-direction:column; gap:36px; }
 header { display:flex; gap:20px; align-items:center; flex-wrap:wrap; }
 header img { width:88px; height:88px; box-shadow:0 0 0 3px var(--edge),0 0 0 6px var(--gold); }
@@ -25,23 +38,26 @@ header div { flex:1 1 300px; min-width:0; }
 h1 { font:700 clamp(28px,5vw,40px)/1.2 var(--head); margin:0; }
 h1 small { font-size:.5em; color:var(--mute); margin-left:8px; }
 .lead { margin:6px 0 0; color:var(--mute); max-width:60ch; }
-.lang { align-self:flex-start; background:var(--lac); color:var(--cream); border:0; box-shadow:0 0 0 2px var(--edge),0 0 0 4px var(--gold); padding:6px 14px; cursor:pointer; font:inherit; }
+.langs { align-self:flex-start; background:var(--lac); box-shadow:0 0 0 2px var(--edge),0 0 0 4px var(--gold); padding:6px 14px; }
+.langs a { color:var(--cream); text-decoration:none; }
+.langs a[aria-current] { color:var(--paper); font-weight:700; }
 h2 { font:700 24px/1.3 var(--head); margin:0 0 12px; }
 h3 { font:700 20px/1.3 var(--head); margin:0 0 12px; color:var(--paper); }
 .trailer { position:relative; aspect-ratio:16/9; width:100%; box-shadow:0 0 0 4px var(--edge),0 0 0 8px var(--gold); background:#000; }
-.trailer iframe { width:100%; height:100%; border:0; display:block; }
+.trailer iframe, .trailer video { width:100%; height:100%; border:0; display:block; }
 .facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px 24px; margin:0; }
 .facts div { display:flex; flex-direction:column; border-top:2px solid var(--edge); padding-top:6px; min-width:0; }
 .facts dt { font-size:13px; color:var(--mute); }
 .facts dd { margin:0; }
 .panel { background:var(--lac); box-shadow:0 0 0 3px var(--edge); padding:20px; }
 .panel p { margin:0 0 10px; } .panel p:last-child { margin:0; }
-.panel ul { margin:0; padding-left:1.2em; display:grid; gap:6px; }
+.panel ul { margin:0; padding-left:1.2em; display:grid; gap:10px; }
 .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; }
 .scene { margin:0; background:var(--lac); box-shadow:0 0 0 3px var(--edge); display:flex; flex-direction:column; min-width:0; }
 .scene img { width:100%; height:auto; display:block; image-rendering:pixelated; }
 .scene figcaption { padding:12px 14px 14px; display:flex; flex-direction:column; gap:6px; }
 .scene h4 { margin:0; font:700 17px/1.4 var(--head); }
+.scene h4 small { font:400 14px/1.4 var(--body); color:var(--mute); margin-left:6px; }
 .scene p { margin:0; font-size:14.5px; color:#e9e1c8; }
 .dl a, a { color:var(--paper); }
 .dl { font-size:13px !important; }
@@ -60,253 +76,248 @@ h3 { font:700 20px/1.3 var(--head); margin:0 0 12px; color:var(--paper); }
 <header>
   <img src="img/icon_512.png" alt="">
   <div>
-    <h1><span lang="ko">설화던전</span><span lang="en">Seolhwa Dungeon</span><small><span lang="ko">프레스킷</span><span lang="en">Press Kit</span></small></h1>
-    <p class="lead"><span lang="ko">한국 옛이야기를 담은 턴제 로그라이크 RPG. 저승사자, 구미호, 도깨비가 원래 이야기 그대로 게임 규칙이 됩니다.</span><span lang="en">A turn-based roguelike RPG built from Korean folktales. The grim reaper, the gumiho and the dokkaebi play by the rules of their original stories.</span></p>
+    <h1>설화던전<small>프레스킷</small></h1>
+    <p class="lead">한국 옛이야기를 담은 턴제 로그라이크 RPG. 저승사자, 구미호, 도깨비가 원래 이야기 그대로 게임 규칙이 됩니다.</p>
   </div>
-  <button class="lang" id="lang" type="button"><span lang="ko">English</span><span lang="en">한국어</span></button>
+  <nav class="langs"><a href="/presskit/" data-l="ko" aria-current="page">한국어</a> · <a href="/presskit/en/" data-l="en">English</a> · <a href="/presskit/ja/" data-l="ja">日本語</a></nav>
 </header>
 
 <section>
-  <h2><span lang="ko">트레일러</span><span lang="en">Trailer</span></h2>
-  <div class="trailer"><iframe src="https://www.youtube-nocookie.com/embed/8woiCbMUi_U?rel=0" lang="ko" title="트레일러" allowfullscreen loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen"></iframe><iframe src="https://www.youtube-nocookie.com/embed/V7Z7DVyPpEg?rel=0" lang="en" title="Trailer" allowfullscreen loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen"></iframe></div>
+  <h2>트레일러</h2>
+  <div class="trailer"><iframe src="https://www.youtube-nocookie.com/embed/8woiCbMUi_U?rel=0" title="트레일러" allowfullscreen loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen"></iframe></div>
 </section>
 
 <section>
-  <h2><span lang="ko">한눈에</span><span lang="en">At a glance</span></h2>
+  <h2>한눈에</h2>
   <dl class="facts">
-    <div><dt><span lang="ko">개발</span><span lang="en">Developer</span></dt><dd><span lang="ko">성기소프트 (1인 개발, 한국)</span><span lang="en">Sungki Soft (solo developer, South Korea)</span></dd></div>
-    <div><dt><span lang="ko">출시</span><span lang="en">Release</span></dt><dd><span lang="ko">2026년 10월 · iOS, Android</span><span lang="en">October 2026 · iOS, Android</span></dd></div>
-    <div><dt><span lang="ko">장르</span><span lang="en">Genre</span></dt><dd><span lang="ko">턴제 로그라이크 RPG (영구 죽음, 판마다 새 던전)</span><span lang="en">Turn-based roguelike RPG (permadeath, new dungeon every run)</span></dd></div>
-    <div><dt><span lang="ko">가격</span><span lang="en">Price</span></dt><dd><span lang="ko">무료 · 인앱 상품 하나(설화 전집) · 부활 광고는 고를 때만</span><span lang="en">Free · one in-app purchase · optional revive ad only</span></dd></div>
-    <div><dt><span lang="ko">언어</span><span lang="en">Languages</span></dt><dd><span lang="ko">한국어, 영어</span><span lang="en">Korean, English</span></dd></div>
-    <div><dt><span lang="ko">분량</span><span lang="en">Content</span></dt><dd><span lang="ko">종족 14 × 직업 12, 신 8, 던전 4 + 저승, 서브 던전 7, 요괴 2백여 종</span><span lang="en">14 species × 12 classes, 8 gods, 4 dungeons + the underworld, 7 side dungeons, 200+ creatures</span></dd></div>
+    <div><dt>개발</dt><dd>성기소프트 (1인 개발, 한국)</dd></div>
+    <div><dt>출시</dt><dd>2026년 10월 · iOS, Android</dd></div>
+    <div><dt>장르</dt><dd>턴제 로그라이크 RPG (영구 죽음, 판마다 새 던전)</dd></div>
+    <div><dt>가격</dt><dd>무료 · 인앱 상품 하나(설화 전집) · 부활 광고는 고를 때만</dd></div>
+    <div><dt>언어</dt><dd>한국어, 영어, 일본어</dd></div>
+    <div><dt>분량</dt><dd>종족 14 × 직업 12, 신 8, 던전 4 + 저승, 서브 던전 7, 요괴 155종</dd></div>
   </dl>
   <div class="stores" style="margin-top:16px"><a href="https://apps.apple.com/app/id6814757012">App Store</a><a href="https://play.google.com/store/apps/details?id=com.sungkisoft.seolhwadungeon&referrer=utm_source%3Dpresskit%26utm_medium%3Dweb%26utm_campaign%3Dpresskit">Google Play</a></div>
 </section>
 
 <section class="panel">
-  <h2><span lang="ko">어떤 게임인가</span><span lang="en">About the game</span></h2>
-  <p><span lang="ko">어릴 때 즐기던 PC 로그라이크 '던전 크롤 스톤 수프'를 폰에서 편하게 하고 싶어 혼자 만들었습니다. 세로 화면에서 한 손으로 하는 정통 로그라이크이고, 인터넷 없이도 됩니다.</span><span lang="en">I grew up on Dungeon Crawl Stone Soup and wanted something like it that felt good on a phone, so I made one. It's a classic roguelike played one-handed in portrait, fully offline.</span></p>
-  <p><span lang="ko">배경은 한국 옛이야기입니다. 요괴는 장식이 아니라 원래 이야기대로 움직이고, 만난 요괴마다 원래 설화가 도감에 남습니다.</span><span lang="en">The setting is Korean folklore. The creatures aren't decoration: they behave the way their stories say, and every one you meet goes into an in-game codex with its original tale.</span></p>
+  <h2>어떤 게임인가</h2>
+  <p>어릴 때 즐기던 PC 로그라이크 '던전 크롤 스톤 수프'를 폰에서 편하게 하고 싶어 혼자 만들었습니다. 세로 화면에서 한 손으로 하는 정통 로그라이크이고, 인터넷 없이도 됩니다.</p>
+  <p>배경은 한국 옛이야기입니다. 요괴는 원래 이야기대로 움직이고, 만난 요괴마다 원래 설화가 도감에 남습니다.</p>
   <ul>
-    <li><span lang="ko"><b>손돌</b> — 고려 임금의 의심을 받아 목숨을 잃은 뱃사공. 해마다 늦가을이면 손돌바람이 분다는 이야기 그대로, 바람으로 플레이어를 밀어 넘어뜨립니다.</span><span lang="en"><b>Sondol</b> — a boatman executed on a king's suspicion, whose grudge is said to bring a bitter wind every late autumn. In the game, his wind knocks you back and off your feet.</span></li>
-    <li><span lang="ko"><b>가위 귀신</b> — 자는 사람 가슴에 올라타 숨을 막는 귀신. 벽을 지나 다가와 가위눌림을 걸면 도술도 재주도 못 씁니다.</span><span lang="en"><b>Gawi ghost</b> — the ghost of sleep paralysis that sits on your chest. It drifts through walls, and while it pins you, you can't cast or use skills.</span></li>
-    <li><span lang="ko"><b>창귀</b> — 범에게 물려 죽어 다음 사람을 범 앞에 데려가야 풀려나는 넋. 보이지 않는 곳에서 아는 사람 목소리로 부릅니다.</span><span lang="en"><b>Changgwi</b> — the ghost of a tiger's victim, freed only by leading the next person to the tiger. It calls to you from out of sight in a familiar voice.</span></li>
+    <li><b>손돌</b><br>고려 임금의 의심을 받아 목숨을 잃은 뱃사공. 해마다 늦가을이면 손돌바람이 분다는 이야기 그대로, 바람으로 플레이어를 밀어 넘어뜨립니다.</li>
+    <li><b>가위 귀신</b><br>자는 사람 가슴에 올라타 숨을 막는 귀신. 벽을 지나 다가와 가위눌림을 걸면 도술도 재주도 못 씁니다.</li>
+    <li><b>창귀</b><br>범에게 물려 죽어 다음 사람을 범 앞에 데려가야 풀려나는 넋. 보이지 않는 곳에서 아는 사람 목소리로 부릅니다.</li>
   </ul>
 </section>
 
 <section>
-  <h2><span lang="ko">장면 모음</span><span lang="en">Scenes</span></h2>
-  <p style="margin:0 0 18px;color:var(--mute)"><span lang="ko">영상에 자유롭게 쓰세요. GIF는 미리보기와 게시판용, MP4는 1920×1080 무음 원본입니다. 모두 실제 게임 화면입니다.</span><span lang="en">Use these freely. GIFs are for previews and posts, MP4s are 1920×1080 silent originals. All footage is real gameplay.</span></p>
-  <section class="group"><h3><span lang="ko">화려한 장면</span><span lang="en">Highlights</span></h3><div class="grid"><figure class="scene">
+  <h2>장면 모음</h2>
+  <p style="margin:0 0 18px;color:var(--mute)">영상에 자유롭게 쓰세요. GIF는 미리보기와 게시판용, MP4는 1920×1080 무음 원본입니다. 모두 실제 게임 화면입니다.</p>
+  <section class="group"><h3>화려한 장면</h3><div class="grid"><figure class="scene">
   <img src="gif/wx.gif" alt="오행 순환" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">오행 순환</span><span lang="en">The Five-Element Cycle</span></h4>
-    <p><span lang="ko">다섯 기운의 도술을 나무 → 불 → 땅 → 저승 → 물 차례로 이어 쓰면 쓸 때마다 덤이 붙습니다. 한 바퀴를 다 돌면 기력이 가득 차고 다음 도술이 두 배로 들어갑니다.</span><span lang="en">Cast spells in the order wood, fire, earth, underworld, water and each one in the chain gets a bonus. Complete the circle and your energy refills and the next spell hits twice as hard.</span></p>
+    <h4>오행 순환</h4>
+    <p>다섯 기운의 도술을 나무 → 불 → 땅 → 저승 → 물 차례로 이어 쓰면 쓸 때마다 덤이 붙습니다. 한 바퀴를 다 돌면 기력이 가득 차고 다음 도술이 두 배로 들어갑니다.</p>
     <p class="dl"><a href="gif/wx.gif" download>GIF</a> · <a href="mp4/wx.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/jeonuchi.gif" alt="전우치 — 분신과 족자" loading="lazy" width="640" height="360">
+  <img src="gif/jeonuchi.gif" alt="전우치" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">전우치 — 분신과 족자</span><span lang="en">Jeon U-chi: Doubles and the Scroll</span></h4>
-    <p><span lang="ko">분신 셋을 세우고 불기둥·벼락·회오리를 차례로 씁니다. 체력이 줄면 벽의 족자 속으로 사라졌다가 먹물을 뿌리며 걸어 나옵니다.</span><span lang="en">He splits into three doubles and casts fire pillars, lightning and whirlwinds. When hurt, he vanishes into a hanging scroll and steps back out in a spray of ink.</span></p>
+    <h4>전우치 <small>분신과 족자</small></h4>
+    <p>분신 셋을 세우고 불기둥·벼락·회오리를 차례로 씁니다. 체력이 줄면 벽의 족자 속으로 사라졌다가 먹물을 뿌리며 걸어 나옵니다.</p>
     <p class="dl"><a href="gif/jeonuchi.gif" download>GIF</a> · <a href="mp4/jeonuchi.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/tsunami_shock.gif" alt="해일 뒤에 벼락 — 물을 타는 감전" loading="lazy" width="640" height="360">
+  <img src="gif/tsunami_shock.gif" alt="해일 뒤에 벼락" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">해일 뒤에 벼락 — 물을 타는 감전</span><span lang="en">Tidal Wave, then Lightning</span></h4>
-    <p><span lang="ko">해일이 바닥의 독 웅덩이를 물로 씻어 냅니다. 물에 선 적에게 벼락을 치면 이어진 물을 타고 감전이 번져 무리가 한꺼번에 맞습니다.</span><span lang="en">The tidal wave washes the poison pools into water. Strike an enemy standing in water with lightning and the shock spreads through the connected water to the whole group.</span></p>
+    <h4>해일 뒤에 벼락 <small>물을 타는 감전</small></h4>
+    <p>해일이 바닥의 독 웅덩이를 물로 씻어 냅니다. 물에 선 적에게 벼락을 치면 이어진 물을 타고 감전이 번져 무리가 한꺼번에 맞습니다.</p>
     <p class="dl"><a href="gif/tsunami_shock.gif" download>GIF</a> · <a href="mp4/tsunami_shock.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/jigwi.gif" alt="지귀 — 불바다" loading="lazy" width="640" height="360">
+  <img src="gif/jigwi.gif" alt="지귀" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">지귀 — 불바다</span><span lang="en">Jigwi: Sea of Fire</span></h4>
-    <p><span lang="ko">선덕여왕을 사모하다 불귀신이 된 지귀입니다. 방에 들어서면 불로 입구를 막고, 화염구와 불기둥을 쏟은 뒤 방 절반을 불바다로 덮습니다.</span><span lang="en">Jigwi became a fire spirit out of longing for Queen Seondeok. He seals the entrance with flame, throws fireballs and fire pillars, then floods half the room with fire.</span></p>
+    <h4>지귀 <small>불바다</small></h4>
+    <p>선덕여왕을 사모하다 불귀신이 된 지귀입니다. 방에 들어서면 불로 입구를 막고, 화염구와 불기둥을 쏟은 뒤 방 절반을 불바다로 덮습니다.</p>
     <p class="dl"><a href="gif/jigwi.gif" download>GIF</a> · <a href="mp4/jigwi.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/uturi_fly.gif" alt="아기장수 우투리 — 날개가 돋으면" loading="lazy" width="640" height="360">
+  <img src="gif/uturi_fly.gif" alt="아기장수 우투리" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">아기장수 우투리 — 날개가 돋으면</span><span lang="en">Uturi: When the Wings Unfold</span></h4>
-    <p><span lang="ko">체력이 절반이 되면 날개가 돋고, 좁쌀 군사가 무너집니다. 날아들어 치고는 날개를 쳐 빠지고, 마지막엔 용마를 타고 돌진합니다.</span><span lang="en">At half health his wings unfold and his millet soldiers crumble. He swoops in, strikes and flaps away, then charges on his dragon-horse.</span></p>
+    <h4>아기장수 우투리 <small>날개가 돋으면</small></h4>
+    <p>체력이 절반이 되면 날개가 돋고, 좁쌀 군사가 무너집니다. 날아들어 치고는 날개를 쳐 빠지고, 마지막엔 용마를 타고 돌진합니다.</p>
     <p class="dl"><a href="gif/uturi_fly.gif" download>GIF</a> · <a href="mp4/uturi_fly.mp4" download>MP4 1080p</a></p>
   </figcaption>
-</figure></div></section><section class="group"><h3><span lang="ko">보스전</span><span lang="en">Boss fights</span></h3><div class="grid"><figure class="scene">
-  <img src="gif/daejeok.gif" alt="지하국 대적 — 목숨을 숨긴 항아리" loading="lazy" width="640" height="360">
+</figure></div></section><section class="group"><h3>보스전</h3><div class="grid"><figure class="scene">
+  <img src="gif/daejeok.gif" alt="지하국 대적" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">지하국 대적 — 목숨을 숨긴 항아리</span><span lang="en">Jihaguk Daejeok: The Hidden Life</span></h4>
-    <p><span lang="ko">목숨을 다른 방 항아리에 숨겨 두어 아무리 쳐도 체력 1에서 멎습니다. 쫓기며 달아나 항아리를 깨고 돌아와야 비로소 쓰러뜨릴 수 있습니다.</span><span lang="en">He keeps his life in a jar in another room, so no blow brings him below 1 HP. Run, find the jar, smash it, and only then can he fall.</span></p>
+    <h4>지하국 대적 <small>목숨을 숨긴 항아리</small></h4>
+    <p>목숨을 다른 방 항아리에 숨겨 두어, 항아리를 깨기 전에는 아무리 쳐도 체력 1에서 멎습니다. 쫓기며 그 방까지 달려가 항아리를 깨야 비로소 쓰러뜨릴 수 있습니다.</p>
     <p class="dl"><a href="gif/daejeok.gif" download>GIF</a> · <a href="mp4/daejeok.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/ratking.gif" alt="대왕 들쥐 — 내 모습을 훔친 쥐" loading="lazy" width="640" height="360">
+  <img src="gif/ratking.gif" alt="대왕 들쥐" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">대왕 들쥐 — 내 모습을 훔친 쥐</span><span lang="en">The Rat King: My Double</span></h4>
-    <p><span lang="ko">버린 손톱을 먹은 쥐가 사람으로 둔갑한다는 이야기 그대로, 체력이 절반이 되면 내 모습으로 변해 내 재주까지 따라 씁니다.</span><span lang="en">As in the tale of the rat that ate discarded fingernails, at half health it takes your shape and starts copying your own skills.</span></p>
+    <h4>대왕 들쥐 <small>내 모습을 훔친 쥐</small></h4>
+    <p>버린 손톱을 먹은 쥐가 사람으로 둔갑한다는 이야기 그대로, 체력이 7할로 줄면 내 모습으로 변해 내 재주까지 따라 씁니다. 고양이가 답입니다.</p>
     <p class="dl"><a href="gif/ratking.gif" download>GIF</a> · <a href="mp4/ratking.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/reaper.gif" alt="저승사자 — 이름을 세 번 부르면" loading="lazy" width="640" height="360">
+  <img src="gif/reaper.gif" alt="저승사자" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">저승사자 — 이름을 세 번 부르면</span><span lang="en">Jeoseung Saja, the Grim Reaper</span></h4>
-    <p><span lang="ko">눈에 띄는 동안 턴마다 이름을 한 번씩 부르고, 세 번째에 목숨을 거둡니다. 방어도 회피도 소용없고, 시야를 벗어나야 셈이 처음으로 돌아갑니다.</span><span lang="en">He calls your name once for every turn he can see you, and the third call kills. Armor and dodging don&#x27;t help. Break line of sight and the count resets.</span></p>
+    <h4>저승사자 <small>이름을 부르는 사자</small></h4>
+    <p>눈에 띄는 동안 이름을 부르고, 3턴이 차면 방어를 무시하는 큰 피해를 줍니다. 시야를 벗어나면 셈이 처음으로 돌아가고, 방에 놓인 사자밥 상을 올리면 부르기를 멈춥니다.</p>
     <p class="dl"><a href="gif/reaper.gif" download>GIF</a> · <a href="mp4/reaper.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/imugi.gif" alt="이무기 — 싸움이 길어지면 용이 된다" loading="lazy" width="640" height="360">
+  <img src="gif/imugi.gif" alt="이무기" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">이무기 — 싸움이 길어지면 용이 된다</span><span lang="en">Imugi, the Serpent Who Would Be a Dragon</span></h4>
-    <p><span lang="ko">열 턴마다 자라다가 세 번째에 용이 되어 숨을 뿜습니다. 체력이 절반이면 층 전체를 물에 잠급니다.</span><span lang="en">It grows every ten turns, and on the third growth it becomes a dragon and breathes fire. At half health it floods the whole floor.</span></p>
+    <h4>이무기 <small>싸움이 길어지면 용이 된다</small></h4>
+    <p>열 턴마다 자라다가 세 번째에 용이 되어 숨을 뿜습니다. 체력이 절반이면 층 전체를 물에 잠급니다.</p>
     <p class="dl"><a href="gif/imugi.gif" download>GIF</a> · <a href="mp4/imugi.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/king.gif" alt="도깨비 대왕 — 은광의 마지막 보스" loading="lazy" width="640" height="360">
+  <img src="gif/king.gif" alt="도깨비 대왕" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">도깨비 대왕 — 은광의 마지막 보스</span><span lang="en">The Dokkaebi King</span></h4>
-    <p><span lang="ko">도깨비불을 부르고, 불길을 뿜고, 씨름으로 집어던집니다. 체력이 절반이면 방망이로 플레이어를 다람쥐로 만듭니다.</span><span lang="en">He summons goblin fire, breathes flame and throws you in a wrestling hold. At half health his club turns you into a squirrel.</span></p>
+    <h4>도깨비 대왕 <small>은광의 마지막 보스</small></h4>
+    <p>도깨비불을 부르고, 불길을 뿜고, 씨름으로 집어던집니다. 체력이 6할로 줄면 방망이로 플레이어를 다람쥐로 만듭니다.</p>
     <p class="dl"><a href="gif/king.gif" download>GIF</a> · <a href="mp4/king.mp4" download>MP4 1080p</a></p>
   </figcaption>
-</figure></div></section><section class="group"><h3><span lang="ko">설화 속 장면</span><span lang="en">Folktale moments</span></h3><div class="grid"><figure class="scene">
-  <img src="gif/site_flute.gif" alt="대왕암 — 물이 빠지는 때" loading="lazy" width="640" height="360">
+</figure></div></section><section class="group"><h3>설화 속 장면</h3><div class="grid"><figure class="scene">
+  <img src="gif/site_flute.gif" alt="대왕암" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">대왕암 — 물이 빠지는 때</span><span lang="en">Daewangam Rock</span></h4>
-    <p><span lang="ko">물이 빠지는 때를 기다려 바위섬까지 걸어가 만파식적을 얻습니다. 불면 물가의 적들이 모두 잠듭니다.</span><span lang="en">Wait for low tide, walk out to the rock and take the flute Manpasikjeok. Play it and everything near the water falls asleep.</span></p>
+    <h4>대왕암 <small>물이 빠지는 때</small></h4>
+    <p>물이 빠지는 때를 기다려 바위섬까지 걸어가 만파식적을 얻습니다. 불면 물가의 적들이 모두 잠듭니다.</p>
     <p class="dl"><a href="gif/site_flute.gif" download>GIF</a> · <a href="mp4/site_flute.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/site_sword.gif" alt="열박산 석굴 — 김유신의 보검" loading="lazy" width="640" height="360">
+  <img src="gif/site_sword.gif" alt="열박산 석굴" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">열박산 석굴 — 김유신의 보검</span><span lang="en">Kim Yu-sin&#x27;s Sword</span></h4>
-    <p><span lang="ko">제단에 칼을 꽂고, 몰려드는 것들 사이에서 빈손으로 버티면 김유신의 보검이 손에 들어옵니다.</span><span lang="en">Plant a blade on the altar and hold out bare-handed against what comes for you. Survive, and the sword is yours.</span></p>
+    <h4>열박산 석굴 <small>김유신의 보검</small></h4>
+    <p>제단에 칼을 꽂고, 몰려드는 것들 사이에서 빈손으로 버티면 김유신의 보검이 손에 들어옵니다.</p>
     <p class="dl"><a href="gif/site_sword.gif" download>GIF</a> · <a href="mp4/site_sword.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/site_suns.gif" alt="해가 둘 뜬 마당 — 대별왕의 활" loading="lazy" width="640" height="360">
+  <img src="gif/site_suns.gif" alt="해가 둘 뜬 마당" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">해가 둘 뜬 마당 — 대별왕의 활</span><span lang="en">The Yard of Two Suns</span></h4>
-    <p><span lang="ko">볕에 타며 걸어가 큰 활로 해 하나를 쏘아 떨어뜨립니다. 제주 천지왕본풀이의 대별왕 이야기입니다.</span><span lang="en">Walk through the scorching light and shoot one of the suns down with a great bow, as Daebyeolwang did in the Jeju creation myth.</span></p>
+    <h4>해가 둘 뜬 마당 <small>대별왕의 활</small></h4>
+    <p>볕에 타며 걸어가 큰 활로 해 하나를 쏘아 떨어뜨립니다. 제주 천지왕본풀이의 대별왕 이야기입니다.</p>
     <p class="dl"><a href="gif/site_suns.gif" download>GIF</a> · <a href="mp4/site_suns.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
   <img src="gif/march_wedding.gif" alt="여우 혼례 행렬" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">여우 혼례 행렬</span><span lang="en">Fox Wedding Procession</span></h4>
-    <p><span lang="ko">던전 한 방에서 잠든 여우들의 혼례 행렬을 만납니다. 깨우지 않고 지나갈지는 플레이어 몫입니다.</span><span lang="en">A fox wedding procession sleeps in one of the rooms. Whether you sneak past is up to you.</span></p>
+    <h4>여우 혼례 행렬</h4>
+    <p>던전 한 방에서 잠든 여우들의 혼례 행렬을 만납니다. 깨우지 않고 지나갈지는 플레이어 몫입니다.</p>
     <p class="dl"><a href="gif/march_wedding.gif" download>GIF</a> · <a href="mp4/march_wedding.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
   <img src="gif/march_nanjang.gif" alt="도깨비 난장" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">도깨비 난장</span><span lang="en">Dokkaebi Carnival</span></h4>
-    <p><span lang="ko">도깨비들이 벌이는 난장판입니다. 잔치가 끝나 잠든 사이를 지나갑니다.</span><span lang="en">A goblin party that has partied itself to sleep. Walk through quietly.</span></p>
+    <h4>도깨비 난장</h4>
+    <p>도깨비들이 벌이는 난장판입니다. 잔치가 끝나 잠든 사이를 지나갑니다.</p>
     <p class="dl"><a href="gif/march_nanjang.gif" download>GIF</a> · <a href="mp4/march_nanjang.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/samsi.gif" alt="삼시충 — 몸속의 벌레" loading="lazy" width="640" height="360">
+  <img src="gif/samsi.gif" alt="삼시충" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">삼시충 — 몸속의 벌레</span><span lang="en">Samsichung: The Worm Within</span></h4>
-    <p><span lang="ko">맞으면 벌레가 몸속으로 기어듭니다. 술을 마시면 견디지 못하고 기어 나오니, 그때 벱니다.</span><span lang="en">Get hit and the worm crawls inside you. Drink, and it can&#x27;t stand it and crawls back out, so strike then.</span></p>
+    <h4>삼시충 <small>몸속의 벌레</small></h4>
+    <p>맞으면 벌레가 몸속으로 기어듭니다. 술을 마시면 견디지 못하고 기어 나오니, 그때 벱니다.</p>
     <p class="dl"><a href="gif/samsi.gif" download>GIF</a> · <a href="mp4/samsi.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/byeoljubu.gif" alt="별주부전 — 용궁" loading="lazy" width="640" height="360">
+  <img src="gif/byeoljubu.gif" alt="별주부전" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">별주부전 — 용궁</span><span lang="en">The Dragon Palace</span></h4>
-    <p><span lang="ko">용궁 서브 던전에서 별주부를 만나고 갇힌 토끼를 풀어 줄 수 있습니다.</span><span lang="en">In the Dragon Palace side dungeon you meet the turtle Byeoljubu and can free the captive rabbit.</span></p>
+    <h4>별주부전 <small>용궁</small></h4>
+    <p>용궁 서브 던전에서 별주부를 만나고 갇힌 토끼를 풀어 줄 수 있습니다.</p>
     <p class="dl"><a href="gif/byeoljubu.gif" download>GIF</a> · <a href="mp4/byeoljubu.mp4" download>MP4 1080p</a></p>
   </figcaption>
-</figure></div></section><section class="group"><h3><span lang="ko">신</span><span lang="en">Gods</span></h3><div class="grid"><figure class="scene">
+</figure></div></section><section class="group"><h3>신</h3><div class="grid"><figure class="scene">
   <img src="gif/god.gif" alt="신 모시기" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">신 모시기</span><span lang="en">Serving a God</span></h4>
-    <p><span lang="ko">신당에서 산신, 용왕, 삼신할미 등 여덟 신 가운데 하나를 모십니다. 신마다 은혜와 함께 지켜야 할 금기가 있습니다.</span><span lang="en">At a shrine you can serve one of eight gods from Korean folk religion. Each brings blessings and a taboo.</span></p>
+    <h4>신 모시기</h4>
+    <p>신당에서 산신, 용왕, 삼신할미 등 여덟 신 가운데 하나를 모십니다. 신마다 은혜와 함께 지켜야 할 금기가 있습니다.</p>
     <p class="dl"><a href="gif/god.gif" download>GIF</a> · <a href="mp4/god.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
   <img src="gif/rain.gif" alt="용왕의 비" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">용왕의 비</span><span lang="en">The Dragon King&#x27;s Rain</span></h4>
-    <p><span lang="ko">용왕을 모시면 비를 불러 불을 끄고 적을 묶습니다.</span><span lang="en">Serve the Dragon King and you can call down rain that puts out fires and slows enemies.</span></p>
+    <h4>용왕의 비</h4>
+    <p>용왕을 모시면 비를 불러 불을 끄고 적을 묶습니다.</p>
     <p class="dl"><a href="gif/rain.gif" download>GIF</a> · <a href="mp4/rain.mp4" download>MP4 1080p</a></p>
   </figcaption>
-</figure></div></section><section class="group"><h3><span lang="ko">보물</span><span lang="en">Treasures</span></h3><div class="grid"><figure class="scene">
+</figure></div></section><section class="group"><h3>보물</h3><div class="grid"><figure class="scene">
   <img src="gif/gamtu.gif" alt="도깨비 감투" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">도깨비 감투</span><span lang="en">The Dokkaebi Hat</span></h4>
-    <p><span lang="ko">쓰면 보이지 않게 됩니다. 바로 곁에 붙기 전에는 적이 알아채지 못합니다.</span><span lang="en">Put it on and you turn invisible. Enemies won&#x27;t notice you until you&#x27;re right next to them.</span></p>
+    <h4>도깨비 감투</h4>
+    <p>쓰면 보이지 않게 됩니다. 바로 곁에 붙기 전에는 적이 알아채지 못합니다.</p>
     <p class="dl"><a href="gif/gamtu.gif" download>GIF</a> · <a href="mp4/gamtu.mp4" download>MP4 1080p</a></p>
   </figcaption>
-</figure></div></section><section class="group"><h3><span lang="ko">재주와 도술</span><span lang="en">Skills and spells</span></h3><div class="grid"><figure class="scene">
-  <img src="gif/assassin.gif" alt="자객 — 은신, 그림자 밟기, 기습, 단칼" loading="lazy" width="640" height="360">
+</figure></div></section><section class="group"><h3>재주와 도술</h3><div class="grid"><figure class="scene">
+  <img src="gif/assassin.gif" alt="자객" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">자객 — 은신, 그림자 밟기, 기습, 단칼</span><span lang="en">Assassin: Stealth, Shadow Step, Ambush, One Cut</span></h4>
-    <p><span lang="ko">은신해 모습을 감추고, 그림자 밟기로 적의 등 뒤로 건너가 기습하고, 약해진 적을 단칼에 끊습니다.</span><span lang="en">Vanish into stealth, step through the shadows behind the enemy, strike from behind, then finish a weakened foe in one cut.</span></p>
+    <h4>자객 <small>은신, 그림자 밟기, 기습, 단칼</small></h4>
+    <p>은신해 모습을 감추고, 그림자 밟기로 적의 등 뒤로 건너가 기습하고, 약해진 적을 단칼에 끊습니다.</p>
     <p class="dl"><a href="gif/assassin.gif" download>GIF</a> · <a href="mp4/assassin.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/sulsa.gif" alt="술사 — 도깨비불·도깨비·강시" loading="lazy" width="640" height="360">
+  <img src="gif/sulsa.gif" alt="술사" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">술사 — 도깨비불·도깨비·강시</span><span lang="en">Conjurer: Wisps, Dokkaebi and Jiangshi</span></h4>
-    <p><span lang="ko">작은 도깨비불을 부르고, 도깨비와 강시를 세워 함께 싸웁니다. 적 곁의 도깨비불은 터뜨릴 수 있습니다.</span><span lang="en">Summon little goblin fires, a dokkaebi and jiangshi to fight beside you, and detonate a wisp next to the enemy.</span></p>
+    <h4>술사 <small>도깨비불, 도깨비, 강시</small></h4>
+    <p>작은 도깨비불을 부르고, 도깨비와 강시를 세워 함께 싸웁니다. 적 곁의 도깨비불은 터뜨릴 수 있습니다.</p>
     <p class="dl"><a href="gif/sulsa.gif" download>GIF</a> · <a href="mp4/sulsa.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/crow.gif" alt="까마귀 무사 — 달려 베기" loading="lazy" width="640" height="360">
+  <img src="gif/crow.gif" alt="까마귀 무사" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">까마귀 무사 — 달려 베기</span><span lang="en">Crow Warrior: Dash Strike</span></h4>
-    <p><span lang="ko">까마귀 종족 무사가 한 줄로 선 적들을 달려 베기로 꿰뚫습니다. 종족 14 × 직업 12, 168가지 조합이 있습니다.</span><span lang="en">A crow-folk warrior cuts through a line of enemies. There are 14 species and 12 classes, 168 combinations.</span></p>
+    <h4>까마귀 무사 <small>달려 베기</small></h4>
+    <p>까마귀 종족 무사가 한 줄로 선 적들을 달려 베기로 꿰뚫습니다. 종족 14 × 직업 12, 168가지 조합이 있습니다.</p>
     <p class="dl"><a href="gif/crow.gif" download>GIF</a> · <a href="mp4/crow.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/spell_tsunami.gif" alt="도술 — 해일" loading="lazy" width="640" height="360">
+  <img src="gif/spell_tsunami.gif" alt="도술" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">도술 — 해일</span><span lang="en">Spell: Tidal Wave</span></h4>
-    <p><span lang="ko">물 도술 해일이 적들을 쓸어 갑니다. 학파마다 다른 도술이 있습니다.</span><span lang="en">A tidal wave sweeps the room. Each school of magic has its own spells.</span></p>
+    <h4>도술 <small>해일</small></h4>
+    <p>물 도술 해일이 적들을 쓸어 갑니다. 학파마다 다른 도술이 있습니다.</p>
     <p class="dl"><a href="gif/spell_tsunami.gif" download>GIF</a> · <a href="mp4/spell_tsunami.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure><figure class="scene">
-  <img src="gif/spell_gate.gif" alt="도술 — 저승문" loading="lazy" width="640" height="360">
+  <img src="gif/spell_gate.gif" alt="도술" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4><span lang="ko">도술 — 저승문</span><span lang="en">Spell: Gate of the Underworld</span></h4>
-    <p><span lang="ko">저승문을 열어 적을 저승으로 끌고 갑니다.</span><span lang="en">Open a gate to the underworld and drag enemies through it.</span></p>
+    <h4>도술 <small>저승문</small></h4>
+    <p>저승문을 열어 적을 저승으로 끌고 갑니다.</p>
     <p class="dl"><a href="gif/spell_gate.gif" download>GIF</a> · <a href="mp4/spell_gate.mp4" download>MP4 1080p</a></p>
   </figcaption>
 </figure></div></section>
 </section>
 
 <section>
-  <h2><span lang="ko">스크린샷</span><span lang="en">Screenshots</span></h2>
-  <div class="shots"><a href="img/shot_ko_01_hook.jpg" lang="ko"><img src="img/shot_ko_01_hook.jpg" alt="" loading="lazy"></a><a href="img/shot_ko_04_gods.jpg" lang="ko"><img src="img/shot_ko_04_gods.jpg" alt="" loading="lazy"></a><a href="img/shot_ko_07_boss.jpg" lang="ko"><img src="img/shot_ko_07_boss.jpg" alt="" loading="lazy"></a><a href="img/shot_ko_06_tales.jpg" lang="ko"><img src="img/shot_ko_06_tales.jpg" alt="" loading="lazy"></a><a href="img/shot_en_01_hook.jpg" lang="en"><img src="img/shot_en_01_hook.jpg" alt="" loading="lazy"></a><a href="img/shot_en_04_gods.jpg" lang="en"><img src="img/shot_en_04_gods.jpg" alt="" loading="lazy"></a><a href="img/shot_en_07_boss.jpg" lang="en"><img src="img/shot_en_07_boss.jpg" alt="" loading="lazy"></a><a href="img/shot_en_06_tales.jpg" lang="en"><img src="img/shot_en_06_tales.jpg" alt="" loading="lazy"></a></div>
+  <h2>스크린샷</h2>
+  <div class="shots"><a href="img/shot_ko_01_hook.jpg"><img src="img/shot_ko_01_hook.jpg" alt="" loading="lazy"></a><a href="img/shot_ko_04_gods.jpg"><img src="img/shot_ko_04_gods.jpg" alt="" loading="lazy"></a><a href="img/shot_ko_07_boss.jpg"><img src="img/shot_ko_07_boss.jpg" alt="" loading="lazy"></a><a href="img/shot_ko_06_tales.jpg"><img src="img/shot_ko_06_tales.jpg" alt="" loading="lazy"></a></div>
 </section>
 
 <section>
-  <h2><span lang="ko">아이콘·키아트</span><span lang="en">Icon and key art</span></h2>
+  <h2>아이콘·키아트</h2>
   <div class="assets">
-    <a href="img/icon_1024.png" download><span lang="ko">아이콘 1024</span><span lang="en">Icon 1024</span></a>
-    <a href="img/keyart_wide.png" download><span lang="ko">키아트 가로 1920×1080</span><span lang="en">Key art 1920×1080</span></a>
-    <a href="img/keyart.png" download><span lang="ko">키아트 세로</span><span lang="en">Key art (portrait)</span></a>
-    <a href="img/thumb_ko.jpg" lang="ko" download>트레일러 썸네일</a><a href="img/thumb_en.jpg" lang="en" download>Trailer thumbnail</a>
+    <a href="img/icon_1024.png" download>아이콘 1024</a>
+    <a href="img/keyart_wide.png" download>키아트 가로 1920×1080</a>
+    <a href="img/keyart.png" download>키아트 세로</a>
+    <a href="img/thumb_ko.jpg" download>트레일러 썸네일</a>
+    
   </div>
 </section>
 
 <section class="panel">
-  <h2><span lang="ko">크리에이터께</span><span lang="en">For creators</span></h2>
-  <p><span lang="ko">영상 수익 창출을 포함해 이 게임을 다룬 영상은 자유롭게 만드셔도 됩니다. 이 페이지의 GIF, 영상, 그림도 마음껏 쓰세요.</span><span lang="en">You're welcome to make and monetize videos of the game, and to use any GIF, clip or image on this page.</span></p>
-  <p><span lang="ko">유료 상품(설화 전집)을 여는 코드가 필요하시면 메일로 말씀해 주세요. 바로 보내 드립니다.</span><span lang="en">If you'd like a code that unlocks the in-app purchase, just email me and I'll send one right away.</span></p>
-  <p><span lang="ko">코드의 기초 뼈대와 디자인에 AI 도구의 도움을 받았습니다. 기획, 설화 조사, 밸런스는 직접 했습니다.</span><span lang="en">AI tools helped with the base code structure and the art. The design, folklore research and balance are my own.</span></p>
-  <p><span lang="ko">연락</span><span lang="en">Contact</span>: <a href="mailto:opop4615@gmail.com">opop4615@gmail.com</a> · <span lang="ko">디스코드</span><span lang="en">Discord</span>: <a href="https://discord.gg/S8vNAkQ6rc">discord.gg/S8vNAkQ6rc</a></p>
+  <h2>크리에이터께</h2>
+  <p>영상 수익 창출을 포함해 이 게임을 다룬 영상은 자유롭게 만드셔도 됩니다. 이 페이지의 GIF, 영상, 그림도 마음껏 쓰세요.</p>
+  <p>유료 상품(설화 전집)을 여는 코드가 필요하시면 메일로 말씀해 주세요. 바로 보내 드립니다.</p>
+  <p>코드의 기초 뼈대와 디자인에 AI 도구의 도움을 받았습니다. 기획, 설화 조사, 밸런스는 직접 했습니다.</p>
+  <p>연락: <a href="mailto:opop4615@gmail.com">opop4615@gmail.com</a> · Discord: <a href="https://discord.gg/S8vNAkQ6rc">discord.gg/S8vNAkQ6rc</a></p>
 </section>
 </div>
 <script>
-(function () {
-  var r = document.documentElement, l = "ko";
-  try { var s = localStorage.getItem("pk_lang"); if (s === "ko" || s === "en") l = s; else if (!(navigator.language || "").toLowerCase().startsWith("ko")) l = "en"; } catch (e) { if (!(navigator.language || "").toLowerCase().startsWith("ko")) l = "en"; }
-  function set(x) { l = x; r.setAttribute("data-lang", x); r.lang = x; try { localStorage.setItem("pk_lang", x); } catch (e) {} }
-  set(l);
-  document.getElementById("lang").onclick = function () { set(l === "ko" ? "en" : "ko"); };
-})();
+document.querySelectorAll(".langs a").forEach(function (a) { a.onclick = function () { try { localStorage.setItem("pk_lang", a.dataset.l); } catch (e) {} }; });
 </script>
 </body>
 </html>
