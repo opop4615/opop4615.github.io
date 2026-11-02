@@ -1,10 +1,309 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>오도짜세! 돌격 상륙장갑차</title><meta name="description" content="장갑차에 부품을 용접해 좀비 떼를 바다로 밀어 넣는 해병 로그라이크.">
-<style>body{background:#1f2616;color:#f0e8c8;font-family:system-ui,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.7;margin:0}
-header{background:#b2121a;border-bottom:4px solid #ffd400;padding:24px 16px}header div,main,footer{max-width:860px;margin:auto}header>div{display:flex;gap:16px;align-items:center}header img{width:88px;height:88px;border:2px solid #ffd400}
-h1{color:#ffd400;margin:0;font-size:clamp(1.5rem,5vw,2.3rem);line-height:1.2}header p{margin:6px 0 0}main{padding:20px 16px;display:grid;gap:14px}main img{width:100%;display:block;border:1px solid #46502c}
-h2{color:#ffd400;font-size:1.15rem;margin:18px 0 0}main p{margin:0}a{color:#ffd400}footer{padding:16px;color:#b9c99a;font-size:.88rem}</style></head><body>
-<header><div><img src="img/icon.png" alt="앱 아이콘"><div><h1>오도짜세! 돌격 상륙장갑차</h1><p>악! 섬이 기열로 가득하다, 아쎄이.</p></div></div></header>
-<main><p>상륙장갑차 한 대를 몰고 좀비 섬을 굴러다니며 들이받고, 깔아뭉개고, 바다로 밀어 넣는다. 부품을 주워 용접할수록 차는 점점 괴상해지고, 귀에 대고 떠드는 선임은 점점 시끄러워진다. 목표는 하나. 지도 끝까지 간다.</p>
-<h2>iOS·Android 출시 예정 · 한국어 전용</h2><img src="img/01_title.jpg" alt="제목 화면과 금장·핑크 장갑차" loading="lazy"><img src="img/02_parts.jpg" alt="부품 설명이 달린 장갑차" loading="lazy"><img src="img/03_drown.jpg" alt="좀비 떼를 바다로 미는 장면" loading="lazy"><img src="img/04_seniors.jpg" alt="선임 여섯과 대사" loading="lazy"><img src="img/05_boss.jpg" alt="왕돼지 보스전" loading="lazy"><img src="img/06_cards.jpg" alt="보급 카드 화면" loading="lazy"><img src="img/07_mp.jpg" alt="헌병에게 쫓기는 장면" loading="lazy"><img src="img/08_hall.jpg" alt="명예의 전당" loading="lazy"></main>
-<footer><p><a href="support.html">지원</a> · <a href="privacy.html">개인정보처리방침</a> · sungkisoft</p><p>이 게임은 인터넷 해병문학을 비튼 패러디 창작물이며 대한민국 해병대를 비롯한 실제 군·단체·인물과 무관하고, 후원이나 승인을 받지 않았습니다.</p></footer></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>오도짜세! 돌격 상륙장갑차</title>
+<meta name="description" content="장갑차에 부품을 용접해 좀비 떼를 바다로 밀어 넣는 해병 로그라이크. 부품 74종, 시끄러운 선임 여섯, 도장 18종.">
+<link rel="canonical" href="https://seolhwadungeon.com/odojjase/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="오도짜세! 돌격 상륙장갑차">
+<meta property="og:description" content="악! 좀비 섬을 장갑차로 밀어 버리는 해병 로그라이크.">
+<meta property="og:image" content="https://seolhwadungeon.com/odojjase/assets/og.jpg">
+<meta property="og:url" content="https://seolhwadungeon.com/odojjase/">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/icon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
+<style>
+/* 공식 페이지. 재료는 게임 메뉴 그대로: 빨간 판, 노랑 테, 위장무늬, 경고 테이프, 갈무리 도트 제목. 번지는 빛·그라데이션·둥근 카드는 쓰지 않는다. */
+@font-face { font-family: "Galmuri14"; src: url(data:font/woff2;base64,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) format("woff2"); font-display: swap; }
+:root {
+  --ink: #12140c; --olive: #1f2616; --panel: #2a3220; --line: #46502c; --red: #b2121a; --dred: #70080e; --gold: #ffd400; --cream: #f5eed2; --mute: #c9d3ad;
+  --pix: "Galmuri14", "Noto Sans KR", monospace; --body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color-scheme: dark;
+}
+html, body { background: var(--olive); color: var(--cream); }
+body { margin: 0; font: 17px/1.75 var(--body); word-break: keep-all; overflow-wrap: break-word; }
+a { color: var(--gold); }
+:focus-visible { outline: 3px solid var(--cream); outline-offset: 3px; }
+img.px { image-rendering: pixelated; }
+/* 갈무리14는 14의 정수배(28·42px)에서만 칸이 맞는다. 굵기는 한 칸 옆으로 겹쳐 찍어 낸다(스토어 그림과 같은 방식) */
+h2, h3, .bosses figcaption { font-family: var(--pix); font-weight: 400; -webkit-font-smoothing: none; font-smooth: never; }
+em { font-style: normal; color: var(--gold); }
+
+/* 첫 화면: 왼쪽 위 간판, 오른쪽 아래 장갑차 */
+.hero { min-height: clamp(560px, 88svh, 900px); display: flex; background: #33566a url(assets/keyart.jpg) center bottom / cover no-repeat; }
+.hero-in { width: 100%; max-width: 1180px; margin: 0 auto; padding: clamp(24px, 5vh, 56px) 20px; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.hero h1 { margin: 0; line-height: 0; box-shadow: 8px 8px 0 rgba(18, 20, 12, .55); max-width: 100%; }
+.hero h1 img { display: block; max-width: 100%; height: auto; image-rendering: pixelated; }
+.pitch { max-width: 500px; box-sizing: border-box; background: var(--ink); border-left: 6px solid var(--gold); padding: 14px 18px 16px; }
+.pitch p { margin: 0; }
+.pitch .big { font-weight: 700; font-size: 20px; line-height: 1.45; color: var(--gold); margin-bottom: 6px; }
+.badges { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+.badges img { height: 54px; width: auto; display: block; }
+.soon { display: inline-block; margin: 12px 0 0 !important; padding: 8px 16px; background: var(--red); color: var(--gold); font-weight: 700; box-shadow: 0 0 0 3px var(--gold); }
+.pitch .soon { margin-left: 3px !important; }
+.pitch .free { margin-top: 12px; font-size: 14px; color: var(--mute); }
+
+.tape { height: 32px; background: #000 url(assets/hazard.png) repeat-x 0 0 / 64px 32px; image-rendering: pixelated; }
+
+/* 마디 */
+.sec { padding-block: clamp(52px, 8vw, 92px); background: var(--olive); }
+.sec.camo { background: #1f2616 url(assets/camo.png) center / 960px 640px; }
+.sec.red { background: var(--red); }
+.sec.band { padding-block: clamp(36px, 5vw, 56px); border-top: 4px solid var(--ink); }
+.in { max-width: 1180px; margin: 0 auto; padding-inline: 20px; display: flex; flex-direction: column; gap: 24px; }
+.sec h2 { margin: 0; font-size: 42px; line-height: 1.25; text-shadow: 3px 0 0 currentColor, 6px 3px 0 var(--ink), 3px 3px 0 var(--ink); }
+.lede { margin: 0; max-width: 42em; color: var(--cream); }
+.camo .lede { background: var(--ink); padding: 6px 12px; width: fit-content; box-sizing: border-box; max-width: 100%; }
+.red em { color: var(--gold); }
+
+.film { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #000; box-shadow: 0 0 0 4px var(--ink), 0 0 0 8px var(--gold); margin: 8px 0; }
+.frame { box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px var(--gold); margin: 6px; line-height: 0; min-width: 0; }
+.loop { width: 100%; height: auto; aspect-ratio: 16 / 9; display: block; background: #000; }
+
+.pair { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 32px; align-items: center; }
+.pair.rev { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); }
+.pair > div:not(.frame) { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.parts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-self: stretch; }
+.parts li { display: flex; gap: 10px; align-items: center; background: var(--ink); padding: 8px 10px; border: 2px solid var(--line); min-width: 0; }
+.parts img { width: 44px; height: 44px; flex: none; }
+.parts div { min-width: 0; }
+.parts b { display: block; font-size: 14.5px; line-height: 1.35; color: var(--gold); }
+.parts p { margin: 2px 0 0; font-size: 13px; line-height: 1.4; color: var(--mute); }
+
+.bosses { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.bosses figure { margin: 0; min-width: 0; }
+.bosses figcaption { margin-top: 12px; font-size: 28px; line-height: 1.3; text-align: center; text-shadow: 2px 0 0 currentColor, 4px 2px 0 var(--ink), 2px 2px 0 var(--ink); }
+
+.seniors { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+.senior { display: flex; gap: 14px; background: var(--ink); border: 2px solid var(--line); padding: 14px; min-width: 0; }
+.senior > img { width: 96px; height: 96px; flex: none; background: var(--panel); border: 2px solid var(--gold); }
+.senior > div { min-width: 0; flex: 1; }
+.senior h3 { margin: 0 0 4px; font-size: 28px; line-height: 1.25; color: var(--gold); }
+.rule { margin: 0 0 10px; font-size: 14px; line-height: 1.5; color: var(--mute); }
+.say { display: block; width: 100%; min-height: 44px; text-align: left; font: 700 14px/1.45 var(--body); color: var(--ink); background: var(--cream); border: 0; padding: 8px 10px; cursor: pointer; box-shadow: inset 0 -3px 0 #cbbf9c; word-break: keep-all; }
+.say span { color: var(--red); }
+.say:hover, .say.on { background: var(--gold); box-shadow: inset 0 -3px 0 #b39500; }
+
+.paints { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px 12px; }
+.paints figure { margin: 0; text-align: center; min-width: 0; }
+.paints img { width: 100%; height: auto; display: block; }
+.paints figcaption { margin-top: 6px; font-size: 14px; line-height: 1.35; color: var(--mute); }
+
+.supply { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.supply li { background: var(--cream); color: var(--ink); padding: 16px 18px; box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px var(--gold); margin: 6px; min-width: 0; }
+.supply b { display: block; font-size: 18px; color: var(--dred); }
+.supply p { margin: 4px 0 0; }
+
+.get { align-items: center; text-align: center; }
+.get img { box-shadow: 0 0 0 3px var(--ink), 0 0 0 6px var(--gold); }
+.get .lede { max-width: 32em; }
+.get .soon { margin-top: 0 !important; }
+
+.foot { background: var(--ink); padding-block: 32px 48px; font-size: 14px; color: var(--mute); }
+.foot .in { gap: 10px; }
+.foot p { margin: 0; line-height: 1.6; }
+.foot nav { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 16px; }
+.foot nav a { padding-block: 6px; }
+
+@media (max-width: 860px) {
+  .pair, .pair.rev { grid-template-columns: minmax(0, 1fr); }
+  .pair.rev > .frame { order: 2; }
+  .bosses { grid-template-columns: minmax(0, 1fr); }
+  .paints { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .supply { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .sec h2 { font-size: 28px; text-shadow: 2px 0 0 currentColor, 4px 2px 0 var(--ink), 2px 2px 0 var(--ink); }
+  .hero { display: block; min-height: 0; background: var(--olive); }
+  .hero::after { content: ""; display: block; aspect-ratio: 3 / 2; background: url(assets/keyart.jpg) 72% bottom / cover no-repeat; }
+  .hero-in { padding: 16px 16px 20px; }
+  .in { padding-inline: 16px; }
+  .pitch { max-width: none; width: 100%; }
+  .parts { grid-template-columns: minmax(0, 1fr); }
+}
+
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <h1><img src="assets/logo.png" alt="오도짜세! 돌격 상륙장갑차" width="475" height="234"></h1>
+    <div class="pitch">
+      <p class="big">좀비 섬을 장갑차로 밀어 버리는 해병 로그라이크</p>
+      <p>악! 섬이 기열로 가득하다, 아쎄이. 들이받고, 깔아뭉개고, 바다로 밀어 넣어라. 목표는 하나. 지도 끝까지 간다.</p>
+      <p class="soon">iOS · Android 출시 예정</p>
+      <p class="free">무료 · 광고는 보고 싶을 때만 · 한국어 전용</p>
+    </div>
+  </div>
+</header>
+<div class="tape"></div>
+
+<section class="sec" id="trailer">
+  <div class="in">
+    <h2>30초 만에 상륙한다</h2>
+    <video class="film" controls preload="metadata" playsinline poster="presskit/img/trailer_poster.jpg" src="presskit/video/trailer_30s_720p.mp4" width="1280" height="720" aria-label="오도짜세 트레일러"></video>
+  </div>
+</section>
+
+<section class="sec camo" id="parts">
+  <div class="in">
+    <h2>부품을 달수록 <em>괴물</em>이 된다</h2>
+    <p class="lede">달 곳이 없으면 옆구리에, 옆구리가 차면 꽁무니에. 부품 74종에 같은 병과를 모으면 효과가 터지고, 합치면 더 이상한 것이 된다.</p>
+    <div class="pair">
+      <div class="frame"><video class="loop" data-loop muted loop playsinline preload="none" poster="assets/loop_flamer.jpg" src="assets/loop_flamer.mp4" width="1280" height="720" aria-label="화염방사기와 원형톱을 단 장갑차가 좀비 떼를 태운다"></video></div>
+      <ul class="parts"><li><img class="px" src="assets/mod_dozer.png" alt="" width="60" height="60"><div><b>불도저 삽</b><p>길이 없으면 만들면 된다.</p></div></li><li><img class="px" src="assets/mod_gamasot.png" alt="" width="60" height="60"><div><b>취사장 가마솥</b><p>국은 위에서 내려오는 것이다.</p></div></li><li><img class="px" src="assets/mod_sawblade.png" alt="" width="60" height="60"><div><b>측면 원형톱</b><p>벌목 작업도 작전이다.</p></div></li><li><img class="px" src="assets/mod_gatling.png" alt="" width="60" height="60"><div><b>개틀링 해병포</b><p>해병의 분노는 회전한다.</p></div></li><li><img class="px" src="assets/mod_flag.png" alt="" width="60" height="60"><div><b>오도 깃발</b><p>바람이 없어도 펄럭인다.</p></div></li><li><img class="px" src="assets/mod_blanket.png" alt="" width="60" height="60"><div><b>각 잡힌 모포</b><p>이 각이면 이빨도 튕긴다.</p></div></li><li><img class="px" src="assets/mod_calendar.png" alt="" width="60" height="60"><div><b>전역 달력</b><p>날짜가 지날수록 눈빛이 변한다.</p></div></li><li><img class="px" src="assets/mod_harpoon.png" alt="" width="60" height="60"><div><b>포경 작살포</b><p>고래 허가증은 없다.</p></div></li><li><img class="px" src="assets/mod_tidal.png" alt="" width="60" height="60"><div><b>해일 발생기</b><p>바다를 부르는 것도 작전이다.</p></div></li><li><img class="px" src="assets/mod_battleship.png" alt="" width="60" height="60"><div><b>16인치 함포</b><p>전함이 와서 두고 갔다.</p></div></li><li><img class="px" src="assets/mod_sam.png" alt="" width="60" height="60"><div><b>지대공 미사일</b><p>하늘에 뭐가 있냐고 묻지 마라.</p></div></li><li><img class="px" src="assets/mod_orbital.png" alt="" width="60" height="60"><div><b>궤도 폭격 위성</b><p>발사 예산은 건빵에서 뺐다.</p></div></li></ul>
+    </div>
+  </div>
+</section>
+<div class="tape"></div>
+
+<section class="sec" id="drown">
+  <div class="in pair rev">
+    <div>
+      <h2>기열은 <em>입수</em>시켜라</h2>
+      <p class="lede">좀비는 헤엄을 못 친다. 떼를 몰아 물가로 끌고 가서 그대로 밀면 된다. 나머지는 바다가 알아서 한다.</p>
+      <p class="lede">장갑차는 뜬다. 근성이 달리면 바다로 도망치는 것도 작전이다.</p>
+    </div>
+    <div class="frame"><video class="loop" data-loop muted loop playsinline preload="none" poster="assets/loop_drown.jpg" src="assets/loop_drown.mp4" width="1280" height="720" aria-label="장갑차가 좀비 떼를 밀고 바다로 달려 들어간다"></video></div>
+  </div>
+</section>
+
+<section class="sec red" id="boss">
+  <div class="in">
+    <h2>큰 놈은 <em>바다로</em></h2>
+    <p class="lede">총으로 지치게 하고, 들이받아, 입수. 덩치가 커도 예외는 없다.</p>
+    <div class="bosses">
+      <figure><div class="frame"><video class="loop" data-loop muted loop playsinline preload="none" poster="assets/loop_pig.jpg" src="assets/loop_pig.mp4" width="1280" height="720" aria-label="왕돼지 보스전"></video></div><figcaption>왕돼지</figcaption></figure>
+      <figure><div class="frame"><video class="loop" data-loop muted loop playsinline preload="none" poster="assets/loop_toad.jpg" src="assets/loop_toad.mp4" width="1280" height="720" aria-label="늪 두꺼비 어미 보스전"></video></div><figcaption>늪 두꺼비 어미</figcaption></figure>
+      <figure><div class="frame"><video class="loop" data-loop muted loop playsinline preload="none" poster="assets/loop_ox.jpg" src="assets/loop_ox.mp4" width="1280" height="720" aria-label="얼음 뿔소 보스전"></video></div><figcaption>얼음 뿔소</figcaption></figure>
+    </div>
+  </div>
+</section>
+<div class="tape"></div>
+
+<section class="sec camo" id="seniors">
+  <div class="in">
+    <h2>선임 <em>여섯</em>. 전부 시끄럽다</h2>
+    <p class="lede">규칙도 특기 부품도 말투도 다르다. 대사 352줄이 전부 목소리로 귀에 박힌다. 눌러서 들어 봐라, 아쎄이.</p>
+    <div class="seniors"><article class="senior">
+  <img class="px" src="assets/senior_dolgyeok.png" alt="" width="120" height="120" loading="lazy">
+  <div>
+    <h3>장동칠 병장</h3>
+    <p class="rule">달릴수록 세게 들이받는다.<br>서서 쏘는 덤이 없다.</p>
+    <button type="button" class="say" data-voice="assets/voice_dolgyeok.mp3" aria-label="장동칠 병장 대사 듣기: 놈들을 바다로 밀어라! 그게 끝이다!"><span aria-hidden="true">▶</span> “놈들을 바다로 밀어라! 그게 끝이다!”</button>
+  </div>
+</article><article class="senior">
+  <img class="px" src="assets/senior_mulgae.png" alt="" width="120" height="120" loading="lazy">
+  <div>
+    <h3>임덕규 상병</h3>
+    <p class="rule">입수마다 근성 +2, 물에서 &#x27;악!&#x27; 빠름.<br>뭍에서 약하다.</p>
+    <button type="button" class="say" data-voice="assets/voice_mulgae.mp3" aria-label="임덕규 상병 대사 듣기: 땅은 잠깐 빌려 쓰는 기다! 바다로 밀어라!"><span aria-hidden="true">▶</span> “땅은 잠깐 빌려 쓰는 기다! 바다로 밀어라!”</button>
+  </div>
+</article><article class="senior">
+  <img class="px" src="assets/senior_jeongbi.png" alt="" width="120" height="120" loading="lazy">
+  <div>
+    <h3>배떡기 상병</h3>
+    <p class="rule">보급 넷 중 하나, 부품 무게 절반.<br>무기 피해 -10%.</p>
+    <button type="button" class="say" data-voice="assets/voice_jeongbi.mp3" aria-label="배떡기 상병 대사 듣기: 차체에 구멍 났어! 수리비가 얼만 줄 알아?"><span aria-hidden="true">▶</span> “차체에 구멍 났어! 수리비가 얼만 줄 알아?”</button>
+  </div>
+</article><article class="senior">
+  <img class="px" src="assets/senior_gwak.png" alt="" width="120" height="120" loading="lazy">
+  <div>
+    <h3>곽두팔 병장</h3>
+    <p class="rule">무기 +50%, 서면 연사 더 빠름.<br>근성 -30%, 들이받기 -30%.</p>
+    <button type="button" class="say" data-voice="assets/voice_gwak.mp3" aria-label="곽두팔 병장 대사 듣기: 뭘 물어봐?! 쏴!"><span aria-hidden="true">▶</span> “뭘 물어봐?! 쏴!”</button>
+  </div>
+</article><article class="senior">
+  <img class="px" src="assets/senior_do.png" alt="" width="120" height="120" loading="lazy">
+  <div>
+    <h3>도철수 상병</h3>
+    <p class="rule">물에서 빠르고 세고 근성이 찬다.<br>땅에서 -15%.</p>
+    <button type="button" class="say" data-voice="assets/voice_do.mp3" aria-label="도철수 상병 대사 듣기: 총으로 지치게 하라. 끝은 바다가 맺으리라."><span aria-hidden="true">▶</span> “총으로 지치게 하라. 끝은 바다가 맺으리라.”</button>
+  </div>
+</article><article class="senior">
+  <img class="px" src="assets/senior_oh.png" alt="" width="120" height="120" loading="lazy">
+  <div>
+    <h3>오상구 일병</h3>
+    <p class="rule">아쎄이 +4, 쓰러지면 셋이 대신 막는다.<br>보급 한 장 적음.</p>
+    <button type="button" class="say" data-voice="assets/voice_oh.mp3" aria-label="오상구 일병 대사 듣기: 전역까지 칠백 일 남았습니다. 세어 봤습니다."><span aria-hidden="true">▶</span> “전역까지 칠백 일 남았습니다. 세어 봤습니다.”</button>
+  </div>
+</article></div>
+  </div>
+</section>
+<div class="tape"></div>
+
+<section class="sec" id="paints">
+  <div class="in">
+    <h2>도장 <em>18종</em>. 칠하면 새 것이다</h2>
+    <p class="lede">훈장을 모아 칠한다. 성능은 그대로, 눈에 띄는 건 네 몫.</p>
+    <div class="paints"><figure><img class="px" src="assets/paint_green.png" alt="" loading="lazy"><figcaption>위장 녹색</figcaption></figure><figure><img class="px" src="assets/paint_desert.png" alt="" loading="lazy"><figcaption>사막</figcaption></figure><figure><img class="px" src="assets/paint_snow.png" alt="" loading="lazy"><figcaption>설원</figcaption></figure><figure><img class="px" src="assets/paint_navy.png" alt="" loading="lazy"><figcaption>해군 회색</figcaption></figure><figure><img class="px" src="assets/paint_digital.png" alt="" loading="lazy"><figcaption>디지털</figcaption></figure><figure><img class="px" src="assets/paint_woodland.png" alt="" loading="lazy"><figcaption>우드랜드</figcaption></figure><figure><img class="px" src="assets/paint_urban.png" alt="" loading="lazy"><figcaption>도시 디지털</figcaption></figure><figure><img class="px" src="assets/paint_redtag.png" alt="" loading="lazy"><figcaption>빨간 명찰</figcaption></figure><figure><img class="px" src="assets/paint_pink.png" alt="" loading="lazy"><figcaption>기열 핑크</figcaption></figure><figure><img class="px" src="assets/paint_patch.png" alt="" loading="lazy"><figcaption>찐빠 땜질</figcaption></figure><figure><img class="px" src="assets/paint_rust.png" alt="" loading="lazy"><figcaption>고철 녹</figcaption></figure><figure><img class="px" src="assets/paint_tiger.png" alt="" loading="lazy"><figcaption>호랑이</figcaption></figure><figure><img class="px" src="assets/paint_shark.png" alt="" loading="lazy"><figcaption>상어 이빨</figcaption></figure><figure><img class="px" src="assets/paint_flame.png" alt="" loading="lazy"><figcaption>핫로드 불꽃</figcaption></figure><figure><img class="px" src="assets/paint_neon.png" alt="" loading="lazy"><figcaption>야간 네온</figcaption></figure><figure><img class="px" src="assets/paint_gold.png" alt="" loading="lazy"><figcaption>오도짜세 금장</figcaption></figure><figure><img class="px" src="assets/paint_chrome.png" alt="" loading="lazy"><figcaption>크롬 도금</figcaption></figure><figure><img class="px" src="assets/paint_dragon.png" alt="" loading="lazy"><figcaption>황룡</figcaption></figure></div>
+  </div>
+</section>
+
+<section class="sec camo" id="supply">
+  <div class="in">
+    <h2>보급은 언제나 <em>수상하다</em></h2>
+    <p class="lede">정신 카드 29장, 보급 18종, 사건 18가지. 무엇이 나올지는 보급관도 모른다.</p>
+    <ul class="supply"><li><b>1953년산 통조림</b><p>뚜껑이 부풀어 있다.</p></li><li><b>보급관의 찐빠 상자</b><p>다른 부대가 울고 있다.</p></li><li><b>불침번 근무표</b><p>네 이름이 제일 많다.</p></li></ul>
+  </div>
+</section>
+
+<section class="sec red band" id="mp">
+  <div class="in">
+    <h2>오래 뭉개면 <em>헌병</em>이 온다</h2>
+    <p class="lede">죽일 수 없다. 물에도 들어온다. 튀어라.</p>
+  </div>
+</section>
+<div class="tape"></div>
+
+<section class="sec" id="get">
+  <div class="in get">
+    <img src="assets/icon.png" alt="" width="112" height="112">
+    <h2>못 깨도 <em>명예의 전당</em></h2>
+    <p class="lede">빤스RUN으로 끝나도 네 장갑차와 닉네임은 기록으로 남는다. 첫 상륙이다, 악!</p>
+    <p class="soon">iOS · Android 출시 예정</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="in">
+    <nav>
+      <a href="presskit/">프레스킷</a>
+      <a href="support.html">고객 지원</a>
+      <a href="privacy.html">개인정보처리방침</a>
+    </nav>
+    <p>sungkisoft · 1인 개발 · <a href="mailto:opop4615@naver.com">opop4615@naver.com</a></p>
+    <p>이 게임은 인터넷 해병문학을 비튼 패러디 창작물입니다. 대한민국 해병대를 비롯한 실제 군·단체·인물과 무관하며, 후원이나 승인을 받지 않았습니다. 등장하는 이름과 사건은 모두 지어낸 것입니다.</p>
+    <p>배경 음악은 미국 해병대 군악대 연주의 공유 저작물(수자·푸치크 행진곡)입니다. 미국 해병대·미국 정부와 무관합니다.</p>
+  </div>
+</footer>
+<script>
+/* 장면 영상은 보일 때만 돈다. 움직임을 줄인 사람에겐 멈춘 그림 + 재생 단추 */
+(function () {
+  var still = matchMedia("(prefers-reduced-motion: reduce)").matches, vids = document.querySelectorAll("[data-loop]");
+  if (still || !("IntersectionObserver" in window)) { vids.forEach(function (v) { v.controls = true; }); }
+  else {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (x) { if (x.isIntersecting) { var p = x.target.play(); if (p) p.catch(function () {}); } else x.target.pause(); }); }, { rootMargin: "120px" });
+    vids.forEach(function (v) { io.observe(v); });
+  }
+  var cur = null, curBtn = null;
+  document.querySelectorAll(".say").forEach(function (b) {
+    b.onclick = function () {
+      var same = curBtn === b && cur && !cur.paused;
+      if (cur) { cur.pause(); curBtn.classList.remove("on"); }
+      if (same) return;
+      cur = new Audio(b.dataset.voice); curBtn = b; b.classList.add("on");
+      cur.onended = function () { b.classList.remove("on"); };
+      var p = cur.play(); if (p) p.catch(function () { b.classList.remove("on"); });
+    };
+  });
+})();
+</script>
+</body>
+</html>
