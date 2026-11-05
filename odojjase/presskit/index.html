@@ -23,7 +23,7 @@ a { color:var(--gold); }
 :focus-visible { outline:3px solid var(--cream); outline-offset:3px; }
 .top { background:var(--red); border-bottom:4px solid var(--gold); }
 .top > div { max-width:1080px; margin:0 auto; padding:20px 16px; display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
-.top img { width:88px; height:88px; box-shadow:0 0 0 3px var(--edge),0 0 0 6px var(--gold); margin:6px; }
+.top > div > img { width:88px; height:88px; box-shadow:0 0 0 3px var(--edge),0 0 0 6px var(--gold); margin:6px; }
 .top div div { flex:1 1 300px; min-width:0; }
 .top h1 { margin:0; font-size:clamp(26px,4.6vw,38px); line-height:1.2; font-weight:900; color:var(--gold); }
 .top h1 small { display:block; font-size:.5em; color:var(--cream); font-weight:700; margin-top:2px; }
@@ -50,44 +50,50 @@ h3 { font-size:20px; line-height:1.3; margin:0 0 12px; color:var(--gold); }
 .scene p { margin:0; font-size:14.5px; }
 .scene .dl { font-size:13px; }
 .shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr)); gap:12px; }
+.cc { font-size:13.5px; color:var(--mute); }
+.shots figure { margin:0; min-width:0; }
+.shots figcaption { margin-top:6px; font-size:14px; color:var(--mute); }
 .shots a { display:block; }
 .shots img { width:100%; height:auto; display:block; box-shadow:0 0 0 3px var(--edge); }
 .assets { display:flex; flex-wrap:wrap; gap:12px; margin:3px; }
 .assets a { background:var(--cream); color:var(--edge); text-decoration:none; padding:10px 14px; box-shadow:inset 0 -4px 0 #cbbf9c,0 0 0 3px var(--edge); }
 .stores { display:flex; flex-wrap:wrap; gap:12px; margin:16px 3px 0; }
 .stores a { background:var(--gold); color:#1f1a00; text-decoration:none; font-weight:700; padding:12px 18px; box-shadow:0 0 0 3px var(--edge); }
+img.brush { display:block; max-width:100%; height:auto; }
 </style>
 </head>
 <body>
 <header class="top"><div>
   <img src="img/icon_512.png" alt="">
   <div>
-    <h1>오도짜세! 돌격 상륙장갑차<small>프레스킷</small></h1>
+    <h1><img class="brush" src="img/h/title.png" alt="오도짜세! 돌격 상륙장갑차" width="446" height="45"><small>프레스킷</small></h1>
     <p>좀비 섬을 장갑차로 밀어 버리는 해병 로그라이크. 부품을 용접할수록 차는 괴상해지고, 귀에 대고 떠드는 선임은 시끄러워집니다. <a class="home" href="../">공식 페이지</a></p>
   </div>
 </div></header>
 <div class="wrap">
 <section>
-  <h2>트레일러</h2>
+  <h2><img class="brush" src="img/h/h01.png" alt="트레일러" width="95" height="29"></h2>
   <video class="trailer" controls preload="metadata" playsinline poster="img/trailer_poster.jpg" src="video/trailer_30s_720p.mp4"></video>
 </section>
 
 <section>
-  <h2>한눈에</h2>
-  <dl class="facts"><div><dt>개발</dt><dd>sungkisoft (1인 개발, 한국)</dd></div><div><dt>출시</dt><dd>iOS · Android 출시 예정</dd></div><div><dt>장르</dt><dd>가로 화면 로그라이크 액션 (패러디)</dd></div><div><dt>가격</dt><dd>무료 · 광고는 보상형만 · 앱 내 구입(광고 제거, 훈장 묶음)</dd></div><div><dt>언어</dt><dd>한국어</dd></div><div><dt>분량</dt><dd>선임 6 · 부품 85(합체 37, 설계도 17) · 병과 7 · 정신 카드 29 · 보급 18 · 사건 18 · 적 29종 · 도장 18 · 음성 대사 352줄</dd></div><div><dt>섬 임무</dt><dd>전투(표지 셋 탈환) · 구조(갇힌 아쎄이) · 보급(버티기) · 보스</dd></div></dl>
+  <h2><img class="brush" src="img/h/h02.png" alt="한눈에" width="70" height="29"></h2>
+  <dl class="facts"><div><dt>개발</dt><dd>sungkisoft (1인 개발, 한국)</dd></div><div><dt>출시</dt><dd>iOS · Android 출시 예정</dd></div><div><dt>장르</dt><dd>가로 화면 로그라이크 액션 (패러디)</dd></div><div><dt>가격</dt><dd>무료 · 광고는 보상형만 · 앱 내 구입(광고 제거, 훈장 묶음)</dd></div><div><dt>언어</dt><dd>한국어</dd></div><div><dt>분량</dt><dd>선임 6 · 부품 99(합체 45, 설계도 19) · 병과 7 · 정신 카드 45 · 악!·오도짜세 특기 10 · 보급 18 · 사건 18 · 적 43종(대찐빠 8) · 작전 5 · 도장 19 · 업적 75 · 음성 대사 1,700줄 넘게</dd></div><div><dt>판 구조</dt><dd>작전 카드를 골라 출격 · 섬 임무는 전투(표지 셋 탈환) · 구조(갇힌 아쎄이) · 보급(버티기) · 대찐빠 · 지도 끝까지 가면 만기 전역</dd></div></dl>
   
 </section>
 
 <section class="panel">
-  <h2>어떤 게임인가</h2>
+  <h2><img class="brush" src="img/h/h03.png" alt="어떤 게임인가" width="151" height="29"></h2>
   <p>상륙장갑차 한 대로 좀비 섬을 굴러다니며 들이받고, 깔아뭉개고, 바다로 밀어 넣는 가로 화면 로그라이크입니다. 한 판은 짧고, 목표는 부품을 쌓아 지도 끝까지 가는 것입니다.</p>
-  <p>불도저 삽부터 취사장 가마솥까지 부품 85종을 앞, 옆구리, 꽁무니, 지붕에 용접합니다. 훈장으로 설계도를 사면 16인치 함포, 궤도 폭격 위성, 고철 블랙홀 같은 합체품 17종이 열립니다. 손가락으로 끌어 몰면 무기는 알아서 쏩니다. 선임 여섯은 규칙과 특기 부품이 다르고, 대사 352줄을 목소리로 떠듭니다.</p>
-  <p>섬마다 임무가 다릅니다. 표지 셋을 되찾거나, 우리에 갇힌 아쎄이를 26초 안에 구하거나, 증원을 버팁니다. 오래 뭉개면 깊은 섬의 부대가 증원으로 오고 끝내 헌병이 옵니다. 적은 좀비부터 공룡, 상어, 해골 군의관까지 29종입니다.</p>
+  <p>불도저 삽부터 취사장 가마솥까지 부품 99종을 앞, 옆구리, 꽁무니, 지붕에 용접합니다. 옆에 한 대를 더 붙이는 쌍동 장갑차, 뒤에 끌고 다니는 생활관 같은 차체 확장 부품도 있습니다. 훈장으로 설계도를 사면 16인치 함포, 상륙 함대, 고철 블랙홀 같은 합체품 19종이 열립니다. 손가락으로 끌어 몰면 무기는 알아서 쏘고, '악!'과 오도짜세는 판 중에 고르는 특기로 바뀝니다.</p>
+  <p>출격 전에 작전 카드 다섯 장 중 하나를 고릅니다. 작전마다 섬을 지키는 대찐빠(보스)가 다르고, 왕돼지에서 시작해 앵무새 선장, 대왕 아귀, 메카에 올라탄 동물들까지 여덟 마리입니다. 대찐빠는 지치기 전엔 밀리지 않아서, 총으로 지치게 한 뒤 바다로 밀어 넣어야 합니다.</p>
+  <p>섬마다 임무가 다릅니다. 표지 셋을 되찾거나, 우리에 갇힌 아쎄이를 26초 안에 구하거나, 증원을 버팁니다. 오래 뭉개면 헌병이 옵니다. 적은 43종이고, 해골 해적이나 하마처럼 총이 안 먹어서 바다에 빠뜨려야만 죽는 놈도 있습니다. 선임 여섯은 규칙과 특기 부품이 다르고, 1,700줄이 넘는 대사를 목소리로 떠듭니다.</p>
+  <p>판이 끝나면 장갑차 그림과 기록이 찍힌 전역 신고서가 나오고, 폰 공유 창으로 바로 자랑할 수 있습니다. 지도 끝까지 가면 만기 전역입니다.</p>
   <p>인터넷 해병문학을 비튼 패러디입니다. 대한민국 해병대를 비롯한 실제 군·단체·인물과 무관하고 후원이나 승인을 받지 않았으며, 이름과 사건은 모두 지어낸 것입니다.</p>
 </section>
 
 <section>
-  <h2>장면 모음</h2>
+  <h2><img class="brush" src="img/h/h04.png" alt="장면 모음" width="105" height="29"></h2>
   <p class="note">영상과 글에 자유롭게 쓰세요. 전부 실제 게임 화면입니다. 녹화용으로 계기판을 끄고 좀비 수를 늘렸고 근성이 바닥나지 않게 했습니다. MP4는 1280×720 원본으로, 효과음과 선임 대사가 들어 있고 배경 음악은 없습니다.</p>
   <section class="group"><h3>섬을 달린다</h3><div class="grid"><figure class="scene">
   <img src="gif/landing.gif" alt="첫 상륙" loading="lazy" width="640" height="360">
@@ -135,8 +141,29 @@ h3 { font-size:20px; line-height:1.3; margin:0 0 12px; color:var(--gold); }
   <img src="gif/odojjase.gif" alt="오도짜세" loading="lazy" width="640" height="360">
   <figcaption>
     <h4>오도짜세 <small>이동 지휘소, 궤도 폭격 위성, 장갑차 항공모함</small></h4>
-    <p>게이지가 차서 오도짜세를 누르면 8초 동안 빨라지고 들이받는 힘이 두 배가 됩니다. 합체품을 잔뜩 단 황룡 도장입니다.</p>
+    <p>게이지가 차서 오도짜세를 누르면 빨라지고 들이받는 힘이 세집니다. 합체품을 잔뜩 단 황룡 도장입니다.</p>
     <p class="dl"><a href="gif/odojjase.gif" download>GIF</a> · <a href="mp4/odojjase.mp4" download>MP4 720p 소리 있음</a></p>
+  </figcaption>
+</figure></div></section><section class="group"><h3>차체 확장</h3><div class="grid"><figure class="scene">
+  <img src="gif/fleet.gif" alt="상륙 함대" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>상륙 함대 <small>차폭 위반 날개삽, 기열 퇴치봉, 해병 돛</small></h4>
+    <p>삼동 장갑차와 생활관 열차를 합친 금지 병기입니다. 이건 장갑차가 아니라 부대입니다.</p>
+    <p class="dl"><a href="gif/fleet.gif" download>GIF</a> · <a href="mp4/fleet.mp4" download>MP4 720p 소리 있음</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="gif/triple.gif" alt="삼동 장갑차" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>삼동 장갑차 <small>포크레인 부대, 생활관 열차</small></h4>
+    <p>세 대가 나란히 들이받고, 포크레인 팔 둘이 큰 놈을 집어 바다 쪽에 놓습니다.</p>
+    <p class="dl"><a href="gif/triple.gif" download>GIF</a> · <a href="mp4/triple.mp4" download>MP4 720p 소리 있음</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="gif/expand.gif" alt="쌍동 장갑차" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>쌍동 장갑차 <small>포크레인 팔, 생활관 트레일러, 미끼 낚싯대</small></h4>
+    <p>옆에 한 대 더 용접했습니다. 생활관이 뒤를 따라오고, 마네킹에 몰린 놈을 낚아 바다로 던집니다. 도장은 자진입대 위로품 7일째에만 받는 &#x27;오도짜세 도금&#x27;입니다.</p>
+    <p class="dl"><a href="gif/expand.gif" download>GIF</a> · <a href="mp4/expand.mp4" download>MP4 720p 소리 있음</a></p>
   </figcaption>
 </figure></div></section><section class="group"><h3>설계도 병기</h3><div class="grid"><figure class="scene">
   <img src="gif/forbidden.gif" alt="금지 병기" loading="lazy" width="640" height="360">
@@ -159,45 +186,52 @@ h3 { font-size:20px; line-height:1.3; margin:0 0 12px; color:var(--gold); }
     <p>정신 합체 설계도입니다. 블랙홀이 좀비·집·고철을 한 덩어리로 철거하고, 철퇴와 기총이 차 둘레를 돕니다.</p>
     <p class="dl"><a href="gif/spirit.gif" download>GIF</a> · <a href="mp4/spirit.mp4" download>MP4 720p 소리 있음</a></p>
   </figcaption>
-</figure><figure class="scene">
-  <img src="gif/spirit_all.gif" alt="정신 합체 여섯" loading="lazy" width="640" height="360">
-  <figcaption>
-    <h4>정신 합체 여섯 <small>방송차, 허수아비, 연막, 짬통, 땅굴, 갈퀴</small></h4>
-    <p>기침 검열 방송차, 깔깔이 허수아비 부대, 오도짜세 연막 은신, 짬통 사출기, 땅굴 굴착 충각, 까라면 까는 투척 갈퀴를 한꺼번에 달았습니다.</p>
-    <p class="dl"><a href="gif/spirit_all.gif" download>GIF</a> · <a href="mp4/spirit_all.mp4" download>MP4 720p 소리 있음</a></p>
-  </figcaption>
-</figure></div></section><section class="group"><h3>큰 놈은 바다로</h3><div class="grid"><figure class="scene">
+</figure></div></section><section class="group"><h3>대찐빠는 바다로</h3><div class="grid"><figure class="scene">
   <img src="gif/pig.gif" alt="왕돼지" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4>왕돼지 <small>입수까지</small></h4>
-    <p>큰 놈은 총으로 지치게 한 뒤 들이받아 바다로 보냅니다.</p>
+    <h4>왕돼지 <small>작전 1 · 해안</small></h4>
+    <p>대찐빠는 지치기 전엔 무엇으로도 안 밀립니다. 총으로 지치게 한 뒤 들이받아 바다로 보냅니다.</p>
     <p class="dl"><a href="gif/pig.gif" download>GIF</a> · <a href="mp4/pig.mp4" download>MP4 720p 소리 있음</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="gif/cap.gif" alt="앵무새 선장" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>앵무새 선장 <small>작전 2 · 해안</small></h4>
+    <p>대포를 연발로 쏘고 해적 졸개를 부릅니다. 앵무새가 &#x27;악!&#x27;을 흉내 내 막습니다.</p>
+    <p class="dl"><a href="gif/cap.gif" download>GIF</a> · <a href="mp4/cap.mp4" download>MP4 720p 소리 있음</a></p>
+  </figcaption>
+</figure><figure class="scene">
+  <img src="gif/fish.gif" alt="대왕 아귀" loading="lazy" width="640" height="360">
+  <figcaption>
+    <h4>대왕 아귀 <small>작전 2 · 늪</small></h4>
+    <p>등불로 끌어당깁니다. 등불을 쏘면 눈이 멉니다. 물고기인데 헤엄을 못 칩니다.</p>
+    <p class="dl"><a href="gif/fish.gif" download>GIF</a> · <a href="mp4/fish.mp4" download>MP4 720p 소리 있음</a></p>
   </figcaption>
 </figure><figure class="scene">
   <img src="gif/toad.gif" alt="늪 두꺼비 어미" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4>늪 두꺼비 어미 <small>늪의 보스</small></h4>
+    <h4>늪 두꺼비 어미 <small>작전 1 · 늪</small></h4>
     <p>산성 비를 뿌리고 잠수해 다가와 솟구칩니다. 이놈도 끝은 물입니다.</p>
     <p class="dl"><a href="gif/toad.gif" download>GIF</a> · <a href="mp4/toad.mp4" download>MP4 720p 소리 있음</a></p>
   </figcaption>
 </figure><figure class="scene">
   <img src="gif/ox.gif" alt="얼음 뿔소" loading="lazy" width="640" height="360">
   <figcaption>
-    <h4>얼음 뿔소 <small>기열 핑크 도장</small></h4>
-    <p>설원의 보스입니다. 핑크 장갑차로 들이받아도 효과는 같습니다.</p>
+    <h4>얼음 뿔소 <small>작전 1 · 설원</small></h4>
+    <p>설원의 대찐빠입니다. 핑크 장갑차로 들이받아도 효과는 같습니다.</p>
     <p class="dl"><a href="gif/ox.gif" download>GIF</a> · <a href="mp4/ox.mp4" download>MP4 720p 소리 있음</a></p>
   </figcaption>
 </figure></div></section>
 </section>
 
 <section>
-  <h2>스크린샷</h2>
-  <p class="note">스토어 그림입니다. 누르면 2868×1320 원본이 열립니다.</p>
-  <div class="shots"><a href="img/shot_01_title.png"><img src="img/shot_01_title.jpg" alt="" loading="lazy" width="960" height="442"></a><a href="img/shot_02_parts.png"><img src="img/shot_02_parts.jpg" alt="" loading="lazy" width="960" height="442"></a><a href="img/shot_03_forbidden.png"><img src="img/shot_03_forbidden.jpg" alt="" loading="lazy" width="960" height="442"></a><a href="img/shot_04_paints.png"><img src="img/shot_04_paints.jpg" alt="" loading="lazy" width="960" height="442"></a><a href="img/shot_05_drown.png"><img src="img/shot_05_drown.jpg" alt="" loading="lazy" width="960" height="442"></a><a href="img/shot_06_boss.png"><img src="img/shot_06_boss.jpg" alt="" loading="lazy" width="960" height="442"></a><a href="img/shot_07_seniors.png"><img src="img/shot_07_seniors.jpg" alt="" loading="lazy" width="960" height="442"></a><a href="img/shot_08_cards.png"><img src="img/shot_08_cards.jpg" alt="" loading="lazy" width="960" height="442"></a><a href="img/shot_09_mp.png"><img src="img/shot_09_mp.jpg" alt="" loading="lazy" width="960" height="442"></a><a href="img/shot_10_hall.png"><img src="img/shot_10_hall.jpg" alt="" loading="lazy" width="960" height="442"></a></div>
+  <h2><img class="brush" src="img/h/h05.png" alt="스크린샷" width="98" height="29"></h2>
+  <p class="note">계기판까지 그대로 찍은 게임 화면입니다. 누르면 1920×1080 원본이 열립니다. 명예의 전당 기록은 예시입니다.</p>
+  <div class="shots"><figure><a href="img/shot_mainmenu.png"><img src="img/shot_mainmenu.jpg" alt="메인 화면" loading="lazy" width="960" height="540"></a><figcaption>메인 화면</figcaption></figure><figure><a href="img/shot_build.png"><img src="img/shot_build.jpg" alt="판 화면 · 전투 임무" loading="lazy" width="960" height="540"></a><figcaption>판 화면 · 전투 임무</figcaption></figure><figure><a href="img/shot_rescue.png"><img src="img/shot_rescue.jpg" alt="구조 임무 · 철창의 아쎄이" loading="lazy" width="960" height="540"></a><figcaption>구조 임무 · 철창의 아쎄이</figcaption></figure><figure><a href="img/shot_boss.png"><img src="img/shot_boss.jpg" alt="대찐빠 둘 · 왕돼지와 앵무새 선장" loading="lazy" width="960" height="540"></a><figcaption>대찐빠 둘 · 왕돼지와 앵무새 선장</figcaption></figure><figure><a href="img/shot_cards.png"><img src="img/shot_cards.jpg" alt="보급 카드" loading="lazy" width="960" height="540"></a><figcaption>보급 카드</figcaption></figure><figure><a href="img/shot_statcards.png"><img src="img/shot_statcards.jpg" alt="강화 카드" loading="lazy" width="960" height="540"></a><figcaption>강화 카드</figcaption></figure><figure><a href="img/shot_pause.png"><img src="img/shot_pause.jpg" alt="일시정지" loading="lazy" width="960" height="540"></a><figcaption>일시정지</figcaption></figure><figure><a href="img/shot_result.png"><img src="img/shot_result.jpg" alt="결과 · 훈장 정산서" loading="lazy" width="960" height="540"></a><figcaption>결과 · 훈장 정산서</figcaption></figure><figure><a href="img/shot_hall.png"><img src="img/shot_hall.jpg" alt="명예의 전당(기록은 예시)" loading="lazy" width="960" height="540"></a><figcaption>명예의 전당(기록은 예시)</figcaption></figure><figure><a href="img/shot_bp_shop.png"><img src="img/shot_bp_shop.jpg" alt="설계도 상점" loading="lazy" width="960" height="540"></a><figcaption>설계도 상점</figcaption></figure></div>
 </section>
 
 <section>
-  <h2>로고·아이콘·영상 원본</h2>
+  <h2><img class="brush" src="img/h/h06.png" alt="로고·아이콘·영상 원본" width="247" height="29"></h2>
   <div class="assets">
     <a href="img/icon_1024.png" download>아이콘 1024</a>
     <a href="img/logo.png" download>로고 간판</a>
@@ -208,10 +242,12 @@ h3 { font-size:20px; line-height:1.3; margin:0 0 12px; color:var(--gold); }
 </section>
 
 <section class="panel">
-  <h2>크리에이터께</h2>
+  <h2><img class="brush" src="img/h/h07.png" alt="크리에이터께" width="142" height="29"></h2>
   <p>수익 창출을 포함해 이 게임을 다룬 영상은 자유롭게 만드셔도 됩니다. 이 페이지의 GIF, 영상, 그림도 마음껏 쓰세요.</p>
   <p>게임 음악은 미국 해병대 군악대가 연주한 수자·푸치크 행진곡으로 공유 저작물입니다. 미국 해병대·미국 정부와 무관합니다.</p>
-  <p>선임 목소리는 음성 합성으로 미리 만들어 넣었습니다. 좀비와 세계 모형은 Quaternius, Kenney의 CC0 에셋을 썼습니다. 게임을 돌리는 동안 AI 서비스를 부르지는 않습니다.</p>
+  <p>선임 목소리는 음성 합성으로 미리 만들어 넣었습니다. 좀비와 세계 모형은 Quaternius, Kenney 등의 CC0 에셋을 썼습니다. 게임을 돌리는 동안 AI 서비스를 부르지는 않습니다.</p>
+  <p>영상에 나오는 미사일·위성·허수아비 같은 발사체 일부는 CC BY 3.0 모형을 구워 쓴 것입니다. 영상을 쓰실 때 아래 표시를 함께 적어 주시면 고맙겠습니다.</p>
+  <p class="cc">&quot;Missile&quot; © Jarlan Perez<br>&quot;Missile&quot;, &quot;Bullet&quot;, &quot;Satellite&quot;, &quot;Scarecrow&quot; © Poly by Google<br>&quot;Space rocket&quot; © Hennadiy Kyseliov<br>&quot;Red Rocket&quot; © Guillaume Brette<br>&quot;Jet&quot; © jeremy<br>&quot;Drone&quot; © NateGazzard<br>라이선스: <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a> (poly.pizza)</p>
   <p>연락: <a href="mailto:opop4615@naver.com">opop4615@naver.com</a></p>
 </section>
 </div>
