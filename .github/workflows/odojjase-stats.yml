@@ -8,6 +8,11 @@ on:
     - cron: "7 * * * *"
     - cron: "37 * * * *"
   workflow_dispatch:
+  push:  # 수집기나 이 파일을 고치면 바로 한 번 돈다 — 고친 것이 도는지 그 자리에서 본다
+    branches: [main]
+    paths:
+      - .github/scripts/odojjase_stats.py
+      - .github/workflows/odojjase-stats.yml
 
 permissions:
   contents: write
