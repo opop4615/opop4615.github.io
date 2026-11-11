@@ -36,11 +36,13 @@ HALL_EPOCH = "2000-01-01T00:00:00Z"
 
 # 출시 글. 글을 더 올리면 여기에 한 줄 (key는 바꾸지 않는다 — history.jsonl의 열쇠다)
 #   kind: clien·fm·cafe = 숫자 + 댓글 내용 / dc = 숫자만(댓글 내용은 따로 불러야 해서 안 읽는다) / manual = 못 읽는 곳, 직접 열기 링크만
+#   title(없어도 된다): 한 번도 못 읽은 글에 보일 제목 — 에펨코리아는 깃허브 서버를 막는 때가 많다(HTTP 430)
 POSTS = [
     {"key": "clien_iphone", "kind": "clien", "site": "클리앙", "board": "아이포니앙", "url": "https://www.clien.net/service/board/cm_iphonien/19290472"},
     {"key": "clien_andro", "kind": "clien", "site": "클리앙", "board": "안드로메당", "url": "https://www.clien.net/service/board/cm_andro/19290474"},
     {"key": "dc_aidev", "kind": "dc", "site": "디시", "board": "AI 게임 개발 갤", "url": "https://gall.dcinside.com/mgallery/board/view/?id=aidevelop&no=7122"},
-    {"key": "fm_mgame", "kind": "fm", "site": "에펨코리아", "board": "모바일게임", "url": "https://www.fmkorea.com/10541329565"},
+    {"key": "fm_mgame", "kind": "fm", "site": "에펨코리아", "board": "모바일게임", "url": "https://www.fmkorea.com/10541329565",
+     "title": "오도짜세! 돌격 상륙장갑차 - 진짜 해병이 만든 해병 좀비 로그라이크입니다."},
     {"key": "cafe_hack", "kind": "cafe", "site": "네이버 카페", "board": "신작게임평가단", "url": "https://cafe.naver.com/hackmacke/118429", "cafe": 24576196, "article": 118429},
     {"key": "ppom", "kind": "manual", "site": "뽐뿌", "board": "앱정보 · 내가 만든 앱", "url": "https://www.ppomppu.co.kr/zboard/zboard.php?id=ppomapp&category=2"},
 ]
@@ -366,6 +368,8 @@ def posts(prev):
                 for k in ("title", "views", "likes", "comments", "list", "read_at"):
                     if k in o:
                         e[k] = o[k]
+                if not e.get("title") and p.get("title"):
+                    e["title"] = p["title"]
                 e["err"] = why(ex)
                 errors.append({"what": "%s %s 글" % (p["site"], p["board"]), "why": why(ex)})
                 traceback.print_exc()
