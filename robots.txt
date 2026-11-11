@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /seolhwa-stats/
+Disallow: /odojjase-stats/
 Disallow: /yokai/r/
 
 Sitemap: https://seolhwadungeon.com/sitemap.xml

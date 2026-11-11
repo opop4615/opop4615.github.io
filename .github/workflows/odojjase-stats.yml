@@ -1,0 +1,51 @@
+name: odojjase-stats
+
+# 오도짜세 현황 수집. 30분마다 명예해병 명부·출시 글 반응·다룬 곳·스토어를 읽어
+# odojjase-stats-data 브랜치에 latest.json · history.jsonl · hall_rows.json을 올린다.
+# 페이지(odojjase-stats/index.html)가 그 셋을 읽는다. 키·비밀값은 쓰지 않는다(명부 읽기는 공개).
+on:
+  schedule:
+    - cron: "7 * * * *"
+    - cron: "37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: odojjase-stats
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install --quiet google-play-scraper==1.2.7 beautifulsoup4==4.12.3
+
+      - name: Collect
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$url" odojjase-stats-data >/dev/null; then
+            git clone --quiet --depth 1 --branch odojjase-stats-data "$url" data
+          else
+            mkdir data && git -C data init --quiet && git -C data remote add origin "$url"
+          fi
+          python .github/scripts/odojjase_stats.py data
+          cd data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --quiet --orphan next
+          git add -A
+          git commit --quiet -m "odojjase-stats $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M') KST"
+          git push --quiet --force origin next:odojjase-stats-data

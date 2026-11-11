@@ -1,0 +1,1108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>오도짜세 현황</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --sunk: #f0efec;
+  --ink: #0b0b0b; --ink2: #52514e; --muted: #6f6d68;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
+  --series: #2a78d6; --series-hi: #1c5cab;
+  --good: #006300; --bad: #c22f2f; --warn: #8a5a00; --warn-bg: #fdf3dc;
+  --chip: #eceae4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --sunk: #232321;
+    --ink: #ffffff; --ink2: #c3c2b7; --muted: #9a988f;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
+    --series: #3987e5; --series-hi: #86b6ef;
+    --good: #0ca30c; --bad: #e66767; --warn: #f2c25c; --warn-bg: #2b2414;
+    --chip: #2a2a27;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(48px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+/* 위 띠: 제목·새로고침·갈래 건너뛰기. 내려 읽는 동안에도 붙어 있다 */
+header.top { position: sticky; top: 0; z-index: 20; background: var(--page); margin: 0 -16px 12px; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 0; border-bottom: 1px solid var(--border); }
+.toprow { display: flex; gap: 10px 14px; align-items: center; justify-content: space-between; }
+.toprow > div:first-child { min-width: 0; }
+h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+.stamp { color: var(--ink2); font-size: 12.5px; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.actions { display: flex; gap: 8px; flex: none; }
+.jump { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 8px -16px 0; padding: 0 16px 8px; }
+.jump::-webkit-scrollbar { display: none; }
+.jump a { flex: none; font-size: 13.5px; color: var(--ink2); text-decoration: none; padding: 6px 12px; border-radius: 99px; background: var(--chip); white-space: nowrap; }
+.jump a:active { background: var(--grid); }
+section.card { scroll-margin-top: 118px; }
+button, .btn { font: inherit; font-size: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 8px 14px; min-height: 40px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+button.primary { background: var(--series); border-color: var(--series); color: #fff; font-weight: 600; }
+button:disabled { opacity: .55; cursor: default; }
+button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+.progress { font-size: 13px; color: var(--ink2); min-height: 0; margin: 0 0 10px; }
+.progress:empty { display: none; }
+section.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 0 0 14px; }
+section.card > h2 { font-size: 16px; margin: 0 0 4px; }
+.sub { color: var(--ink2); font-size: 13px; margin: 0 0 12px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 0 0 14px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+.kpi .l { font-size: 13px; color: var(--ink2); }
+.kpi .v { font-size: 28px; font-weight: 650; line-height: 1.2; margin-top: 4px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.kpi .s { font-size: 12.5px; color: var(--ink2); margin-top: 2px; }
+.d { font-size: 12.5px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.up { color: var(--good); } .down { color: var(--bad); } .flat { color: var(--muted); }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { font-size: 12.5px; color: var(--ink2); font-weight: 600; white-space: nowrap; }
+.nw { white-space: nowrap; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.tag { display: inline-block; font-size: 11.5px; padding: 1px 7px; border-radius: 99px; background: var(--chip); color: var(--ink2); white-space: nowrap; vertical-align: 1px; }
+.tag.live { background: transparent; border: 1px solid var(--series); color: var(--series); }
+.warnbox { background: var(--warn-bg); color: var(--ink); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin: 0 0 14px; }
+.warnbox b { color: var(--warn); }
+.muted { color: var(--muted); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+select, input[type=text], input[type=password] { font: inherit; font-size: 14px; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
+input[type=password], input[type=text] { width: 100%; }
+details summary { cursor: pointer; color: var(--ink2); font-size: 14px; }
+details[open] summary { margin-bottom: 8px; }
+.same { columns: 2 260px; column-gap: 24px; font-size: 13.5px; color: var(--ink2); margin: 0; padding-left: 18px; }
+.same li { break-inside: avoid; margin: 0 0 3px; }
+.review { border-top: 1px solid var(--grid); padding: 10px 0; }
+.review:first-child { border-top: 0; padding-top: 0; }
+.stars { color: var(--ink); font-weight: 600; letter-spacing: 1px; }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--surface); font-size: 12.5px; padding: 6px 9px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity .08s; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 20px; }
+@media (max-width: 720px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+h3.h { font-size: 14px; margin: 0 0 6px; }
+/* 달라진 것: 한 줄 = 항목 / 그때 → 지금 / 변화. 좁으면 값이 아랫줄로 내려간다 */
+.chg { list-style: none; margin: 0; padding: 0; }
+.chg li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; padding: 9px 0; border-bottom: 1px solid var(--grid); }
+.chg li:last-child { border-bottom: 0; }
+.chg .nm { flex: 1 1 240px; min-width: 0; overflow-wrap: anywhere; }
+.chg .vals { color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 13.5px; }
+.chg .dv { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; min-width: 72px; text-align: right; margin-left: auto; }
+/* 스토어 페이지: 가게·나라마다 카드 한 장 */
+.pg { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-top: 14px; }
+.pgc { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+.pgc h4 { font-size: 13.5px; margin: 0 0 6px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.pgc dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 10px; margin: 0; font-size: 13.5px; }
+.pgc dt { color: var(--ink2); white-space: nowrap; }
+.pgc dd { margin: 0; overflow-wrap: anywhere; }
+/* 전당: 오늘 온 사람, 최근 기록 */
+.who { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.who span { font-size: 13.5px; padding: 4px 10px; border-radius: 99px; background: var(--chip); white-space: nowrap; }
+.who span b { font-weight: 600; }
+.who span.new { background: transparent; border: 1px solid var(--good); color: var(--good); }
+.runs { list-style: none; margin: 0; padding: 0; }
+.runs li { padding: 8px 0; border-bottom: 1px solid var(--grid); break-inside: avoid; }
+.runs .r1 { display: flex; gap: 8px; align-items: baseline; }
+.runs .r1 b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.runs .r1 .cls { color: var(--ink2); font-size: 13.5px; white-space: nowrap; }
+.runs .tm { margin-left: auto; color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.runs .r2 { font-size: 13.5px; color: var(--ink2); margin-top: 1px; }
+@media (min-width: 721px) { .runs { columns: 2; column-gap: 28px; } }
+.bars { list-style: none; margin: 0; padding: 0; font-size: 13.5px; }
+.bars li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; padding: 5px 0; }
+.bars .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: var(--sunk); overflow: hidden; }
+.bars .bar i { display: block; height: 100%; background: var(--series); border-radius: 2px; }
+.bars .n { font-variant-numeric: tabular-nums; color: var(--ink2); }
+.runs li[data-run], .who span[data-run] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.runs li[data-run]:active, .who span[data-run]:active { background: var(--sunk); }
+.runs li[data-run]:focus-visible, .who span[data-run]:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+.runs li.cur { background: var(--sunk); border-radius: 8px; padding-left: 8px; padding-right: 8px; }
+.runs .go { color: var(--muted); margin-left: 6px; }
+/* 이름으로 찾기 */
+.find { display: flex; gap: 8px; margin: 0 0 8px; }
+.find input { flex: 1; min-width: 0; width: auto; font: inherit; font-size: 16px; min-height: 42px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); -webkit-appearance: none; appearance: none; }
+.find input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.find button { flex: none; }
+#hallfound { margin: 0 0 14px; }
+#hallfound:empty { display: none; }
+.runs li[data-who] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.runs li[data-who]:active { background: var(--sunk); }
+.runs li[data-who]:focus-visible, .linkbtn:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+.linkbtn { font: inherit; font-size: 13.5px; color: var(--series-hi); background: none; border: 0; padding: 6px 0; min-height: 0; cursor: pointer; }
+/* 한 판 자세히: 폰에서는 화면을 다 덮고, 넓으면 가운데 기둥 */
+.sheet { position: fixed; inset: 0; z-index: 50; display: none; }
+.sheet.on { display: block; }
+.sheet .bg { position: absolute; inset: 0; background: rgba(0, 0, 0, .5); }
+.sheet .panel { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: min(640px, 100%); background: var(--page); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  padding: 0 max(14px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+.sheet .shead { position: sticky; top: 0; z-index: 1; background: var(--page); display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: calc(10px + env(safe-area-inset-top, 0px)) 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.sheet .shead h2 { font-size: 18px; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rhead { display: grid; gap: 2px; margin-bottom: 10px; }
+.rhead .rwho { font-size: 15px; }
+.rhead .rwhere { font-size: 16px; }
+.rnums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.rnums div { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; min-width: 0; }
+.rnums span { display: block; font-size: 12px; color: var(--ink2); }
+.rnums b { font-size: 17px; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.blk { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+.blk .h { margin-bottom: 8px; }
+.log { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.log li { padding: 5px 0 5px 12px; border-left: 2px solid var(--grid); color: var(--ink2); }
+.log li.end { border-left-color: var(--bad); color: var(--ink); font-weight: 600; }
+.lines { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.lines li { padding: 3px 0; overflow-wrap: anywhere; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tags span { font-size: 13px; padding: 3px 9px; border-radius: 8px; background: var(--chip); }
+.sbar { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 13.5px; margin-bottom: 6px; }
+.sbar .bar { height: 8px; border-radius: 4px; background: var(--sunk); overflow: hidden; }
+.sbar .bar i { display: block; height: 100%; border-radius: 4px; }
+.sbar .n { font-variant-numeric: tabular-nums; color: var(--ink2); }
+.sgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.sgrid div { text-align: center; padding: 6px 2px; background: var(--sunk); border-radius: 8px; }
+.sgrid span { display: block; font-size: 12px; color: var(--ink2); }
+.sgrid b { font-size: 16px; font-variant-numeric: tabular-nums; }
+.sgrid i { font-style: normal; font-size: 12px; margin-left: 3px; }
+.ytt { display: block; color: inherit; text-decoration: none; }
+.ytd { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+/* 폰 */
+@media (max-width: 560px) {
+  body { font-size: 15px; }
+  main { padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+  header.top { margin: 0 -12px 10px; padding-left: 12px; padding-right: 12px; }
+  .jump { margin: 8px -12px 0; padding: 0 12px 8px; }
+  h1 { font-size: 18px; }
+  .btn.side { padding: 8px 10px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .kpi { padding: 10px 12px; }
+  .kpi .l { font-size: 12.5px; }
+  .kpi .v { font-size: 22px; }
+  .kpi .s { font-size: 12px; }
+  section.card { padding: 14px 12px; border-radius: 10px; margin-bottom: 10px; }
+  th, td { padding: 8px 5px; }
+  table { font-size: 13.5px; }
+  .w-only { display: none !important; }
+  select, input[type=text], input[type=password] { font-size: 16px; } /* 16px보다 작으면 아이폰이 화면을 당긴다 */
+  .chg .dv { min-width: 0; }
+}
+@media (min-width: 561px) { .m-only { display: none !important; } }
+.settings label { display: block; font-size: 13.5px; font-weight: 600; margin: 10px 0 4px; }
+.settings p { font-size: 13px; color: var(--ink2); margin: 4px 0; }
+.empty { color: var(--muted); font-size: 14px; }
+footer { color: var(--muted); font-size: 12.5px; margin-top: 18px; }
+footer p { margin: 4px 0; }
+/* ---- 여기부터 오도짜세 현황에만 있는 것 (위는 설화던전 현황과 같다) */
+:root { --soft: #a3c6ef; }
+@media (prefers-color-scheme: dark) { :root { --soft: #2b5c96; } }
+a { color: var(--series-hi); }
+section.card .row > h2 { font-size: 16px; margin: 0; }
+@media (min-width: 721px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+section.card > h2 small { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 6px; }
+.kpi .v .u { font-size: 14px; font-weight: 500; color: var(--ink2); margin-left: 2px; }
+.tag.new { background: transparent; border: 1px solid var(--good); color: var(--good); }
+.tag.me { background: transparent; border: 1px solid var(--axis); color: var(--muted); }
+h3.h.gap { margin-top: 18px; }
+h3.h span { font-weight: 400; color: var(--muted); }
+.who span[data-who] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.who span[data-who]:active { background: var(--sunk); }
+.who span[data-who]:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--ink2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+tr.today td { font-weight: 600; }
+/* 내 글: 한 줄 = 곳 + 제목 / 숫자 */
+.posts { list-style: none; margin: 0; padding: 0; }
+.posts li { padding: 10px 0; border-bottom: 1px solid var(--grid); }
+.posts li:last-child { border-bottom: 0; }
+.posts .p1 { display: flex; gap: 4px 8px; align-items: baseline; flex-wrap: wrap; }
+.posts .p1 a { color: var(--ink); font-weight: 600; text-decoration: none; overflow-wrap: anywhere; min-width: 0; }
+.posts .p2 { display: flex; flex-wrap: wrap; gap: 2px 16px; font-size: 13.5px; color: var(--ink2); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.posts .p2 b { color: var(--ink); font-weight: 600; }
+.posts .p2 .tm { margin-left: auto; color: var(--muted); font-size: 12.5px; }
+/* 댓글 */
+.cmts { list-style: none; margin: 0; padding: 0; }
+.cmts li { padding: 9px 0; border-bottom: 1px solid var(--grid); }
+.cmts li:last-child { border-bottom: 0; }
+.cmts .c1 { display: flex; gap: 4px 6px; align-items: baseline; flex-wrap: wrap; font-size: 13px; color: var(--ink2); }
+.cmts .c1 b { color: var(--ink); font-weight: 600; }
+.cmts .c1 .tm { margin-left: auto; color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cmts .c2 { font-size: 14px; margin-top: 2px; overflow-wrap: anywhere; }
+.cmts li.mine .c2 { color: var(--muted); }
+/* 다룬 곳 */
+.ment { list-style: none; margin: 0; padding: 0; }
+.ment li { padding: 8px 0; border-bottom: 1px solid var(--grid); }
+.ment li:last-child { border-bottom: 0; }
+.ment a { color: var(--ink); text-decoration: none; font-weight: 500; overflow-wrap: anywhere; }
+.ment .mm { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+.links { display: flex; flex-wrap: wrap; gap: 8px; }
+.links .btn { font-size: 13.5px; }
+.linknote { font-size: 13px; color: var(--ink2); margin: 10px 0 0; }
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div class="toprow">
+      <div>
+        <h1>오도짜세 현황</h1>
+        <div class="stamp" id="stamp">불러오는 중…</div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="refresh" type="button">↻ 새로고침</button>
+        <a class="btn side w-only" id="runlink" target="_blank" rel="noopener" href="https://github.com/opop4615/opop4615.github.io/actions/workflows/odojjase-stats.yml">서버 수집 ↗</a>
+      </div>
+    </div>
+    <nav class="jump" aria-label="갈래로 건너뛰기">
+      <a href="#changes">달라진 것</a><a href="#hall">날짜별 플레이</a><a href="#runs">플레이 기록</a><a href="#posts">내 글 반응</a><a href="#mentions">다룬 곳</a><a href="#store">스토어</a><a href="#links">직접 볼 곳</a>
+    </nav>
+  </header>
+  <div class="progress" id="progress" role="status" aria-live="polite"></div>
+  <div id="notice"></div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section class="card" id="changes">
+    <div class="row" style="justify-content:space-between">
+      <h2>달라진 것</h2>
+      <label class="row" style="font-size:13.5px;color:var(--ink2)">기준
+        <select id="base"></select>
+      </label>
+    </div>
+    <p class="sub" id="baseinfo"></p>
+    <div id="changed"></div>
+    <details id="samewrap" style="margin-top:10px"><summary>그대로인 것</summary><ul class="same" id="same"></ul></details>
+  </section>
+
+  <section class="card" id="hall">
+    <h2>날짜별 플레이 <small>명예해병 명부에 오른 기록으로 센다</small></h2>
+    <p class="sub" id="hallsub"></p>
+    <h3 class="h">오늘 온 사람 <span id="todaysub"></span></h3>
+    <div class="who" id="halltoday"></div>
+    <div class="row" style="justify-content:space-between;margin:16px 0 4px">
+      <h3 class="h" style="margin:0">날짜별 플레이한 사람</h3>
+      <div class="legend"><span><i style="background:var(--series)"></i>처음 온 사람</span><span><i style="background:var(--soft)"></i>전에도 온 사람</span></div>
+    </div>
+    <div class="chart" id="hallchart"></div>
+    <div class="scroll" style="margin-top:8px"><table id="halldays"></table></div>
+    <details id="daysmorewrap" style="margin-top:8px"><summary></summary><div class="scroll"><table id="halldaysmore"></table></div></details>
+    <div class="grid2" style="margin-top:18px">
+      <div><h3 class="h">어디까지 갔나</h3><ul class="bars" id="hallreach"></ul></div>
+      <div><h3 class="h">고른 선임</h3><ul class="bars" id="hallseniors"></ul></div>
+      <div><h3 class="h">많이 붙인 부품</h3><ul class="bars" id="hallmods"></ul></div>
+      <div><h3 class="h">주력 무기 <span>· 그 판에서 피해를 가장 많이 준 것</span></h3><ul class="bars" id="hallmvp"></ul></div>
+    </div>
+  </section>
+
+  <section class="card" id="runs">
+    <h2>플레이 기록 <small>새것부터 · 누르면 그 판의 부품과 피해</small></h2>
+    <p class="sub" id="runsub"></p>
+    <form class="find" id="findform" role="search" autocomplete="off">
+      <input id="hallq" type="search" inputmode="search" enterkeyhint="search" placeholder="이름으로 찾기" aria-label="명부에 올린 이름으로 찾기">
+      <button type="button" id="hallall">사람별로 보기</button>
+    </form>
+    <ul class="runs" id="hallfound" style="columns:auto"></ul>
+    <ul class="runs" id="hallrecent"></ul>
+    <div class="row" style="margin-top:10px"><button type="button" id="recentmore">더 보기</button></div>
+  </section>
+
+  <section class="card" id="posts">
+    <h2>내 글 반응</h2>
+    <p class="sub" id="postsub"></p>
+    <ul class="posts" id="postlist"></ul>
+    <h3 class="h gap">댓글 <span id="cmtsub"></span></h3>
+    <ul class="cmts" id="cmtlist"></ul>
+    <details id="cmtmorewrap" style="margin-top:8px"><summary></summary><ul class="cmts" id="cmtmore"></ul></details>
+  </section>
+
+  <section class="card" id="mentions">
+    <h2>다른 곳에서 다룬 것</h2>
+    <p class="sub" id="mensub"></p>
+    <div id="mentionlist"></div>
+  </section>
+
+  <section class="card" id="store">
+    <h2>스토어 · 리뷰 · 유튜브</h2>
+    <p class="sub">한국 스토어. 실제 설치 수와 판매는 앱스토어 커넥트·플레이 콘솔에서만 보인다(‘직접 볼 곳’).</p>
+    <div class="pg" id="storecards" style="margin-top:0"></div>
+    <div class="grid2" style="margin-top:16px"><div id="rev-ios"></div><div id="rev-play"></div></div>
+    <h3 class="h gap">공식 트레일러</h3>
+    <div class="scroll"><table id="yt"></table></div>
+  </section>
+
+  <section class="card" id="links">
+    <h2>직접 볼 곳</h2>
+    <p class="sub">자동으로 못 읽는 곳과 검색. 새 탭으로 열린다.</p>
+    <div class="links" id="linklist"></div>
+    <p class="linknote">언론사·스트리머 메일 답장은 이 페이지가 읽지 못한다 — ‘메일 답장’으로 지메일에서 본다.</p>
+  </section>
+
+  <section class="card" id="errwrap">
+    <h2>못 읽은 것</h2>
+    <div id="errors"></div>
+  </section>
+
+  <section class="card settings">
+    <details>
+      <summary>설정 (이 브라우저에만 저장)</summary>
+      <label for="skipnames">세지 않을 이름 (선택)</label>
+      <input id="skipnames" type="text" autocomplete="off" placeholder="내 이름, 시험용 이름 — 쉼표로 나눈다">
+      <p>내가 직접 한 판이나 시험한 판을 사람 수·판 수에서 뺀다. 그 이름을 한 번이라도 쓴 기기의 기록을 모두 뺀다(이름을 바꿔 가며 해도 빠진다).</p>
+      <label for="ghtoken">깃허브 토큰 (선택)</label>
+      <input id="ghtoken" type="password" autocomplete="off" placeholder="github_pat_…">
+      <p>넣으면 새로고침이 서버 수집(글 반응·다룬 곳·스토어)까지 바로 돌린다(1~2분). 세분화 토큰(fine-grained)으로, 저장소는 opop4615.github.io 하나, 권한은 Actions: Read and write 하나만. 설화던전 현황에 넣은 토큰을 그대로 써도 된다.</p>
+      <div class="row" style="margin-top:10px"><button id="save" type="button">저장</button><a class="btn" target="_blank" rel="noopener" href="https://github.com/opop4615/opop4615.github.io/actions/workflows/odojjase-stats.yml">서버 수집 기록 ↗</a><span id="saved" class="muted" style="font-size:13px"></span></div>
+    </details>
+  </section>
+
+  <footer>
+    <p>서버 수집은 30분마다(매시 7분·37분 무렵, 깃허브 사정으로 늦기도 한다) 깃허브 액션이 돈다 — 명예해병 명부, 올린 글의 조회·추천·댓글, 다룬 곳 검색, 스토어 페이지·리뷰, 유튜브 조회. 새로고침하면 명부의 새 기록과 앱스토어 별점은 이 브라우저가 바로 읽는다 <span class="tag live">실시간</span>.</p>
+    <p>플레이 수는 명예해병 명부에 오른 판으로 센다 — 이름을 정하고, 섬을 하나라도 확보했거나 30마리 넘게 잡았거나 지도 끝까지 간 판만 오른다(실제 플레이보다 적다). 같은 기기 = 한 사람. 시각은 전부 한국 시간.</p>
+    <p>자동 읽기를 막아 둔 곳은 돌아가지 않고 ‘못 읽음’으로 둔다. 새 글을 올리면 수집기(.github/scripts/odojjase_stats.py)의 POSTS에 한 줄 더한다.</p>
+  </footer>
+</main>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheettitle">
+  <div class="bg" id="sheetbg"></div>
+  <div class="panel">
+    <div class="shead"><h2 id="sheettitle"></h2><button type="button" id="sheetclose">닫기 ✕</button></div>
+    <div id="sheetbody"></div>
+  </div>
+</div>
+
+<script>
+// 오도짜세 현황. 틀은 설화던전 현황(seolhwa-stats/index.html)과 같다.
+// 서버 수집본(odojjase-stats-data 브랜치의 latest.json · history.jsonl · hall_rows.json)을 읽고,
+// 명예해병 명부의 새 기록과 앱스토어 별점만 이 브라우저가 바로 더 읽는다.
+const REPO = "opop4615/opop4615.github.io", BRANCH = "odojjase-stats-data", WORKFLOW = "odojjase-stats.yml";
+const IOS_ID = 6829262345, PLAY_ID = "com.sungkisoft.odojjase";
+const QS = new URLSearchParams(location.search);
+const FS_DOCS = QS.get("fs") || "https://firestore.googleapis.com/v1/projects/odojjase/databases/(default)/documents"; // 키 없이 읽힌다(막는 일은 게임 저장소의 firestore.rules). ?fs= 는 시험용
+const COOLDOWN_MIN = 10;
+const NOCACHE_DAYS = 3; // 모아 둔 명부 기록이 없을 때 직접 읽는 날 수 — 명부를 통째로 읽지 않는다(읽기 한도)
+const RECENT_STEP = 30; // 플레이 기록을 한 번에 보이는 줄 수
+const YT_MIN = 10;      // 유튜브 조회 변화가 이보다 작으면 '달라진 것'에 안 보인다(유튜브가 보여 주는 수가 몇 회씩 오르내린다)
+const WINDOWS = [["visit", "지난번 열어 본 때"], ["30", "30분 전"], ["60", "1시간 전"], ["180", "3시간 전"], ["midnight", "오늘 0시"], ["1440", "24시간 전"]];
+// 게임의 이름표(main.gd의 RANKS · SENIORS · OPS · SRC_NAMES · MODULES). 부품·무기가 늘면
+//   python3 .github/scripts/odojjase_names.py <게임 저장소>/main.gd odojjase-stats/index.html
+// 로 이 줄을 갈아 끼운다. 표에 없는 열쇠는 열쇠 그대로 보인다.
+const N = {"ranks":["아쎄이","일병","일꺽","일병 오장","상병","상꺽","상병 오장","병장","황룡병장"],"seniors":{"dolgyeok":"장덕칠 병장","mulgae":"임땡규 상병","jeongbi":"배석기 상병","gwak":"김뚱혁 병장","do":"김만준 상병","oh":"안썩찬 일병"},"ops":[[0,"아쎄이 첫 상륙"],[2,"기열 해적 토벌"],[3,"늪지 찐빠 수습"],[4,"쇳덩이 기열 해체"],[5,"오도짜세 대상륙"]],"src":{"bcast":"기침 방송","blackhole":"고철 블랙홀","decoy":"허수아비","digger":"땅굴","jackpot":"찐빠 대박포","kkangflail":"깡 철퇴","spiral":"회전 기총","flinger":"투척 갈퀴","ninja":"독 연막","fireworks":"불꽃놀이","jjamtong":"짬통","torpedo":"어뢰","buster":"벙커버스터","battleship":"함포","carrier":"전투기","sam":"지대공","orbital":"궤도 폭격","railgun":"군기 확립포","tesla":"감전","sawring":"뺑뺑이 톱날","harpoon":"작살","drone":"드론","freezer":"냉동고","siren":"사이렌","acid":"제초제","mg":"기관총","gatling":"개틀링","gl":"유탄","mortar":"박격포","rifle":"아쎄이 소총","water":"물대포","ram":"들이받기","crush":"깔기","drown":"입수","bomb":"폭탄 연쇄","fortress":"요새 가시","van":"오도봉고","shot":"기타","soup":"끓는 국","shovel":"옆구리 삽","jinppa":"찐빠포","grinder":"분쇄 롤러","saw":"원형톱","flame":"화염방사기","flail":"철퇴 사슬","wire":"철조망","mine":"지뢰","rear":"꽁무니 부품","pole":"기열 퇴치봉","wings":"날개삽","trailer":"생활관","shout":"악!","salute":"전원 차렷포","spray":"방역 드론","icebreaker":"쇄빙선","crane":"철거 쇠공","combine":"콤바인","dreadnought":"지상 전함","skycarrier":"하늘 항공모함","spaceforce":"해병 우주군","division":"사단 포격"},"mods":{"missile":"전역 통지서 미사일","railgun":"군기 확립포","tesla":"감전 정신교육기","harpoon":"포경 작살포","sawring":"뺑뺑이 톱날","drone":"일병 드론 둥지","acid":"제초제 살포기","freezer":"취사장 냉동고","siren":"사단장 방문 사이렌","tidal":"해일 발생기","torpedo":"육상 어뢰 발사관","buster":"벙커버스터","battleship":"16인치 함포","carrier":"장갑차 항공모함","sam":"지대공 미사일","orbital":"궤도 폭격 위성","salute":"전원 차렷포","spray":"전 섬 방역 드론 편대","icebreaker":"남극 파견 쇄빙선","crane":"철거 타워크레인","combine":"대민지원 콤바인","dreadnought":"지상 전함","skycarrier":"하늘을 나는 항공모함","spaceforce":"해병 우주군","division":"도서 정리 사단","nuke":"전원 전역 명령","railstorm":"군기 대확립","thunder":"벼락 정신교육","whaler":"포경선","sawstorm":"톱날 폭풍","swarm":"드론 대대","defol":"고엽 정신교육","cryo":"냉동 취사장","tsunami":"해일 정신교육","dozer":"불도저 삽","armor":"덧댄 장갑판","mg":"쌍열 기관총","gl":"40mm 유탄 증설","mortar":"지붕 박격포","speaker":"정신교육 확성기","toolbox":"수리 공구함","ports":"아쎄이 사격 구멍","engine":"증설 엔진","drum":"물 분사구","magnet":"고철 자석","gamasot":"취사장 가마솥","bugle":"기상 나팔","blanket":"각 잡힌 모포","sideshovel":"옆구리 삽 다발","vending":"PX 자판기","flag":"오도 깃발","seat":"선임 전용 상석","laundry":"달리는 빨랫줄","pickaxe":"곡괭이 충각","radio":"고장 난 무전기","jinppagun":"찐빠포","calendar":"전역 달력","grinder":"옆구리 분쇄 롤러","sawblade":"측면 원형톱","flamer":"화염방사기","flail":"철퇴 사슬","razorwire":"가시 철조망","sponson":"측면 기총좌","tires":"폐타이어 범퍼","oars":"고무보트 노","minelayer":"지뢰 살포기","afterburner":"후미 배기 화염","rake":"고철 갈퀴","smoke":"연막 통","cans":"전역 축하 깡통 줄","screw":"대형 스크루","rearmg":"꼬리 기관총","wedge":"쇄빙 쐐기","gatling":"개틀링 해병포","barrage":"포격 정신교육","watercannon":"물대포","fortress":"해병 요새","galley":"움직이는 취사장","parade":"이동 사열대","hq":"이동 지휘소","roller":"양날 분쇄 정신교육","inferno":"불바다 정신교육","backfire":"역추진 정신교육","bcast":"기침 검열 방송차","blackhole":"고철 블랙홀 철거반","decoy":"깔깔이 허수아비 부대","digger":"땅굴 굴착 충각","jackpot":"찐빠 대박포","kkangflail":"깡 철퇴 회오리","spiral":"통제 불능 회전 기총","flinger":"까라면 까는 투척 갈퀴","ninja":"오도짜세 연막 은신","fireworks":"전역 축하 불꽃놀이","jjamtong":"짬통 사출기","pole":"기열 퇴치봉","excavator":"포크레인 팔","twin":"쌍동 장갑차","wings":"차폭 위반 날개삽","trailer":"생활관 견인 트레일러","sail":"해병 돛","bait":"미끼 낚싯대","triple":"삼동 장갑차","train":"생활관 열차","excavators":"포크레인 부대","bigwings":"차폭 무시 대날개","galleon":"범선 장갑차","seaplane":"해병 비행정","fleet":"상륙 함대"}};
+
+const S = { snap: null, hist: [], hallRows: [], allRows: [], rows: [], stats: null, partial: false, skipped: 0, base: null, visitPrev: 0,
+            live: { m: {} }, liveErr: [], liveAt: null, busy: false, pushed: false, sheet: null, showAll: false, recentN: RECENT_STEP, ppl: null };
+const $ = id => document.getElementById(id);
+const store = {
+  get(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
+  set(k, v) { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} },
+};
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const link = u => (/^https?:\/\//i.test(String(u || "")) ? esc(u) : "#"); // 밖에서 긁어 온 주소는 http(s)만 건다
+const nf = n => (n == null ? "—" : Number(n).toLocaleString("ko-KR"));
+const kst = ms => new Date(ms + 9 * 3600e3);
+const dayKey = ms => kst(ms).toISOString().slice(0, 10);
+const hm = ms => kst(ms).toISOString().slice(11, 16);
+const mdhm = ms => { const d = kst(ms); return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${hm(ms)}`; };
+const md = day => `${Number(day.slice(5, 7))}/${Number(day.slice(8, 10))}`;
+const wd = day => "일월화수목금토"[new Date(day + "T00:00:00Z").getUTCDay()];
+const ago = ms => { const m = Math.round((Date.now() - ms) / 60000); return m < 1 ? "방금" : m < 60 ? `${m}분 전` : m < 1440 ? `${Math.floor(m / 60)}시간 ${m % 60}분 전` : `${Math.floor(m / 1440)}일 전`; };
+const norm = t => String(t || "").toLowerCase().replace(/\s+/g, "");
+
+const rankName = i => N.ranks[i] || `계급 ${i}`;
+const seniorName = k => N.seniors[k] || k || "—";
+const modName = k => N.mods[k] || k;
+const srcName = k => N.src[k] || N.mods[k] || k;
+function opName(risk) { let n = N.ops.length ? N.ops[0][1] : ""; for (const [r, name] of N.ops) if (r <= risk) n = name; return n; } // main.gd op_name_of와 같다
+const reachText = r => (r.win ? "지도 끝 도달" : `섬 ${nf(r.islands)}개 확보`); // 게임의 명부 문구와 같다
+
+// ---------------------------------------------------------------- 서버 수집본
+
+async function ghFile(path) {
+  const tok = store.get("gh_token");
+  const h = { Accept: "application/vnd.github.raw" };
+  if (tok) h.Authorization = "Bearer " + tok;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}?ref=${BRANCH}`, { headers: h, cache: "no-store" });
+    if (r.ok) return await r.text();
+    if (r.status === 404 && !tok) return null;
+  } catch (e) { /* 아래 raw로 */ }
+  const r = await fetch(`https://raw.githubusercontent.com/${REPO}/${BRANCH}/${path}?t=${Date.now()}`, { cache: "no-store" });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return await r.text();
+}
+
+// 명부 한 줄의 칸을 고르게 한다 (수집기의 hall_row와 같은 칸)
+function fsRow(o) {
+  o.t = Date.parse(o.at);
+  o.uid = String(o.uid || o.id || ""); o.name = String(o.name || ""); o.senior = String(o.senior || ""); o.mvp = String(o.mvp || ""); o.ver = String(o.ver || "");
+  for (const k of ["rank", "kills", "drowned", "islands", "risk", "score", "mvpd"]) o[k] = Number(o[k]) || 0;
+  o.win = o.win === true;
+  o.mods = Array.isArray(o.mods) ? o.mods.map(String) : [];
+  o.top = Array.isArray(o.top) ? o.top.map(String) : [];
+  return o;
+}
+
+async function loadSnapshot() {
+  const base = QS.get("data"); // 시험용: ?data=<폴더 주소>
+  const read = base ? async p => { const r = await fetch(`${base}/${p}`, { cache: "no-store" }); return r.ok ? r.text() : null; } : ghFile;
+  const [a, b, c] = await Promise.all([read("latest.json"), read("history.jsonl"), read("hall_rows.json").catch(() => null)]);
+  S.snap = a ? JSON.parse(a) : null;
+  S.hallRows = [];
+  try { const j = c ? JSON.parse(c) : null; if (j) S.hallRows = j.rows.map(r => fsRow(Object.fromEntries(j.cols.map((k, i) => [k, r[i]])))).filter(o => o.t && o.id); } catch (e) {}
+  S.hist = (b || "").split("\n").filter(Boolean).map(l => { try { const o = JSON.parse(l); o.t = Date.parse(o.at); return o; } catch (e) { return null; } }).filter(o => o && o.t && o.m);
+  S.allRows = S.hallRows; S.partial = false;
+  applyRows();
+}
+
+// ---------------------------------------------------------------- 직접 읽기
+
+let jn = 0;
+function jsonp(url, ms = 12000) {
+  return new Promise((ok, no) => {
+    const cb = `__jp${++jn}`, s = document.createElement("script");
+    const timer = setTimeout(() => { done(); no(new Error("응답 없음")); }, ms);
+    function done() { clearTimeout(timer); delete window[cb]; s.remove(); }
+    window[cb] = d => { done(); ok(d); };
+    s.onerror = () => { done(); no(new Error("불러오기 실패")); };
+    s.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
+    document.head.appendChild(s);
+  });
+}
+
+function fsVal(f) {
+  const [k, v] = Object.entries(f)[0];
+  if (k === "mapValue") return Object.fromEntries(Object.entries(v.fields || {}).map(([a, b]) => [a, fsVal(b)]));
+  if (k === "arrayValue") return (v.values || []).map(fsVal);
+  if (k === "integerValue") return Number(v);
+  return v;
+}
+
+// 명부: 시각이 since 이후인 기록만 시각 차례로. 돌려받은 줄 수만큼만 읽기 한도를 쓴다 — 명부를 통째로 읽지 않는다
+const HALL_FIELDS = ["at", "uid", "name", "senior", "rank", "kills", "drowned", "islands", "risk", "score", "win", "ver", "paint", "mods", "mvp", "mvpd", "top"];
+const HALL_OVERLAP = 30 * 60000; // 규칙이 기록의 시각을 서버 시계 ±10분까지 받는다 — 겹쳐 읽고 문서 번호로 거른다
+async function hallSince(since) {
+  const out = [], seen = new Set();
+  for (let page = 0; page < 10; page++) {
+    const q = { from: [{ collectionId: "hall" }], where: { fieldFilter: { field: { fieldPath: "at" }, op: "GREATER_THAN_OR_EQUAL", value: { timestampValue: since } } },
+                orderBy: [{ field: { fieldPath: "at" }, direction: "ASCENDING" }], limit: 300, select: { fields: HALL_FIELDS.map(f => ({ fieldPath: f })) } };
+    const r = await fetch(`${FS_DOCS}:runQuery`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ structuredQuery: q }), cache: "no-store" });
+    if (!r.ok) throw new Error(r.status === 429 ? "오늘 읽기 한도를 다 썼다" : "HTTP " + r.status);
+    const docs = (await r.json()).filter(e => e && e.document).map(e => e.document);
+    let fresh = 0, lastAt = since;
+    for (const d of docs) {
+      const o = Object.fromEntries(Object.entries(d.fields || {}).map(([k, v]) => [k, fsVal(v)]));
+      o.id = (d.name || "").split("/").pop();
+      if (typeof o.at === "string") lastAt = o.at;
+      if (!o.id || seen.has(o.id)) continue;
+      seen.add(o.id); fresh++;
+      fsRow(o);
+      if (o.t) out.push(o);
+    }
+    if (docs.length < 300 || !fresh) break;
+    since = lastAt; // 다음 쪽: 마지막 줄의 시각부터(같은 시각의 줄은 번호로 거른다)
+  }
+  return out;
+}
+
+async function liveHall() {
+  const rows = new Map(S.hallRows.map(r => [r.id, r]));
+  let partial = false;
+  try {
+    let since;
+    if (S.hallRows.length) since = new Date(S.hallRows.reduce((m, r) => Math.max(m, r.t), 0) - HALL_OVERLAP).toISOString();
+    else { since = new Date(Date.now() - NOCACHE_DAYS * 86400000).toISOString(); partial = true; }
+    for (const r of await hallSince(since)) rows.set(r.id, r);
+    S.live.hall = true;
+  } catch (e) { S.liveErr.push({ what: "명예해병 명부 새 기록", why: e.message }); partial = false; }
+  S.allRows = [...rows.values()].sort((a, b) => a.t - b.t);
+  S.partial = partial && S.allRows.length > 0;
+  applyRows();
+}
+
+async function liveIos() {
+  try {
+    const d = await jsonp(`https://itunes.apple.com/lookup?id=${IOS_ID}&country=kr`);
+    const r = (d.results || [])[0];
+    if (!r) { S.live.ios = { listed: false }; return; }
+    S.live.ios = { listed: true, name: r.trackName, version: r.version, updated: r.currentVersionReleaseDate, rating: r.averageUserRating || 0, ratings: r.userRatingCount || 0 };
+    S.live.m["ios.ratings"] = r.userRatingCount || 0;
+    if (r.averageUserRating != null) S.live.m["ios.rating"] = Math.round(r.averageUserRating * 100) / 100;
+  } catch (e) { S.liveErr.push({ what: "앱스토어 페이지", why: e.message }); }
+}
+
+// ---------------------------------------------------------------- 명부 셈 (수집기의 hall_summary와 같은 셈 — 여기서는 '세지 않을 이름'을 뺀다)
+
+function hallStats(rows) {
+  const today = dayKey(Date.now()), first = new Map(), daysOf = new Map(), byDay = new Map();
+  const sorted = rows.slice().sort((a, b) => a.t - b.t);
+  for (const r of sorted) {
+    const d = dayKey(r.t);
+    if (!first.has(r.uid)) { first.set(r.uid, d); daysOf.set(r.uid, new Set()); }
+    daysOf.get(r.uid).add(d);
+    let x = byDay.get(d);
+    if (!x) byDay.set(d, x = { runs: 0, uids: new Set(), fresh: new Set(), wins: 0 });
+    x.runs++; x.uids.add(r.uid); if (r.win) x.wins++;
+    if (first.get(r.uid) === d) x.fresh.add(r.uid);
+  }
+  const days = [];
+  if (sorted.length) for (let t = Date.parse(dayKey(sorted[0].t) + "T00:00:00+09:00"); dayKey(t) <= today; t += 86400000) { // 아무도 안 온 날도 칸을 둔다
+    const d = dayKey(t), x = byDay.get(d);
+    days.push({ day: d, runs: x ? x.runs : 0, people: x ? x.uids.size : 0, new: x ? x.fresh.size : 0, wins: x ? x.wins : 0 });
+  }
+  const td = byDay.get(today);
+  let back = 0, backOf = 0;
+  for (const [u, d] of first) if (d < today) { backOf++; if (daysOf.get(u).size > 1) back++; }
+  return { total_runs: rows.length, total_people: first.size, today_runs: td ? td.runs : 0, today_people: td ? td.uids.size : 0, today_new: td ? td.fresh.size : 0,
+           wins: rows.filter(r => r.win).length, returned: back, returned_of: backOf, days, first };
+}
+
+function applyRows() {
+  const skip = new Set(store.get("skip_names").split(",").map(norm).filter(Boolean)), all = S.allRows || [];
+  const out = skip.size ? new Set(all.filter(r => skip.has(norm(r.name))).map(r => r.uid)) : new Set();
+  S.rows = out.size ? all.filter(r => !out.has(r.uid)) : all;
+  S.skipped = all.length - S.rows.length;
+  S.ppl = null;
+  S.stats = all.length ? hallStats(S.rows) : null;
+  if (!S.stats) return;
+  // 최근 며칠만 읽었으면 누적은 모른다 — 오늘 것만 싣는다
+  for (const k of S.partial ? ["today_runs", "today_people"] : ["total_runs", "total_people", "today_runs", "today_people", "today_new", "wins"]) S.live.m["hall." + k] = S.stats[k];
+}
+
+// 사람(같은 기기 번호 = 한 사람)으로 묶기. 모아 둔 줄만 쓴다 — 명부를 새로 읽지 않는다
+function people() {
+  if (S.ppl) return S.ppl;
+  const by = new Map();
+  for (const r of S.rows) { let p = by.get(r.uid); if (!p) by.set(r.uid, p = { uid: r.uid, runs: [] }); p.runs.push(r); }
+  const far = r => (r.win ? 1e6 : 0) + r.islands * 1e3 + Math.min(999, r.score / 1e4);
+  for (const p of by.values()) {
+    p.runs.sort((a, b) => b.t - a.t);
+    p.names = []; for (const x of p.runs.slice().reverse()) if (x.name && p.names[p.names.length - 1] !== x.name) p.names.push(x.name);
+    p.name = p.runs[0].name || "이름 없음"; p.last = p.runs[0].t; p.first = p.runs[p.runs.length - 1].t;
+    p.days = new Set(p.runs.map(x => dayKey(x.t))).size; p.wins = p.runs.filter(x => x.win).length;
+    p.best = Math.max(0, ...p.runs.map(x => x.score || 0));
+    p.far = p.runs.reduce((a, b) => (far(b) > far(a) ? b : a));
+  }
+  return (S.ppl = [...by.values()].sort((a, b) => b.last - a.last));
+}
+
+// ---------------------------------------------------------------- 새로고침
+
+async function dispatchServer() {
+  const tok = store.get("gh_token");
+  if (!tok) return "none";
+  if (S.snap && Date.now() - Date.parse(S.snap.at) < COOLDOWN_MIN * 60000) return "fresh";
+  const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW}/dispatches`, {
+    method: "POST", headers: { Authorization: "Bearer " + tok, Accept: "application/vnd.github+json" }, body: JSON.stringify({ ref: "main" }) });
+  if (r.status !== 204) throw new Error(`서버 수집을 못 돌렸다 (HTTP ${r.status} — 토큰 권한을 확인)`);
+  const before = S.snap ? S.snap.at : "";
+  const t0 = Date.now();
+  while (Date.now() - t0 < 6 * 60000) {
+    await new Promise(ok => setTimeout(ok, 15000));
+    progress(`서버 수집 중… ${Math.round((Date.now() - t0) / 1000)}초 (보통 2~3분)`);
+    try { const a = await ghFile("latest.json"); if (a) { const j = JSON.parse(a); if (j.at !== before) { S.live = { m: {} }; await loadSnapshot(); await liveHall(); return "done"; } } } catch (e) {}
+  }
+  return "slow";
+}
+
+function progress(t) { $("progress").textContent = t || ""; }
+
+async function refresh(server) {
+  if (S.busy) return;
+  S.busy = true; $("refresh").disabled = true;
+  S.live = { m: {} }; S.liveErr = [];
+  try {
+    progress("서버 수집본을 읽는 중…");
+    try { await loadSnapshot(); } catch (e) { S.liveErr.push({ what: "서버 수집본", why: e.message }); }
+    render();
+    progress("명부의 새 기록 · 앱스토어를 직접 읽는 중…");
+    await Promise.all([liveHall(), liveIos()]);
+    S.liveAt = Date.now();
+    render(); reshow();
+    let how = "none";
+    if (server) try { progress("서버 수집 확인 중…"); how = await dispatchServer(); } catch (e) { S.liveErr.push({ what: "서버 수집 돌리기", why: e.message }); }
+    S.busy = false;
+    render(); reshow();
+    progress({ none: "", fresh: `서버 수집은 ${COOLDOWN_MIN}분 안에 했던 것을 그대로 썼다.`, done: "서버 수집까지 새로 했다.", slow: "서버 수집이 늦다 — 잠시 뒤 다시 새로고침." }[how] || "");
+  } finally { S.busy = false; $("refresh").disabled = false; }
+}
+function reshow() { renderFound(); if (S.sheet && S.sheet.who) showWho(S.sheet.who); else if (S.sheet && S.sheet.run) showRun(S.sheet.run); }
+
+function cur() { return Object.assign({}, S.snap ? S.snap.m : {}, S.live.m); }
+function posts() { return (S.snap && S.snap.posts) || []; }
+function mentionItems() { return ((S.snap && S.snap.mentions && S.snap.mentions.items) || []).map(x => Object.assign({ ft: Date.parse(x.first) || 0, dt: Date.parse(x.date) || 0 }, x)).sort((a, b) => (b.dt || b.ft) - (a.dt || a.ft)); }
+function videos() { return (((S.snap && S.snap.youtube) || {}).videos || []).slice().sort((a, b) => Date.parse(b.published) - Date.parse(a.published)); }
+function allComments() {
+  const out = [];
+  for (const p of posts()) for (const c of p.list || []) out.push(Object.assign({ post: p, t: Date.parse(c.at) || Date.parse(c.first) || 0, ft: Date.parse(c.first) || 0 }, c));
+  return out.sort((a, b) => b.t - a.t || Number(b.id) - Number(a.id) || 0);
+}
+
+// ---------------------------------------------------------------- 기준(견줄 때)
+
+function baseT() {
+  const sel = $("base").value || "visit", now = Date.now();
+  if (sel === "visit") return S.visitPrev || now - 86400000;
+  if (sel === "midnight") return Date.parse(dayKey(now) + "T00:00:00+09:00");
+  return now - Number(sel) * 60000;
+}
+// 그때의 값: 조회수 같은 숫자는 그때에 가장 가까운 지난 수집에서, 명부는 모아 둔 줄의 시각으로 바로 센다
+function base() {
+  const t = baseT();
+  let h = null;
+  for (const x of S.hist) if (x.t <= t) h = x;
+  const used = h || S.hist[0] || null;
+  const m = Object.assign({}, used ? used.m : {});
+  if (S.rows.length && !S.partial) {
+    for (const k of Object.keys(m)) if (k.startsWith("hall.")) delete m[k];
+    const was = S.rows.filter(r => r.t <= t), today = dayKey(Date.now());
+    m["hall.total_runs"] = was.length; m["hall.total_people"] = new Set(was.map(r => r.uid)).size; m["hall.wins"] = was.filter(r => r.win).length;
+    if (dayKey(t) === today) { const tr = was.filter(r => dayKey(r.t) === today); m["hall.today_runs"] = tr.length; m["hall.today_people"] = new Set(tr.map(r => r.uid)).size; }
+  }
+  return { t, used, m };
+}
+const baseName = () => ($("base").selectedOptions[0] || {}).textContent || "";
+
+const LIKE = { clien: "공감", dc: "추천", fm: "추천", cafe: "좋아요" };
+function label(k) {
+  let m;
+  if ((m = k.match(/^yt\.v\.(.+)$/))) { const v = videos().find(x => x.id === m[1]); return v ? `유튜브 · ${v.title.split(" | ").pop()}` : `유튜브 영상 ${m[1]}`; }
+  if ((m = k.match(/^post\.(.+)\.(views|likes|comments)$/))) {
+    const p = posts().find(x => x.key === m[1]);
+    return `${p ? `${p.site} ${p.board}` : m[1]} · ${m[2] === "views" ? "조회" : m[2] === "comments" ? "댓글" : (p && LIKE[p.kind]) || "추천"}`;
+  }
+  return { "hall.total_people": "명부 누적 사람", "hall.total_runs": "명부 누적 판", "hall.wins": "지도 끝까지 간 판", "ios.ratings": "앱스토어 별점 수", "ios.rating": "앱스토어 평균 별점",
+           "play.real": "플레이 설치 수", "play.ratings": "플레이 별점 수", "play.score": "플레이 평균 별점" }[k] || k;
+}
+function fmt(k, v) {
+  if (v == null) return "—";
+  if (/rating$|score$/.test(k)) return Number(v).toFixed(2);
+  return nf(v) + (k.startsWith("yt.v.") ? "회" : /people$/.test(k) ? "명" : /runs$|wins$/.test(k) ? "판" : "");
+}
+function order(k) { const P = ["hall.total_people", "hall.", "post.", "play.", "ios.", "yt.v."]; const i = P.findIndex(p => k.startsWith(p)); return i < 0 ? 99 : i; }
+function verdict(a, b) { const d = Math.round((b - a) * 100) / 100; return d > 0 ? ["up", `▲ +${nf(d)}`] : ["down", `▼ ${nf(d)}`]; }
+
+// ---------------------------------------------------------------- 그리기
+
+function render() {
+  const m = cur(), snap = S.snap;
+  S.base = base();
+  const parts = [];
+  if (snap) parts.push(`서버 수집 ${mdhm(Date.parse(snap.at))} (${ago(Date.parse(snap.at))})`);
+  else parts.push("서버 수집본 없음");
+  if (S.liveAt) parts.push(`직접 읽음 ${hm(S.liveAt)}`);
+  $("stamp").textContent = parts.join(" · ");
+  $("notice").innerHTML =
+    (!snap && !S.busy ? `<div class="warnbox"><b>아직 서버 수집본이 없다.</b> 첫 수집이 돌면(매시 7분·37분 무렵, 또는 ‘서버 수집 ↗’에서 Run workflow) 글 반응·다룬 곳·스토어가 채워진다.</div>` : "") +
+    (S.partial ? `<div class="warnbox"><b>명부는 최근 ${NOCACHE_DAYS}일 기록만 직접 읽었다.</b> 모아 둔 기록이 아직 없어서다 — 누적과 그 전 날짜는 서버 수집이 돈 뒤에 나온다.</div>` : "");
+  renderKpis(m);
+  renderChanges(m);
+  renderHall();
+  renderRuns();
+  renderPosts();
+  renderMentions();
+  renderStore();
+  renderErrors();
+}
+
+// 타일 아래 변화 한 줄. keys의 값을 더해 그때와 견준다
+function kd(keys, m, min = 0) {
+  const b = S.base, ks = keys.filter(k => b.m[k] != null && m[k] != null);
+  if (!ks.length) return "";
+  const was = ks.reduce((a, k) => a + b.m[k], 0), now = ks.reduce((a, k) => a + m[k], 0);
+  if (was === now || Math.abs(now - was) < min) return "";
+  const [c, t] = verdict(was, now);
+  return `<div class="d ${c}">${t} <span class="muted">· ${esc(baseName())} 대비</span></div>`;
+}
+
+function renderKpis(m) {
+  const h = S.stats || (S.snap && S.snap.hall) || {}, T = S.base.t, snap = S.snap || {};
+  const ps = posts(), sum = f => ps.reduce((a, p) => a + (Number(p[f]) || 0), 0);
+  const pk = f => ps.filter(p => p.kind !== "manual").map(p => `post.${p.key}.${f}`);
+  const items = mentionItems().filter(x => !x.own), freshM = items.filter(x => x.ft > T).length;
+  const cnt = f => items.filter(f).length;
+  const ios = Object.assign({}, snap.ios || {}, S.live.ios || {}), play = snap.play || {};
+  const stars = (m["ios.ratings"] != null || m["play.ratings"] != null) ? (m["ios.ratings"] || 0) + (m["play.ratings"] || 0) : null;
+  const vs = videos(), yt = snap.youtube || {};
+  const u = (v, unit) => (v == null ? "—" : `${nf(v)}<span class="u">${unit}</span>`);
+  const tiles = [
+    ["오늘 플레이한 사람", u(m["hall.today_people"], "명"), `${nf(m["hall.today_runs"])}판${S.partial ? "" : ` · 처음 온 사람 ${nf(m["hall.today_new"])}명`}`, kd(["hall.today_people"], m)],
+    ["누적 플레이한 사람", S.partial ? "—" : u(m["hall.total_people"], "명"), S.partial ? "서버 수집 뒤에 나온다" : `${nf(m["hall.total_runs"])}판 · 지도 끝 ${nf(m["hall.wins"])}판${h.returned_of ? ` · 다시 온 사람 ${nf(h.returned)}/${nf(h.returned_of)}` : ""}`, kd(["hall.total_people"], m)],
+    ["내 글 댓글", ps.length ? u(sum("comments"), "개") : "—", ps.length ? `조회 ${nf(sum("views"))} · 추천 ${nf(sum("likes"))} · 내 댓글 포함` : "서버 수집에서", kd(pk("comments"), m)],
+    ["다른 곳에서 다룬 것", snap.mentions ? u(items.length, "건") : "—", snap.mentions ? `기사 ${cnt(x => x.kind === "news")} · 블로그·카페 ${cnt(x => x.kind === "blog" || x.kind === "cafe")} · 영상·방송 ${cnt(x => x.kind === "youtube" || x.kind === "stream")} · 커뮤니티 ${cnt(x => x.kind === "community")}` : "서버 수집에서",
+      freshM ? `<div class="d up">새로 ${nf(freshM)}건 <span class="muted">· ${esc(baseName())} 뒤</span></div>` : ""],
+    ["스토어 별점", u(stars, "개"), `앱스토어 ${ios.listed ? nf(ios.ratings) : "—"}${ios.rating ? ` (${Number(ios.rating).toFixed(1)})` : ""} · 플레이 ${play.ratings != null ? nf(play.ratings) : "—"}${play.score ? ` (${Number(play.score).toFixed(1)})` : ""} · 글 리뷰 ${nf((snap.reviews || []).length + (snap.play_reviews || []).length)}`, kd(["ios.ratings", "play.ratings"], m)],
+    ["트레일러 조회", yt.total_views != null ? u(yt.total_views, "회") : "—", vs.length ? `유튜브 영상 ${nf(vs.length)}편` : "서버 수집에서", kd(vs.map(v => "yt.v." + v.id), m, YT_MIN)],
+  ];
+  $("kpis").innerHTML = tiles.map(([l, v, s, d]) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${v}</div><div class="s">${esc(s)}</div>${d}</div>`).join("");
+}
+
+function cmtLine(c, T) {
+  const fresh = !c.mine && c.ft > T;
+  return `<li${c.mine ? ' class="mine"' : ""}><div class="c1"><span class="tag">${esc(c.post.site)} · ${esc(c.post.board)}</span><b>${esc(c.who || "?")}</b>${c.mine ? '<span class="tag me">나</span>' : ""}${fresh ? '<span class="tag new">새</span>' : ""}` +
+    `<span class="tm">${c.t ? esc(mdhm(c.t)) + (c.rough ? "쯤" : "") : ""}</span></div><div class="c2">${esc(c.text)}</div></li>`;
+}
+
+function mentionLine(x, T) {
+  const when = x.dt ? mdhm(x.dt) : x.when || "";
+  const bump = x.bump && Date.parse(x.bump) > T && x.bump_n ? ` · <span class="up">댓글 +${nf(x.bump_n)}</span>` : "";
+  const bits = [x.where, when, x.views_text, x.comments != null && x.kind === "community" ? `댓글 ${nf(x.comments)}` : ""].filter(Boolean).map(esc).join(" · ");
+  return `<li><div>${x.ft > T && !x.own ? '<span class="tag new">새</span> ' : ""}${x.own ? '<span class="tag me">내 글</span> ' : ""}<a href="${link(x.url)}" target="_blank" rel="noopener">${esc(x.title || x.url)}</a></div>` +
+    `<div class="mm"><span class="tag">${esc(x.via || "")}</span> ${bits}${bump}</div></li>`;
+}
+
+function renderChanges(m) {
+  const b = S.base, T = b.t, sel = $("base").value;
+  let info = sel !== "visit" ? `기준: ${mdhm(T)} (${ago(T)}) → 지금` : S.visitPrev ? `기준: 지난번 열어 본 ${mdhm(T)} (${ago(T)}) → 지금` : `이 브라우저로는 처음 열었다 — 지난 24시간(${mdhm(T)}부터)을 본다`;
+  if (!b.used) info += " · 조회수 같은 숫자는 견줄 지난 수집이 아직 없다(서버 수집이 두 번 돌면 생긴다)";
+  else if (Math.abs(b.used.t - T) > 45 * 60000) info += ` · 조회수 같은 숫자는 ${mdhm(b.used.t)} 수집과 견준다`;
+  $("baseinfo").textContent = info;
+  const blocks = [];
+
+  const nr = S.rows.filter(r => r.t > T);
+  if (nr.length) {
+    const before = new Set(S.rows.filter(r => r.t <= T).map(r => r.uid)), who = new Map();
+    for (const r of nr) { let p = who.get(r.uid); if (!p) who.set(r.uid, p = { uid: r.uid, name: "", n: 0, t: 0, fresh: !before.has(r.uid) }); p.n++; if (r.t >= p.t) { p.t = r.t; p.name = r.name || p.name; } }
+    const list = [...who.values()].sort((x, y) => y.t - x.t), MAX = 40;
+    blocks.push(`<h3 class="h">새 플레이 기록 <span>· ${nf(nr.length)}판 · ${nf(list.length)}명${S.partial ? "" : ` (처음 온 사람 ${nf(list.filter(p => p.fresh).length)}명)`}</span></h3><div class="who">` +
+      list.slice(0, MAX).map(p => `<span class="${p.fresh && !S.partial ? "new" : ""}" data-who="${esc(p.uid)}" role="button" tabindex="0"><b>${esc(p.name || "이름 없음")}</b> ${nf(p.n)}판${p.fresh && !S.partial ? " · 처음" : ""}</span>`).join("") +
+      (list.length > MAX ? `<span class="muted" style="background:none">그 밖에 ${nf(list.length - MAX)}명</span>` : "") + `</div>`);
+  }
+
+  const nc = allComments().filter(c => !c.mine && c.ft > T), CMAX = 8;
+  if (nc.length) blocks.push(`<h3 class="h">새 댓글 <span>· ${nf(nc.length)}개</span></h3><ul class="cmts">${nc.slice(0, CMAX).map(c => cmtLine(c, T)).join("")}</ul>` +
+    (nc.length > CMAX ? `<p class="sub" style="margin:6px 0 0">그 밖에 ${nf(nc.length - CMAX)}개 — 아래 <a href="#posts">내 글 반응</a>에서.</p>` : ""));
+
+  const nm = mentionItems().filter(x => !x.own && x.ft > T), MMAX = 8;
+  if (nm.length) blocks.push(`<h3 class="h">새로 다룬 곳 <span>· ${nf(nm.length)}건</span></h3><ul class="ment">${nm.slice(0, MMAX).map(x => mentionLine(x, T)).join("")}</ul>` +
+    (nm.length > MMAX ? `<p class="sub" style="margin:6px 0 0">그 밖에 ${nf(nm.length - MMAX)}건 — 아래 <a href="#mentions">다른 곳에서 다룬 것</a>에서.</p>` : ""));
+
+  const keys = [...new Set([...Object.keys(b.m), ...Object.keys(m)])].filter(k => !k.startsWith("hall.today") && k !== "mentions.n" && !(S.partial && k.startsWith("hall.")))
+    .sort((x, y) => order(x) - order(y) || label(x).localeCompare(label(y), "ko"));
+  const ch = [], same = [], fresh = [];
+  for (const k of keys) {
+    if (!(k in m) || m[k] == null) continue;
+    if (!(k in b.m) || b.m[k] == null) { if (b.used) fresh.push(`<li><span class="nm">${esc(label(k))}</span><span class="vals">${esc(fmt(k, m[k]))}</span><span class="dv muted">새 항목</span></li>`); continue; }
+    if (b.m[k] === m[k]) { same.push(`<li>${esc(label(k))}: ${esc(fmt(k, m[k]))}</li>`); continue; }
+    if (k.startsWith("yt.v.") && Math.abs(m[k] - b.m[k]) < YT_MIN) continue;
+    const [c, t] = verdict(b.m[k], m[k]);
+    ch.push(`<li><span class="nm">${esc(label(k))}</span><span class="vals">${esc(fmt(k, b.m[k]))} → <b style="color:var(--ink);font-weight:600">${esc(fmt(k, m[k]))}</b></span><span class="dv ${c}">${esc(t)}</span></li>`);
+  }
+  if (ch.length) blocks.push(`<h3 class="h">숫자</h3><ul class="chg">${ch.join("")}</ul>`);
+  $("changed").innerHTML = (blocks.length ? blocks.map((x, i) => `<div${i ? ' style="margin-top:16px"' : ""}>${x}</div>`).join("") : `<p class="empty">달라진 것이 없다.</p>`) +
+    (fresh.length ? `<details style="margin-top:10px"><summary>그때는 없던 항목 (${fresh.length})</summary><ul class="chg">${fresh.join("")}</ul></details>` : "");
+  $("same").innerHTML = same.join("");
+  $("samewrap").style.display = same.length ? "" : "none";
+  $("samewrap").querySelector("summary").textContent = `그대로인 것 (${same.length})`;
+}
+
+function bars(id, list, unit) {
+  const max = Math.max(1, ...list.map(x => x.n));
+  $(id).innerHTML = list.length ? list.map(x => `<li><span>${esc(x.name)}</span><span class="n">${nf(x.n)}${unit}</span><span class="bar"><i style="width:${Math.round(x.n / max * 100)}%"></i></span></li>`).join("") : `<li class="muted">아직 없다</li>`;
+}
+function tally(rows, f) { const c = new Map(); for (const r of rows) for (const k of [].concat(f(r))) if (k) c.set(k, (c.get(k) || 0) + 1); return [...c.entries()].sort((a, b) => b[1] - a[1]); }
+
+function renderHall() {
+  const st = S.stats, h = st || (S.snap && S.snap.hall);
+  if (!h) { $("hallsub").textContent = S.busy ? "읽는 중…" : "아직 못 읽었다."; $("halltoday").innerHTML = ""; $("todaysub").textContent = ""; $("hallchart").innerHTML = ""; $("halldays").innerHTML = ""; $("daysmorewrap").style.display = "none"; for (const id of ["hallreach", "hallseniors", "hallmods", "hallmvp"]) $(id).innerHTML = ""; return; }
+  $("hallsub").innerHTML = `${S.live.hall ? '<span class="tag live">실시간</span> ' : ""}${S.partial ? `최근 ${NOCACHE_DAYS}일 ` : "출시 뒤 "}<b style="color:var(--ink)">${nf(h.total_people)}명</b>이 ${nf(h.total_runs)}판 · 지도 끝까지 간 판 ${nf(h.wins)}` +
+    (S.partial ? "" : ` · 다른 날 다시 온 사람 ${nf(h.returned)}/${nf(h.returned_of)}`) + (S.skipped ? ` · 세지 않을 이름의 ${nf(S.skipped)}판은 뺐다` : "");
+
+  const today = dayKey(Date.now()), tm = new Map();
+  for (const r of S.rows) if (dayKey(r.t) === today) { let p = tm.get(r.uid); if (!p) tm.set(r.uid, p = { uid: r.uid, name: "", n: 0, t: 0 }); p.n++; if (r.t >= p.t) { p.t = r.t; p.name = r.name || p.name; } }
+  const tl = [...tm.values()].sort((a, b) => b.t - a.t);
+  $("todaysub").textContent = tl.length ? `· ${nf(tl.length)}명 · 마지막 ${hm(tl[0].t)} · 누르면 그 사람의 판` : "";
+  $("halltoday").innerHTML = tl.length ? tl.map(p => { const fresh = st && !S.partial && st.first.get(p.uid) === today; return `<span class="${fresh ? "new" : ""}" data-who="${esc(p.uid)}" role="button" tabindex="0"><b>${esc(p.name || "이름 없음")}</b> ${nf(p.n)}판${fresh ? " · 처음" : ""}</span>`; }).join("")
+    : `<span class="muted" style="background:none;padding-left:0">아직 없다</span>`;
+
+  drawColumns($("hallchart"), h.days);
+  const head = `<thead><tr><th>날짜</th><th class="n">플레이한 사람</th><th class="n">처음 온 사람</th><th class="n">판</th><th class="n">지도 끝</th></tr></thead><tbody>`;
+  const row = d => `<tr${d.day === today ? ' class="today"' : ""}><td class="nw">${md(d.day)} (${wd(d.day)})${d.day === today ? ' <span class="tag">오늘</span>' : ""}</td><td class="n">${nf(d.people)}명</td><td class="n">${nf(d.new)}명</td><td class="n">${nf(d.runs)}</td><td class="n">${d.wins ? nf(d.wins) : '<span class="muted">0</span>'}</td></tr>`;
+  const desc = h.days.slice().reverse(), TOP = 14;
+  $("halldays").innerHTML = desc.length ? head + desc.slice(0, TOP).map(row).join("") + "</tbody>" : `<tbody><tr><td class="empty">아직 기록이 없다.</td></tr></tbody>`;
+  $("daysmorewrap").style.display = desc.length > TOP ? "" : "none";
+  $("daysmorewrap").querySelector("summary").textContent = `그 전 ${nf(Math.max(0, desc.length - TOP))}일`;
+  $("halldaysmore").innerHTML = head + desc.slice(TOP).map(row).join("") + "</tbody>";
+
+  const rows = S.rows, reach = new Map();
+  for (const r of rows) { const k = r.win ? 1e6 : r.islands; reach.set(k, (reach.get(k) || 0) + 1); }
+  bars("hallreach", [...reach.entries()].sort((a, b) => a[0] - b[0]).map(([k, n]) => ({ name: k === 1e6 ? "지도 끝 도달" : k === 0 ? "섬 0개 — 첫 섬에서 끝" : `섬 ${nf(k)}개 확보`, n })), "판");
+  bars("hallseniors", tally(rows, r => r.senior).map(([k, n]) => ({ name: seniorName(k), n })), "판");
+  bars("hallmods", tally(rows, r => [...new Set(r.mods)]).slice(0, 8).map(([k, n]) => ({ name: modName(k), n })), "판");
+  bars("hallmvp", tally(rows, r => r.mvp).slice(0, 8).map(([k, n]) => ({ name: srcName(k), n })), "판");
+}
+
+// 날짜별 플레이한 사람: 세로 막대, 아래 = 처음 온 사람 · 위 = 전에도 온 사람
+function drawColumns(el, days) {
+  if (!days || !days.length) { el.innerHTML = ""; return; }
+  days = days.slice(-60);
+  const W = Math.max(300, el.clientWidth || 600), H = 190, pl = 34, pr = 8, pt = 20, pb = 26;
+  const max = Math.max(1, ...days.map(d => d.people)), step = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000].find(s => max / s <= 5) || 10000;
+  const top = Math.ceil(max / step) * step;
+  const bw = (W - pl - pr) / days.length, barW = Math.max(2, Math.min(34, bw * 0.62));
+  const y = v => pt + (H - pt - pb) * (1 - v / top);
+  const seg = (x, yb, yt, round, fill) => { const hh = yb - yt; if (hh <= 0) return ""; const r = round ? Math.min(4, hh, barW / 2) : 0; return `<path d="M${x},${yb} V${yt + r} Q${x},${yt} ${x + r},${yt} H${x + barW - r} Q${x + barW},${yt} ${x + barW},${yt + r} V${yb} Z" fill="${fill}"/>`; };
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="날짜별 플레이한 사람 수">`;
+  for (let v = 0; v <= top; v += step) s += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" stroke="${v ? "var(--grid)" : "var(--axis)"}" stroke-width="1"/><text x="${pl - 6}" y="${y(v) + 4}" font-size="11" fill="var(--muted)" text-anchor="end" style="font-variant-numeric:tabular-nums">${v}</text>`;
+  const maxI = days.findIndex(d => d.people === max), last = days.length - 1, every = days.length <= 16;
+  days.forEach((d, i) => {
+    const cx = pl + bw * i + bw / 2, x = cx - barW / 2, old = d.people - d.new;
+    const yn = y(d.new), yp = y(d.people), gap = d.new > 0 && old > 0 && yn - yp > 4 ? 1.5 : 0;
+    s += seg(x, y(0), yn, old <= 0, "var(--series)") + seg(x, yn - gap, yp, true, "var(--soft)");
+    if (d.people > 0 && (every || i === maxI || i === last)) s += `<text x="${cx}" y="${yp - 5}" font-size="11" fill="var(--ink2)" text-anchor="middle" style="font-variant-numeric:tabular-nums">${d.people}</text>`;
+    if (every || i % Math.ceil(days.length / 12) === 0 || i === last) s += `<text x="${cx}" y="${H - 8}" font-size="11" fill="var(--muted)" text-anchor="middle">${md(d.day)}</text>`;
+    s += `<rect x="${pl + bw * i}" y="${pt}" width="${bw}" height="${H - pt - pb}" fill="transparent" data-i="${i}"/>`;
+  });
+  s += `</svg><div class="tip"></div>`;
+  el.innerHTML = s;
+  const tip = el.querySelector(".tip"), svg = el.querySelector("svg");
+  const show = ev => {
+    const t = ev.target.closest("rect[data-i]"); if (!t) { tip.style.opacity = 0; return; }
+    const d = days[+t.dataset.i], k = svg.getBoundingClientRect().width / W;
+    tip.innerHTML = `<b>${md(d.day)} (${wd(d.day)})</b> · ${nf(d.people)}명 · 처음 ${nf(d.new)}명 · ${nf(d.runs)}판`;
+    const half = tip.offsetWidth / 2, cxp = (pl + bw * +t.dataset.i + bw / 2) * k;
+    tip.style.left = `${Math.max(half, Math.min(svg.getBoundingClientRect().width - half, cxp))}px`; tip.style.top = `${y(d.people) * k}px`; tip.style.opacity = 1;
+  };
+  svg.addEventListener("pointermove", show); svg.addEventListener("pointerdown", show);
+  svg.addEventListener("pointerleave", () => { tip.style.opacity = 0; });
+}
+
+// 기록 한 줄 (플레이 기록 · 그 사람의 다른 판이 같이 쓴다)
+function runLine(r, cur) {
+  return `<li data-run="${esc(r.id)}" role="button" tabindex="0"${cur === true ? ' class="cur"' : ""}><div class="r1"><b>${esc(r.name || "이름 없음")}</b><span class="cls">${esc(rankName(r.rank))}</span><span class="tm">${esc(mdhm(r.t))}<span class="go">›</span></span></div>` +
+    `<div class="r2">${r.win ? '<b class="up">지도 끝 도달</b>' : esc(reachText(r))} · 처치 ${nf(r.kills)} · 입수 ${nf(r.drowned)} · ${nf(r.score)}점 · 부품 ${nf(r.mods.length)}개${r.mvp ? ` · 주력 ${esc(srcName(r.mvp))}` : ""}${r.ver ? ` <span class="tag">${esc(r.ver)}</span>` : ""}</div></li>`;
+}
+
+function renderRuns() {
+  const rows = S.rows.slice().sort((a, b) => b.t - a.t);
+  $("runsub").textContent = rows.length ? `명부에 오른 ${nf(rows.length)}판${S.partial ? ` (최근 ${NOCACHE_DAYS}일)` : ""}. 한 줄 = 한 판 — 어디까지 갔나 · 처치 · 입수 · 점수 · 부품 수 · 주력 무기 · 게임 버전.` : S.busy ? "읽는 중…" : "아직 기록이 없다.";
+  $("hallrecent").innerHTML = rows.slice(0, S.recentN).map(r => runLine(r)).join("");
+  $("recentmore").style.display = rows.length > S.recentN ? "" : "none";
+  $("recentmore").textContent = `더 보기 (남은 ${nf(Math.max(0, rows.length - S.recentN))}판)`;
+}
+
+function personLine(p) {
+  const other = p.names.filter(n => n !== p.name);
+  return `<li data-who="${esc(p.uid)}" role="button" tabindex="0"><div class="r1"><b>${esc(p.name)}</b>${other.length ? `<span class="cls">전에 ${other.map(esc).join(", ")}</span>` : ""}<span class="tm">${esc(mdhm(p.last))}<span class="go">›</span></span></div>` +
+    `<div class="r2">${nf(p.runs.length)}판 · ${nf(p.days)}일${p.wins ? ` · <span class="up">지도 끝 ${nf(p.wins)}판</span>` : ""} · 가장 멀리 ${esc(reachText(p.far))} · 최고 ${nf(p.best)}점</div></li>`;
+}
+function renderFound() {
+  const q = norm($("hallq").value), el = $("hallfound");
+  if (!q && !S.showAll) { el.innerHTML = ""; $("hallall").textContent = "사람별로 보기"; return; }
+  if (!S.rows.length) { el.innerHTML = `<li class="muted">명부 기록을 아직 못 읽었다 — 새로고침해 보세요.</li>`; return; }
+  const all = people(), hit = q ? all.filter(p => p.names.some(n => norm(n).includes(q))) : all;
+  $("hallall").textContent = S.showAll && !q ? "접기" : "사람별로 보기";
+  el.innerHTML = hit.length ? `<li class="muted" style="font-size:13px;padding:2px 0 6px">${q ? `“${esc($("hallq").value.trim())}” · ` : ""}${nf(hit.length)}명${q ? "" : " (마지막으로 온 차례)"}</li>` + hit.slice(0, 100).map(personLine).join("")
+    : `<li class="muted">“${esc($("hallq").value.trim())}”이 든 이름이 없다. 명부에 이름을 올린 ${nf(all.length)}명 가운데서 찾는다.</li>`;
+}
+
+// ---- 자세히 보기(한 사람 · 한 판). 모아 둔 줄로만 그린다 — 명부를 더 읽지 않는다
+function openSheet(st, hash) {
+  if ($("sheet").classList.contains("on")) history.replaceState(st, "", hash);
+  else { history.pushState(st, "", hash); S.pushed = true; }
+}
+function onSheet(st) {
+  const sh = $("sheet"), was = S.sheet;
+  if (!sh.classList.contains("on") || !was || was.who !== st.who || was.run !== st.run) sh.querySelector(".panel").scrollTop = 0;
+  S.sheet = st;
+  sh.classList.add("on"); document.body.style.overflow = "hidden";
+}
+function openWho(uid) { openSheet({ who: uid }, "#who-" + uid); showWho(uid); }
+function showWho(uid) {
+  onSheet({ who: uid });
+  const p = people().find(x => x.uid === uid);
+  if (!p) { $("sheettitle").textContent = S.busy ? "불러오는 중…" : "그 사람이 없다"; $("sheetbody").innerHTML = ""; return; }
+  $("sheettitle").textContent = p.name;
+  const tags = list => `<div class="tags">${list.map(([k, n]) => `<span>${esc(k)} ${nf(n)}</span>`).join("")}</div>`;
+  let h = `<div class="rhead">${p.names.length > 1 ? `<div class="rwho">쓴 이름 · ${p.names.map(esc).join(" → ")}</div>` : ""}` +
+    `<div class="muted" style="font-size:13px">처음 ${esc(mdhm(p.first))} · 마지막 ${esc(mdhm(p.last))} (${esc(ago(p.last))})</div></div>`;
+  h += `<div class="rnums">` + [["판", nf(p.runs.length)], ["온 날", nf(p.days) + "일"], ["지도 끝", nf(p.wins)], ["최고 점수", nf(p.best)]].map(([l, v]) => `<div><span>${l}</span><b>${v}</b></div>`).join("") + `</div>`;
+  h += `<div class="blk"><h3 class="h">가장 멀리 간 판</h3><ul class="runs" style="columns:auto">${runLine(p.far)}</ul></div>`;
+  h += `<div class="blk"><h3 class="h">고른 선임</h3>${tags(tally(p.runs, r => r.senior).map(([k, n]) => [seniorName(k), n]))}</div>`;
+  const mods = tally(p.runs, r => [...new Set(r.mods)]).slice(0, 14).map(([k, n]) => [modName(k), n]);
+  if (mods.length) h += `<div class="blk"><h3 class="h">자주 붙인 부품 <span>· 붙인 판 수</span></h3>${tags(mods)}</div>`;
+  h += `<div class="blk"><h3 class="h">모든 판 <span>· ${nf(p.runs.length)} · 누르면 그 판</span></h3><ul class="runs" style="columns:auto">${p.runs.slice(0, 200).map(x => runLine(x)).join("")}</ul></div>`;
+  $("sheetbody").innerHTML = h;
+}
+
+function openRun(id) { openSheet({ run: id }, "#run-" + id); showRun(id); }
+function showRun(id) {
+  onSheet({ run: id });
+  const r = (S.allRows || []).find(x => x.id === id);
+  if (!r) { $("sheettitle").textContent = S.busy ? "불러오는 중…" : "그 기록이 없다"; $("sheetbody").innerHTML = S.busy ? "" : `<p class="empty">모아 둔 기록에 없다 — 새로고침해 보세요.</p>`; return; }
+  $("sheettitle").textContent = r.name || "이름 없음";
+  let h = `<div class="rhead"><div class="rwho">${esc(rankName(r.rank))} <span class="muted">· 선임 ${esc(seniorName(r.senior))}</span></div>` +
+    `<div class="rwhere">${r.win ? '<b class="up">지도 끝 도달</b>' : `<b>${esc(reachText(r))}</b>`}</div>` +
+    `<div class="muted" style="font-size:12.5px">${esc(mdhm(r.t))} · 작전 ‘${esc(opName(r.risk))}’${r.ver ? " · 버전 " + esc(r.ver) : ""}</div></div>`;
+  h += `<div class="rnums">` + [["점수", r.score], ["처치", r.kills], ["입수", r.drowned], ["부품", r.mods.length]].map(([l, v]) => `<div><span>${l}</span><b>${nf(v)}</b></div>`).join("") + `</div>`;
+  const dmg = r.top.map(x => { const i = x.lastIndexOf(":"); return i < 0 ? null : [x.slice(0, i), Number(x.slice(i + 1)) || 0]; }).filter(Boolean);
+  if (dmg.length) {
+    const max = Math.max(1, ...dmg.map(x => x[1]));
+    h += `<div class="blk"><h3 class="h">피해를 많이 준 것</h3><ul class="bars">${dmg.map(([k, n]) => `<li><span>${esc(srcName(k))}</span><span class="n">${nf(n)}</span><span class="bar"><i style="width:${Math.round(n / max * 100)}%"></i></span></li>`).join("")}</ul></div>`;
+  }
+  const mods = new Map(); for (const k of r.mods) mods.set(k, (mods.get(k) || 0) + 1);
+  h += `<div class="blk"><h3 class="h">붙인 부품 <span>· ${nf(r.mods.length)}개 · 붙인 차례</span></h3>` +
+    (mods.size ? `<div class="tags">${[...mods.entries()].map(([k, n]) => `<span>${esc(modName(k))}${n > 1 ? ` ×${n}` : ""}</span>`).join("")}</div>` : `<p class="empty" style="margin:0">없다</p>`) + `</div>`;
+  const mine = S.rows.filter(x => x.uid === r.uid).sort((a, b) => b.t - a.t);
+  if (mine.length > 1) {
+    const names = []; for (const x of mine.slice().reverse()) if (x.name && names[names.length - 1] !== x.name) names.push(x.name);
+    const days = new Set(mine.map(x => dayKey(x.t))).size, wins = mine.filter(x => x.win).length;
+    h += `<div class="blk"><h3 class="h">이 사람의 다른 판</h3><button type="button" class="linkbtn" data-who="${esc(r.uid)}">이 사람 한눈에 보기 ›</button><p class="sub" style="margin-bottom:6px">${nf(mine.length)}판 · ${nf(days)}일 · 지도 끝 ${nf(wins)}판 · 처음 ${esc(mdhm(mine[mine.length - 1].t))}${names.length > 1 ? ` · 쓴 이름 ${names.map(esc).join(" → ")}` : ""}</p>` +
+      `<ul class="runs" style="columns:auto">${mine.slice(0, 60).map(x => runLine(x, x.id === id)).join("")}</ul></div>`;
+  }
+  $("sheetbody").innerHTML = h;
+}
+
+function closeSheet() {
+  if (!$("sheet").classList.contains("on")) return;
+  if (S.pushed) { S.pushed = false; history.back(); return; } // 뒤로 가기가 popstate로 닫는다
+  hideSheet(); history.replaceState(null, "", location.pathname + location.search);
+}
+function hideSheet() { $("sheet").classList.remove("on"); document.body.style.overflow = ""; S.sheet = null; }
+
+// ---- 내 글 반응
+function renderPosts() {
+  const ps = posts(), b = S.base, T = b.t;
+  if (!ps.length) { $("postsub").textContent = "아직 못 읽었다 — 서버 수집이 돌면 채워진다."; $("postlist").innerHTML = ""; $("cmtsub").textContent = ""; $("cmtlist").innerHTML = ""; $("cmtmorewrap").style.display = "none"; return; }
+  $("postsub").textContent = `올린 글 ${nf(ps.length)}곳의 조회·추천·댓글. 초록·빨강 숫자는 ‘달라진 것’의 기준(${baseName()}) 뒤의 변화. 디시는 댓글 수만 읽는다(내용은 글에서).`;
+  const num = (p, f, l) => {
+    if (p[f] == null) return "";
+    const was = b.m[`post.${p.key}.${f}`], d = was != null && was !== p[f] ? ` <span class="${p[f] > was ? "up" : "down"}">${p[f] > was ? "+" : ""}${nf(p[f] - was)}</span>` : "";
+    return `<span>${l} <b>${nf(p[f])}</b>${d}</span>`;
+  };
+  $("postlist").innerHTML = ps.map(p => {
+    const tag = `<span class="tag">${esc(p.site)} · ${esc(p.board)}</span>`;
+    if (p.kind === "manual") return `<li><div class="p1">${tag}<a href="${link(p.url)}" target="_blank" rel="noopener">직접 열기 ↗</a></div><div class="p2"><span class="muted">자동 읽기를 막아 둔 곳이라 직접 연다</span></div></li>`;
+    const fresh = (p.list || []).filter(c => !c.mine && Date.parse(c.first) > T).length;
+    const read = Date.parse(p.read_at || "");
+    return `<li><div class="p1">${tag}<a href="${link(p.url)}" target="_blank" rel="noopener">${esc(p.title || "제목을 아직 못 읽었다")} ↗</a></div>` +
+      `<div class="p2">${num(p, "views", "조회")}${num(p, "likes", LIKE[p.kind] || "추천")}${num(p, "comments", "댓글")}${fresh ? `<span class="up">새 댓글 ${nf(fresh)}</span>` : ""}` +
+      `<span class="tm">${p.err ? `<span class="down">못 읽음 · ${esc(p.err)}</span>${read ? ` · 값은 ${esc(mdhm(read))}` : ""}` : read ? esc(mdhm(read)) + " 읽음" : ""}</span></div></li>`;
+  }).join("");
+  const cs = allComments(), others = cs.filter(c => !c.mine).length, TOP = 10;
+  $("cmtsub").textContent = cs.length ? `· 새것부터 · 남이 쓴 것 ${nf(others)}개 · 내 것 ${nf(cs.length - others)}개` : "";
+  $("cmtlist").innerHTML = cs.length ? cs.slice(0, TOP).map(c => cmtLine(c, T)).join("") : `<li class="empty">아직 읽은 댓글이 없다.</li>`;
+  $("cmtmorewrap").style.display = cs.length > TOP ? "" : "none";
+  $("cmtmorewrap").querySelector("summary").textContent = `그 전 댓글 ${nf(Math.max(0, cs.length - TOP))}개`;
+  $("cmtmore").innerHTML = cs.slice(TOP).map(c => cmtLine(c, T)).join("");
+}
+
+// ---- 다른 곳에서 다룬 것: 수집기가 구글 뉴스·네이버·유튜브·치지직·커뮤니티 검색에서 게임 이야기로 보이는 것만 모은다
+function renderMentions() {
+  const mn = S.snap && S.snap.mentions;
+  if (!mn) { $("mensub").textContent = "아직 못 모았다 — 서버 수집이 돌면 모은다."; $("mentionlist").innerHTML = ""; return; }
+  const T = S.base.t, items = mentionItems(), fresh = items.filter(x => !x.own && x.ft > T).length;
+  $("mensub").textContent = `구글 뉴스 · 네이버 뉴스·블로그·카페 · 유튜브·치지직 검색 · 커뮤니티 검색(클리앙·디시·에펨코리아)에서 이 게임 이야기로 보이는 것. 수집마다 다시 찾는다 — 마지막 ${mdhm(Date.parse(mn.at))}. ${nf(items.length)}건${fresh ? `, 기준 뒤 새로 ${nf(fresh)}건` : ""}.`;
+  const groups = [["기사·매체", x => x.kind === "news"], ["블로그·카페", x => x.kind === "blog" || x.kind === "cafe"], ["유튜브 (다른 채널)", x => x.kind === "youtube"], ["방송 (치지직)", x => x.kind === "stream"], ["커뮤니티 글", x => x.kind === "community"]];
+  const none = [];
+  let h = "";
+  for (const [name, f] of groups) {
+    const g = items.filter(f);
+    if (!g.length) { none.push(name); continue; }
+    h += `<h3 class="h${h ? " gap" : ""}">${name} <span>${nf(g.length)}</span></h3><ul class="ment">${g.slice(0, 30).map(x => mentionLine(x, T)).join("")}</ul>` +
+      (g.length > 30 ? `<details style="margin-top:6px"><summary>그 전 ${nf(g.length - 30)}건</summary><ul class="ment">${g.slice(30).map(x => mentionLine(x, T)).join("")}</ul></details>` : "");
+  }
+  if (none.length) h += `<p class="empty" style="margin:${h ? "14px" : "0"} 0 0">아직 없는 곳: ${none.map(esc).join(" · ")}</p>`;
+  $("mentionlist").innerHTML = h;
+}
+
+// ---- 스토어 · 리뷰 · 유튜브
+function renderStore() {
+  const snap = S.snap || {}, b = S.base;
+  const ios = (snap.ios || S.live.ios) ? Object.assign({}, snap.ios || {}, S.live.ios || {}) : null, play = snap.play || null;
+  const day = v => { const t = typeof v === "number" ? v * 1000 : Date.parse(v || ""); return t ? ` <span class="muted">· ${md(dayKey(t))}</span>` : ""; };
+  const star = (avg, n) => (n ? `${avg ? Number(avg).toFixed(1) + " · " : ""}${nf(n)}개` : "아직 없다");
+  const card = (title, href, live, o, rows) => `<div class="pgc"><h4><a href="${href}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${title} ↗</a>${live ? ' <span class="tag live">실시간</span>' : ""}</h4>` +
+    (!o ? `<p class="empty" style="margin:0">못 읽음</p>` : o.listed === false ? `<p style="margin:0"><span class="down">✕ 스토어에 없음</span></p>` : `<dl>${rows.map(([a, v]) => `<dt>${a}</dt><dd>${v}</dd>`).join("")}</dl>`) + `</div>`;
+  $("storecards").innerHTML =
+    card("앱스토어", `https://apps.apple.com/kr/app/id${IOS_ID}`, !!S.live.ios, ios, ios ? [["이름", esc(ios.name || "—")], ["버전", esc(ios.version || "—") + day(ios.updated)], ["별점", star(ios.rating, ios.ratings)], ["글 리뷰", `${nf((snap.reviews || []).length)}개`]] : []) +
+    card("구글 플레이", `https://play.google.com/store/apps/details?id=${PLAY_ID}&hl=ko`, false, play, play ? [["이름", esc(play.title || "—")], ["버전", esc(play.version || "—") + day(play.updated)], ["별점", star(play.score, play.ratings)], ["글 리뷰", `${nf(play.reviews != null ? play.reviews : (snap.play_reviews || []).length)}개`],
+      ["설치", esc(play.installs || "—") + (play.real != null ? ` <span class="muted">(${nf(play.real)})</span>` : "")]] : []);
+  const block = (id, name, list, count) => {
+    $(id).innerHTML = `<h3 class="h">${name}${count != null ? ` <span>· 별점 ${nf(count)}개</span>` : ""}</h3>` +
+      (list == null ? `<p class="empty">못 읽음</p>` : !list.length ? `<p class="empty">${count ? "글 리뷰 목록이 비어 왔다(가끔 그렇다)." : "아직 없다."}</p>` :
+      list.map(r => `<div class="review"><div><span class="stars" aria-label="별 ${r.rating}개">${"★".repeat(r.rating)}${"☆".repeat(Math.max(0, 5 - r.rating))}</span>${r.title ? ` <b>${esc(r.title)}</b>` : ""}</div><div style="font-size:13.5px;margin-top:2px;overflow-wrap:anywhere">${esc(r.text)}</div><div class="muted" style="font-size:12px;margin-top:2px">${esc(r.date)}${r.ver ? " · " + esc(r.ver) : ""}${r.replied === true ? " · 답글 달았음" : r.replied === false && r.rating <= 3 ? ' · <span class="down">답글 없음</span>' : ""}</div></div>`).join(""));
+  };
+  block("rev-ios", "앱스토어 리뷰", snap.reviews, ios ? ios.ratings : null);
+  block("rev-play", "플레이 리뷰", snap.play_reviews, play ? play.ratings : null);
+  const vs = videos();
+  $("yt").innerHTML = vs.length ? `<thead><tr><th>영상</th><th class="w-only">올린 날</th><th class="n">조회</th><th class="n">변화</th></tr></thead><tbody>` + vs.map(v => {
+    const was = b.m["yt.v." + v.id], d = was != null && v.views != null && (v.views > was || was - v.views >= YT_MIN) ? `<span class="${v.views > was ? "up" : "down"}">${v.views > was ? "+" : ""}${nf(v.views - was)}</span>` : "";
+    const when = Date.parse(v.published) ? mdhm(Date.parse(v.published)) : "";
+    return `<tr><td><a class="ytt" href="https://youtu.be/${esc(v.id)}" target="_blank" rel="noopener">${esc(v.title)}</a><span class="ytd m-only">${esc(when)}</span></td><td class="n w-only">${esc(when)}</td><td class="n">${nf(v.views)}</td><td class="n">${d}</td></tr>`;
+  }).join("") + "</tbody>" : `<tbody><tr><td class="empty">아직 못 읽었다.</td></tr></tbody>`;
+}
+
+function renderErrors() {
+  const se = (S.snap && S.snap.errors) || [];
+  const all = [...S.liveErr.map(e => ({ ...e, src: "직접" })), ...se.map(e => ({ ...e, src: "서버" }))];
+  $("errwrap").style.display = all.length ? "" : "none";
+  $("errors").innerHTML = `<ul style="margin:0;padding-left:18px;font-size:13.5px">${all.map(e => `<li><span class="tag">${e.src}</span> ${esc(e.what)} <span class="muted">· ${esc(e.why)}</span></li>`).join("")}</ul>` +
+    `<p class="sub" style="margin:8px 0 0">서버 수집이 못 읽은 곳은 지난 값을 그대로 둔다. 막아 둔 곳은 돌아가지 않는다 — ‘직접 볼 곳’에서 연다.</p>`;
+}
+
+// ---------------------------------------------------------------- 시작
+
+// 직접 볼 곳: 자동으로 못 읽는 곳과 검색
+{
+  const q = encodeURIComponent, G = "오도짜세";
+  const L = [
+    ["뽐뿌 앱정보", "https://www.ppomppu.co.kr/zboard/zboard.php?id=ppomapp&category=2"],
+    ["메일 답장 (지메일)", "https://mail.google.com/mail/u/0/#search/" + q(G)],
+    ["치지직 검색", "https://chzzk.naver.com/search?query=" + q(G)],
+    ["유튜브 검색 (최신순)", "https://www.youtube.com/results?search_query=" + q(G + " 상륙장갑차") + "&sp=CAI%253D"],
+    ["네이버 검색 (최신순)", "https://search.naver.com/search.naver?ssc=tab.blog.all&sm=tab_opt&nso=" + q("so:dd,p:all") + "&query=" + q(G + " 돌격 상륙장갑차")],
+    ["구글 검색 (지난 하루)", "https://www.google.com/search?tbs=qdr:d&q=" + q(`"${G}" 장갑차 게임`)],
+    ["X 검색", "https://x.com/search?f=live&q=" + q(G + " 장갑차")],
+    ["스레드 검색", "https://www.threads.net/search?q=" + q(G)],
+    ["앱스토어 커넥트", "https://appstoreconnect.apple.com/"],
+    ["플레이 콘솔", "https://play.google.com/console/"],
+  ];
+  $("linklist").innerHTML = L.map(([l, u]) => `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${esc(l)} ↗</a>`).join("");
+}
+
+// 지난번 열어 본 때: 30분 넘게 지나 다시 열면 그 앞의 방문이 기준이 된다(그 안에 다시 열면 기준이 그대로)
+{
+  const now = Date.now(), cur = Number(store.get("visit_cur")) || 0, prev = Number(store.get("visit_prev")) || 0;
+  if (!cur) store.set("visit_cur", String(now));
+  else if (now - cur > 30 * 60000) { store.set("visit_prev", String(cur)); store.set("visit_cur", String(now)); S.visitPrev = cur; }
+  else S.visitPrev = prev;
+}
+
+$("base").innerHTML = WINDOWS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
+$("base").value = store.get("base") || "visit";
+if (!$("base").value) $("base").value = "visit";
+$("base").addEventListener("change", () => { store.set("base", $("base").value); render(); });
+$("refresh").addEventListener("click", () => refresh(true));
+$("ghtoken").value = store.get("gh_token");
+$("skipnames").value = store.get("skip_names");
+$("save").addEventListener("click", () => {
+  store.set("gh_token", $("ghtoken").value.trim()); store.set("skip_names", $("skipnames").value.split(",").map(s => s.trim()).filter(Boolean).join(", "));
+  $("saved").textContent = "저장했다.";
+  applyRows(); render(); renderFound();
+});
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { const h = S.stats || (S.snap && S.snap.hall); if (h) drawColumns($("hallchart"), h.days); }, 150); });
+const tap = ev => {
+  const el = ev.target.closest("[data-run], [data-who]");
+  if (!el || (ev.type === "keydown" && (ev.target.tagName === "INPUT" || (ev.key !== "Enter" && ev.key !== " ")))) return;
+  ev.preventDefault();
+  if (el.dataset.who) openWho(el.dataset.who); else openRun(el.dataset.run);
+};
+for (const id of ["changed", "hallrecent", "halltoday", "hallfound", "sheetbody"]) { $(id).addEventListener("click", tap); $(id).addEventListener("keydown", tap); }
+$("sheetclose").addEventListener("click", closeSheet);
+$("sheetbg").addEventListener("click", closeSheet);
+addEventListener("keydown", ev => { if (ev.key === "Escape") closeSheet(); });
+addEventListener("popstate", ev => { const st = ev.state || {}; if (st.run) showRun(st.run); else if (st.who) showWho(st.who); else { S.pushed = false; hideSheet(); } });
+$("hallq").addEventListener("input", renderFound);
+$("findform").addEventListener("submit", ev => { ev.preventDefault(); $("hallq").blur(); renderFound(); });
+$("hallall").addEventListener("click", () => { S.showAll = !S.showAll || !!$("hallq").value; $("hallq").value = ""; renderFound(); });
+$("recentmore").addEventListener("click", () => { S.recentN += RECENT_STEP; renderRuns(); });
+S.busy = true; // 첫 읽기가 끝나기 전에 '없다'를 띄우지 않게
+{ const m = location.hash.match(/^#who-([\w-]+)$/); if (m) { history.replaceState({ who: m[1] }, "", location.hash); showWho(m[1]); } }
+{ const m = location.hash.match(/^#run-([\w-]+)$/); if (m) { history.replaceState({ run: m[1] }, "", location.hash); showRun(m[1]); } }
+S.busy = false;
+refresh(false);
+</script>
+</body>
+</html>
