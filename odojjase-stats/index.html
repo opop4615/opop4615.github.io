@@ -256,7 +256,7 @@ tr.today td { font-weight: 600; }
       </div>
     </div>
     <nav class="jump" aria-label="갈래로 건너뛰기">
-      <a href="#changes">달라진 것</a><a href="#hall">날짜별 플레이</a><a href="#runs">플레이 기록</a><a href="#posts">내 글 반응</a><a href="#mentions">다룬 곳</a><a href="#store">스토어</a><a href="#links">직접 볼 곳</a>
+      <a href="#changes">달라진 것</a><a href="#hall">날짜별 플레이</a><a href="#rookie">신병 문턱</a><a href="#runs">플레이 기록</a><a href="#posts">내 글 반응</a><a href="#mentions">다룬 곳</a><a href="#store">스토어</a><a href="#links">직접 볼 곳</a>
     </nav>
   </header>
   <div class="progress" id="progress" role="status" aria-live="polite"></div>
@@ -293,6 +293,19 @@ tr.today td { font-weight: 600; }
       <div><h3 class="h">고른 선임</h3><ul class="bars" id="hallseniors"></ul></div>
       <div><h3 class="h">많이 붙인 부품</h3><ul class="bars" id="hallmods"></ul></div>
       <div><h3 class="h">주력 무기 <span>· 그 판에서 피해를 가장 많이 준 것</span></h3><ul class="bars" id="hallmvp"></ul></div>
+    </div>
+  </section>
+
+  <section class="card" id="rookie">
+    <h2>신병 문턱 <small>처음 온 사람이 첫 섬을 넘고 다시 오는가</small></h2>
+    <p class="sub" id="rookiesub"></p>
+    <div id="rookiebody">
+      <div class="kpis" id="rookiekpis"></div>
+      <h3 class="h">첫 판의 게임 버전별</h3>
+      <div class="scroll"><table id="rookiever"></table></div>
+      <p class="sub" style="margin:8px 0 0">1.3.1부터 ‘신병 봐주기’가 들어간다 — 섬을 한 번도 못 딴 사람의 첫 섬은 포위와 증원이 없고, 받는 피해가 75%이고, 쓰러지면 한 번 일으켜 준다.</p>
+      <h3 class="h gap">사인 <span>· 쓰러진 판에서 피해를 가장 많이 받은 것</span></h3>
+      <div class="scroll"><table id="rookiewhy"></table></div>
     </div>
   </section>
 
@@ -389,6 +402,8 @@ const WINDOWS = [["visit", "지난번 열어 본 때"], ["30", "30분 전"], ["6
 //   python3 .github/scripts/odojjase_names.py <게임 저장소>/main.gd odojjase-stats/index.html
 // 로 이 줄을 갈아 끼운다. 표에 없는 열쇠는 열쇠 그대로 보인다.
 const N = {"ranks":["아쎄이","일병","일꺽","일병 오장","상병","상꺽","상병 오장","병장","황룡병장"],"seniors":{"dolgyeok":"장덕칠 병장","mulgae":"임땡규 상병","jeongbi":"배석기 상병","gwak":"김뚱혁 병장","do":"김만준 상병","oh":"안썩찬 일병"},"ops":[[0,"아쎄이 첫 상륙"],[2,"기열 해적 토벌"],[3,"늪지 찐빠 수습"],[4,"쇳덩이 기열 해체"],[5,"오도짜세 대상륙"]],"src":{"bcast":"기침 방송","blackhole":"고철 블랙홀","decoy":"허수아비","digger":"땅굴","jackpot":"찐빠 대박포","kkangflail":"깡 철퇴","spiral":"회전 기총","flinger":"투척 갈퀴","ninja":"독 연막","fireworks":"불꽃놀이","jjamtong":"짬통","torpedo":"어뢰","buster":"벙커버스터","battleship":"함포","carrier":"전투기","sam":"지대공","orbital":"궤도 폭격","railgun":"군기 확립포","tesla":"감전","sawring":"뺑뺑이 톱날","harpoon":"작살","drone":"드론","freezer":"냉동고","siren":"사이렌","acid":"제초제","mg":"기관총","gatling":"개틀링","gl":"유탄","mortar":"박격포","rifle":"아쎄이 소총","water":"물대포","ram":"들이받기","crush":"깔기","drown":"입수","bomb":"폭탄 연쇄","fortress":"요새 가시","van":"오도봉고","shot":"기타","soup":"끓는 국","shovel":"옆구리 삽","jinppa":"찐빠포","grinder":"분쇄 롤러","saw":"원형톱","flame":"화염방사기","flail":"철퇴 사슬","wire":"철조망","mine":"지뢰","rear":"꽁무니 부품","pole":"기열 퇴치봉","wings":"날개삽","trailer":"생활관","shout":"악!","salute":"전원 차렷포","spray":"방역 드론","icebreaker":"쇄빙선","crane":"철거 쇠공","combine":"콤바인","dreadnought":"지상 전함","skycarrier":"하늘 항공모함","spaceforce":"해병 우주군","division":"사단 포격"},"mods":{"missile":"전역 통지서 미사일","railgun":"군기 확립포","tesla":"감전 정신교육기","harpoon":"포경 작살포","sawring":"뺑뺑이 톱날","drone":"일병 드론 둥지","acid":"제초제 살포기","freezer":"취사장 냉동고","siren":"사단장 방문 사이렌","tidal":"해일 발생기","torpedo":"육상 어뢰 발사관","buster":"벙커버스터","battleship":"16인치 함포","carrier":"장갑차 항공모함","sam":"지대공 미사일","orbital":"궤도 폭격 위성","salute":"전원 차렷포","spray":"전 섬 방역 드론 편대","icebreaker":"남극 파견 쇄빙선","crane":"철거 타워크레인","combine":"대민지원 콤바인","dreadnought":"지상 전함","skycarrier":"하늘을 나는 항공모함","spaceforce":"해병 우주군","division":"도서 정리 사단","nuke":"전원 전역 명령","railstorm":"군기 대확립","thunder":"벼락 정신교육","whaler":"포경선","sawstorm":"톱날 폭풍","swarm":"드론 대대","defol":"고엽 정신교육","cryo":"냉동 취사장","tsunami":"해일 정신교육","dozer":"불도저 삽","armor":"덧댄 장갑판","mg":"쌍열 기관총","gl":"40mm 유탄 증설","mortar":"지붕 박격포","speaker":"정신교육 확성기","toolbox":"수리 공구함","ports":"아쎄이 사격 구멍","engine":"증설 엔진","drum":"물 분사구","magnet":"고철 자석","gamasot":"취사장 가마솥","bugle":"기상 나팔","blanket":"각 잡힌 모포","sideshovel":"옆구리 삽 다발","vending":"PX 자판기","flag":"오도 깃발","seat":"선임 전용 상석","laundry":"달리는 빨랫줄","pickaxe":"곡괭이 충각","radio":"고장 난 무전기","jinppagun":"찐빠포","calendar":"전역 달력","grinder":"옆구리 분쇄 롤러","sawblade":"측면 원형톱","flamer":"화염방사기","flail":"철퇴 사슬","razorwire":"가시 철조망","sponson":"측면 기총좌","tires":"폐타이어 범퍼","oars":"고무보트 노","minelayer":"지뢰 살포기","afterburner":"후미 배기 화염","rake":"고철 갈퀴","smoke":"연막 통","cans":"전역 축하 깡통 줄","screw":"대형 스크루","rearmg":"꼬리 기관총","wedge":"쇄빙 쐐기","gatling":"개틀링 해병포","barrage":"포격 정신교육","watercannon":"물대포","fortress":"해병 요새","galley":"움직이는 취사장","parade":"이동 사열대","hq":"이동 지휘소","roller":"양날 분쇄 정신교육","inferno":"불바다 정신교육","backfire":"역추진 정신교육","bcast":"기침 검열 방송차","blackhole":"고철 블랙홀 철거반","decoy":"깔깔이 허수아비 부대","digger":"땅굴 굴착 충각","jackpot":"찐빠 대박포","kkangflail":"깡 철퇴 회오리","spiral":"통제 불능 회전 기총","flinger":"까라면 까는 투척 갈퀴","ninja":"오도짜세 연막 은신","fireworks":"전역 축하 불꽃놀이","jjamtong":"짬통 사출기","pole":"기열 퇴치봉","excavator":"포크레인 팔","twin":"쌍동 장갑차","wings":"차폭 위반 날개삽","trailer":"생활관 견인 트레일러","sail":"해병 돛","bait":"미끼 낚싯대","triple":"삼동 장갑차","train":"생활관 열차","excavators":"포크레인 부대","bigwings":"차폭 무시 대날개","galleon":"범선 장갑차","seaplane":"해병 비행정","fleet":"상륙 함대"}};
+// 사인 이름표(main.gd의 CAUSES). 사인이 늘면 여기에 손으로 더한다 — 표에 없는 열쇠는 열쇠 그대로 보인다.
+const WHY = {"bite":"물림","cling":"매달림","acid":"산성","slam":"땅 찍기","line":"공격 줄","dash":"돌진","bomb":"자폭","spit":"침","freeze":"얼음","mp":"헌병","fuel":"기름 바닥","self":"찐빠포","jelly":"해파리","spike":"가시","cough":"기침","barracks":"생활반 함락"};
 
 const S = { snap: null, hist: [], hallRows: [], allRows: [], rows: [], stats: null, partial: false, skipped: 0, base: null, visitPrev: 0,
             live: { m: {} }, liveErr: [], liveAt: null, busy: false, pushed: false, sheet: null, showAll: false, recentN: RECENT_STEP, ppl: null };
@@ -413,6 +428,7 @@ const rankName = i => N.ranks[i] || `계급 ${i}`;
 const seniorName = k => N.seniors[k] || k || "—";
 const modName = k => N.mods[k] || k;
 const srcName = k => N.src[k] || N.mods[k] || k;
+const whyName = k => (Object.hasOwn(WHY, k) ? WHY[k] : k);
 function opName(risk) { let n = N.ops.length ? N.ops[0][1] : ""; for (const [r, name] of N.ops) if (r <= risk) n = name; return n; } // main.gd op_name_of와 같다
 const reachText = r => (r.win ? "지도 끝 도달" : `섬 ${nf(r.islands)}개 확보`); // 게임의 명부 문구와 같다
 
@@ -436,7 +452,7 @@ async function ghFile(path) {
 // 명부 한 줄의 칸을 고르게 한다 (수집기의 hall_row와 같은 칸)
 function fsRow(o) {
   o.t = Date.parse(o.at);
-  o.uid = String(o.uid || o.id || ""); o.name = String(o.name || ""); o.senior = String(o.senior || ""); o.mvp = String(o.mvp || ""); o.ver = String(o.ver || "");
+  o.uid = String(o.uid || o.id || ""); o.name = String(o.name || ""); o.senior = String(o.senior || ""); o.mvp = String(o.mvp || ""); o.ver = String(o.ver || ""); o.why = String(o.why || ""); // why는 1.3.1부터 쓰러진 판에만 있다(옛 수집본에는 칸이 없다)
   for (const k of ["rank", "kills", "drowned", "islands", "risk", "score", "mvpd"]) o[k] = Number(o[k]) || 0;
   o.win = o.win === true;
   o.mods = Array.isArray(o.mods) ? o.mods.map(String) : [];
@@ -480,7 +496,7 @@ function fsVal(f) {
 }
 
 // 명부: 시각이 since 이후인 기록만 시각 차례로. 돌려받은 줄 수만큼만 읽기 한도를 쓴다 — 명부를 통째로 읽지 않는다
-const HALL_FIELDS = ["at", "uid", "name", "senior", "rank", "kills", "drowned", "islands", "risk", "score", "win", "ver", "paint", "mods", "mvp", "mvpd", "top"];
+const HALL_FIELDS = ["at", "uid", "name", "senior", "rank", "kills", "drowned", "islands", "risk", "score", "win", "ver", "paint", "mods", "mvp", "mvpd", "top", "why"];
 const HALL_OVERLAP = 30 * 60000; // 규칙이 기록의 시각을 서버 시계 ±10분까지 받는다 — 겹쳐 읽고 문서 번호로 거른다
 async function hallSince(since) {
   const out = [], seen = new Set();
@@ -585,6 +601,36 @@ function people() {
     p.far = p.runs.reduce((a, b) => (far(b) > far(a) ? b : a));
   }
   return (S.ppl = [...by.values()].sort((a, b) => b.last - a.last));
+}
+
+// 신병 문턱: 사람마다 가장 이른 판(첫 판)으로 센다. S.rows를 받으니 '세지 않을 이름'은 이미 빠져 있다
+function verCmp(a, b) { // 무표기가 맨 앞, 그다음 숫자 차례(1.0.2 < 1.1.0 < 1.10.0)
+  if (!a || !b) return (a ? 1 : 0) - (b ? 1 : 0);
+  const x = a.split("."), y = b.split(".");
+  for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (parseInt(x[i], 10) || 0) - (parseInt(y[i], 10) || 0); if (d) return d; }
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+function rookieStats(rows) {
+  const today = dayKey(Date.now()), by = new Map(), vers = new Map(), why = new Map();
+  for (const r of rows.slice().sort((a, b) => a.t - b.t || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
+    let p = by.get(r.uid);
+    if (!p) by.set(r.uid, p = { first: r, n: 0, days: new Set(), far: false });
+    p.n++; p.days.add(dayKey(r.t)); if (r.win || r.islands >= 3) p.far = true;
+    if (!r.win && r.why) { let w = why.get(r.why); if (!w) why.set(r.why, w = { why: r.why, n: 0, zero: 0 }); w.n++; if (r.islands === 0) w.zero++; }
+  }
+  const o = { people: by.size, ok: 0, back: 0, backOf: 0, three: 0 };
+  for (const p of by.values()) {
+    const zero = !p.first.win && p.first.islands === 0, again = p.days.size > 1;
+    if (!zero) o.ok++;
+    if (p.far) o.three++;
+    if (dayKey(p.first.t) < today) { o.backOf++; if (again) o.back++; } // 첫 판이 오늘인 사람은 아직 다른 날이 없다
+    let v = vers.get(p.first.ver);
+    if (!v) vers.set(p.first.ver, v = { ver: p.first.ver, n: 0, zero: 0, more: 0, back: 0 });
+    v.n++; if (zero) v.zero++; if (p.n > 1) v.more++; if (again) v.back++;
+  }
+  o.vers = [...vers.values()].sort((a, b) => verCmp(a.ver, b.ver));
+  o.why = [...why.values()].sort((a, b) => b.n - a.n || (a.why < b.why ? -1 : 1));
+  return o;
 }
 
 // ---------------------------------------------------------------- 새로고침
@@ -699,6 +745,7 @@ function render() {
   renderKpis(m);
   renderChanges(m);
   renderHall();
+  renderRookie();
   renderRuns();
   renderPosts();
   renderMentions();
@@ -831,6 +878,32 @@ function renderHall() {
   bars("hallseniors", tally(rows, r => r.senior).map(([k, n]) => ({ name: seniorName(k), n })), "판");
   bars("hallmods", tally(rows, r => [...new Set(r.mods)]).slice(0, 8).map(([k, n]) => ({ name: modName(k), n })), "판");
   bars("hallmvp", tally(rows, r => r.mvp).slice(0, 8).map(([k, n]) => ({ name: srcName(k), n })), "판");
+}
+
+// ---- 신병 문턱
+const ROOKIE_GOAL = { ok: 60, back: 25 }; // 목표(%): 첫 판에 섬을 딴 사람 · 다른 날 다시 온 사람
+function renderRookie() {
+  const ready = S.rows.length && !S.partial;
+  $("rookiebody").style.display = ready ? "" : "none";
+  if (!ready) { $("rookiesub").textContent = S.partial ? `최근 ${NOCACHE_DAYS}일 기록만 읽어서 누가 처음인지 모른다 — 서버 수집이 돈 뒤에 나온다.` : S.busy ? "읽는 중…" : "아직 못 읽었다."; return; }
+  const k = rookieStats(S.rows);
+  const rate = (a, b) => (b ? Math.round(a / b * 1000) / 10 : null), pct = (a, b) => (b ? `${nf(rate(a, b))}%` : "—");
+  $("rookiesub").textContent = `사람마다 가장 이른 기록을 첫 판으로 본다. 명부는 닉네임을 정한 사람만 오른다(섬 0개에 30마리도 못 잡은 판도 안 오른다) — 그 전에 그만둔 사람은 여기 없다.`;
+  const goal = (a, b, g) => (!b ? "" : rate(a, b) >= g ? `<div class="d up">목표 ${g}% 넘음</div>` : `<div class="d flat">목표 ${g}%</div>`);
+  const tiles = [
+    ["첫 판에 섬을 딴 사람", k.ok, k.people, "섬 1개 이상", goal(k.ok, k.people, ROOKIE_GOAL.ok)],
+    ["다른 날 다시 온 사람", k.back, k.backOf, "첫 판이 오늘인 사람은 뺀다", goal(k.back, k.backOf, ROOKIE_GOAL.back)],
+    ["섬 3개 이상 가 본 사람", k.three, k.people, "한 판이라도", ""],
+  ];
+  $("rookiekpis").innerHTML = tiles.map(([l, a, b, s, d]) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${b ? `${nf(rate(a, b))}<span class="u">%</span>` : "—"}</div><div class="s">${nf(a)}/${nf(b)}명 · ${esc(s)}</div>${d}</div>`).join("");
+  const sum = f => k.vers.reduce((a, v) => a + v[f], 0);
+  const vrow = (name, v, bold) => `<tr${bold ? ' style="font-weight:600"' : ""}><td class="nw">${name}</td><td class="n">${nf(v.n)}명</td><td class="n">${nf(v.zero)}명 <span class="muted">(${pct(v.zero, v.n)})</span></td><td class="n">${nf(v.more)}명</td><td class="n">${nf(v.back)}명</td></tr>`;
+  $("rookiever").innerHTML = `<thead><tr><th>첫 판<span class="w-only"> 버전</span></th><th class="n">사람</th><th class="n">첫 판 섬 0개</th><th class="n">한 판 더<span class="w-only"> 한 사람</span></th><th class="n">다른 날 다시<span class="w-only"> 온 사람</span></th></tr></thead><tbody>` +
+    k.vers.map(v => vrow(v.ver ? esc(v.ver) : '<span class="muted">무표기</span>', v)).join("") +
+    (k.vers.length > 1 ? vrow("전체", { n: k.people, zero: sum("zero"), more: sum("more"), back: sum("back") }, true) : "") + "</tbody>";
+  $("rookiewhy").innerHTML = k.why.length ? `<thead><tr><th>사인</th><th class="n">쓰러진 판</th><th class="n">그중 섬 0개</th></tr></thead><tbody>` +
+    k.why.map(w => `<tr><td>${esc(whyName(w.why))}</td><td class="n">${nf(w.n)}</td><td class="n">${w.zero ? nf(w.zero) : '<span class="muted">0</span>'}</td></tr>`).join("") + "</tbody>"
+    : `<tbody><tr><td class="empty">아직 기록 없음(1.3.1부터 쌓인다)</td></tr></tbody>`;
 }
 
 // 날짜별 플레이한 사람: 세로 막대, 아래 = 처음 온 사람 · 위 = 전에도 온 사람

@@ -29,8 +29,8 @@ KST = timezone(timedelta(hours=9))
 KEEP = 2 * 24 * 21  # history.jsonl에 남길 줄 수(30분마다 약 3주)
 HALL_CACHE = "hall_rows.json"
 # 칸이 바뀌면 hall()이 한 번 통째로 다시 읽는다. 페이지의 fsRow()와 맞춘다
-HALL_COLS = ["id", "at", "uid", "name", "senior", "rank", "kills", "drowned", "islands", "risk", "score", "win", "ver", "paint", "mods", "mvp", "mvpd", "top"]
-HALL_FIELDS = ["at", "uid", "name", "senior", "rank", "kills", "drowned", "islands", "risk", "score", "win", "ver", "paint", "mods", "mvp", "mvpd", "top"]
+HALL_COLS = ["id", "at", "uid", "name", "senior", "rank", "kills", "drowned", "islands", "risk", "score", "win", "ver", "paint", "mods", "mvp", "mvpd", "top", "why"]
+HALL_FIELDS = ["at", "uid", "name", "senior", "rank", "kills", "drowned", "islands", "risk", "score", "win", "ver", "paint", "mods", "mvp", "mvpd", "top", "why"]
 HALL_OVERLAP = timedelta(minutes=30)  # 규칙(firestore.rules)이 기록의 시각을 서버 시계 ±10분까지 받는다 — 늦은 시계로 올라온 줄을 안 놓치게 겹쳐 읽는다
 HALL_EPOCH = "2000-01-01T00:00:00Z"
 
@@ -160,7 +160,7 @@ def hall_row(d):
     return {"id": d.get("name", "").split("/")[-1], "at": r["at"], "uid": txt("uid", 64), "name": txt("name", 16), "senior": txt("senior", 16),
             "rank": num("rank"), "kills": num("kills"), "drowned": num("drowned"), "islands": num("islands"), "risk": num("risk"), "score": num("score"),
             "win": r.get("win") is True, "ver": txt("ver", 12), "paint": txt("paint", 16), "mods": arr("mods", 80, 24), "mvp": txt("mvp", 16),
-            "mvpd": num("mvpd"), "top": arr("top", 3, 40)}
+            "mvpd": num("mvpd"), "top": arr("top", 3, 40), "why": txt("why", 16)}
 
 
 def hall_since(since):
