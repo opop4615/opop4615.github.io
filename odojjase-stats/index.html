@@ -870,7 +870,9 @@ function label(k) {
     return `${p ? `${p.site} ${p.board}` : m[1]} · ${m[2] === "views" ? "조회" : m[2] === "comments" ? "댓글" : (p && LIKE[p.kind]) || "추천"}`;
   }
   return { "hall.total_people": "명부 누적 사람", "hall.total_runs": "명부 누적 판", "hall.wins": "지도 끝까지 간 판", "ios.ratings": "앱스토어 별점 수", "ios.rating": "앱스토어 평균 별점",
-           "play.real": "플레이 설치 수", "play.ratings": "플레이 별점 수", "play.score": "플레이 평균 별점" }[k] || k;
+           "play.real": "플레이 설치 수", "play.ratings": "플레이 별점 수", "play.score": "플레이 평균 별점",
+           "ev.people": "플레이 기록 사람", "ev.new_people": "플레이 기록 · 처음 온 사람", "ev.boss_people": "플레이 기록 · 첫 보스 넘긴 사람",
+           "ev.kk_people": "꽃봉 권유 본 사람", "ev.tap_people": "구매 단추 누른 사람", "ev.buy_people": "산 사람" }[k] || k;
 }
 function fmt(k, v) {
   if (v == null) return "—";

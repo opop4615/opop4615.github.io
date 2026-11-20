@@ -710,6 +710,15 @@ def metrics(s):
     for k in ["total_runs", "total_people", "today_runs", "today_people", "today_new", "wins"]:
         if k in h:
             m["hall." + k] = h[k]
+    e = s.get("ev") or {}
+    if e.get("ok"):   # 플레이 기록 누계(1.5.1부터, 이름 정한 사람)
+        p = e.get("pay") or {}
+        m["ev.people"] = e.get("people", 0)
+        m["ev.new_people"] = (e.get("funnel") or {}).get("new", 0)
+        m["ev.boss_people"] = (e.get("funnel") or {}).get("boss", 0)
+        m["ev.kk_people"] = p.get("kk_people", 0)
+        m["ev.tap_people"] = p.get("tap_people", 0)
+        m["ev.buy_people"] = p.get("buy_people", 0)
     for p in s.get("posts") or []:
         for k in ("views", "likes", "comments"):
             if isinstance(p.get(k), int):
