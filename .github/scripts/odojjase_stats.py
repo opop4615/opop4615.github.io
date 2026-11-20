@@ -18,6 +18,8 @@ hall_rows.json은 명예해병 명부 기록을 모아 둔 것 — 명부를 통
 뽐뿌는 늘 막혀 있어 직접 열기 링크만 둔다.
 """
 import json, os, re, sys, time, traceback, urllib.error, urllib.parse, urllib.request
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import odojjase_ev  # 플레이 기록(ev) 읽기·요약
 from datetime import datetime, timedelta, timezone
 
 IOS_ID = 6829262345
@@ -742,6 +744,7 @@ def main():
     except Exception:
         pass
     s["hall"] = step("명예해병 명부", hall, out)
+    s["ev"] = step("플레이 기록", odojjase_ev.read, out, errors)
     s["posts"] = posts(prev.get("posts"))
     s["ios"] = step("앱스토어 페이지", ios_lookup)
     s["reviews"] = step("앱스토어 리뷰", ios_reviews)
@@ -751,7 +754,7 @@ def main():
     s["youtube"] = step("유튜브", youtube, prev.get("youtube"))
     s["mentions"] = step("다른 곳에서 다룬 것", mentions, prev.get("mentions"), s["posts"])
     # 통째로 못 읽은 갈래는 지난 값을 둔다(errors에는 남는다). 리뷰 목록은 가끔 비어 온다 — 그럴 때도 지난 목록을 둔다
-    for k in ["hall", "ios", "play", "youtube", "mentions"]:
+    for k in ["hall", "ev", "ios", "play", "youtube", "mentions"]:
         if s[k] is None and prev.get(k):
             s[k] = prev[k]
     for k in ["reviews", "play_reviews"]:

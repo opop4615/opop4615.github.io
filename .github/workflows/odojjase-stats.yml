@@ -2,7 +2,8 @@ name: odojjase-stats
 
 # 오도짜세 현황 수집. 30분마다 명예해병 명부·출시 글 반응·다룬 곳·스토어를 읽어
 # odojjase-stats-data 브랜치에 latest.json · history.jsonl · hall_rows.json을 올린다.
-# 페이지(odojjase-stats/index.html)가 그 셋을 읽는다. 키·비밀값은 쓰지 않는다(명부 읽기는 공개).
+# 페이지(odojjase-stats/index.html)가 그 셋을 읽는다. 명부 읽기는 공개다. 플레이 기록(ev, 1.5.1부터)만 비밀값
+# ODOJJASE_EV_REFRESH(수집기 전용 익명 계정의 refresh 토큰)로 읽고, 요약만 latest.json에, uid를 섞은 줄은 ev_rows.json에 둔다.
 on:
   schedule:
     - cron: "7 * * * *"
@@ -12,6 +13,7 @@ on:
     branches: [main]
     paths:
       - .github/scripts/odojjase_stats.py
+      - .github/scripts/odojjase_ev.py
       - .github/workflows/odojjase-stats.yml
 
 permissions:
@@ -39,6 +41,7 @@ jobs:
       - name: Collect
         env:
           GH_TOKEN: ${{ github.token }}
+          ODOJJASE_EV_REFRESH: ${{ secrets.ODOJJASE_EV_REFRESH }}
         run: |
           url="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           if git ls-remote --exit-code --heads "$url" odojjase-stats-data >/dev/null; then

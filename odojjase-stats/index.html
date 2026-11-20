@@ -29,19 +29,15 @@
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif; }
-main { max-width: 980px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(48px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
-/* 위 띠: 제목·새로고침·갈래 건너뛰기. 내려 읽는 동안에도 붙어 있다 */
-header.top { position: sticky; top: 0; z-index: 20; background: var(--page); margin: 0 -16px 12px; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 0; border-bottom: 1px solid var(--border); }
-.toprow { display: flex; gap: 10px 14px; align-items: center; justify-content: space-between; }
-.toprow > div:first-child { min-width: 0; }
-h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
-.stamp { color: var(--ink2); font-size: 12.5px; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+main { max-width: 1080px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(48px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+/* 위 띠: 제목·갱신 시각·새로고침. 내려 읽는 동안에도 붙어 있다 */
+header.top { position: sticky; top: 0; z-index: 30; background: var(--page); border-bottom: 1px solid var(--border); }
+.toprow { max-width: 1080px; margin: 0 auto; display: flex; gap: 10px 14px; align-items: center; justify-content: space-between; padding: calc(8px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); }
+.toprow > div:first-child { min-width: 0; display: flex; align-items: baseline; gap: 4px 12px; flex-wrap: wrap; }
+h1 { font-size: 18px; margin: 0; letter-spacing: -.01em; white-space: nowrap; }
+.stamp { color: var(--ink2); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; font-variant-numeric: tabular-nums; }
 .actions { display: flex; gap: 8px; flex: none; }
-.jump { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 8px -16px 0; padding: 0 16px 8px; }
-.jump::-webkit-scrollbar { display: none; }
-.jump a { flex: none; font-size: 13.5px; color: var(--ink2); text-decoration: none; padding: 6px 12px; border-radius: 99px; background: var(--chip); white-space: nowrap; }
-.jump a:active { background: var(--grid); }
-section.card { scroll-margin-top: 118px; }
+section.card { scroll-margin-top: calc(var(--hh, 56px) + 64px); }
 button, .btn { font: inherit; font-size: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 8px 14px; min-height: 40px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
 button.primary { background: var(--series); border-color: var(--series); color: #fff; font-weight: 600; }
 button:disabled { opacity: .55; cursor: default; }
@@ -173,9 +169,8 @@ h3.h { font-size: 14px; margin: 0 0 6px; }
 @media (max-width: 560px) {
   body { font-size: 15px; }
   main { padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
-  header.top { margin: 0 -12px 10px; padding-left: 12px; padding-right: 12px; }
-  .jump { margin: 8px -12px 0; padding: 0 12px 8px; }
-  h1 { font-size: 18px; }
+  .toprow { padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+  h1 { font-size: 17px; }
   .btn.side { padding: 8px 10px; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .kpi { padding: 10px 12px; }
@@ -240,140 +235,291 @@ tr.today td { font-weight: 600; }
 .links { display: flex; flex-wrap: wrap; gap: 8px; }
 .links .btn { font-size: 13.5px; }
 .linknote { font-size: 13px; color: var(--ink2); margin: 10px 0 0; }
+/* ---- 탭 구성 (11-19): 한눈에 → 탭 → 갈래 카드 */
+:root { --accent: var(--series); --orange: #b45a00; --orange-bg: #fdeedd; --bad-bg: #fbe6e6; --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; }
+@media (prefers-color-scheme: dark) { :root { --orange: #f0a04b; --orange-bg: #2e2112; --bad-bg: #321818; } }
+.warn-c { color: var(--orange); } .bad-c { color: var(--bad); }
+/* 한눈에 */
+.kpis.top { grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); margin: var(--s4) 0 var(--s3); }
+a.kpi { display: block; color: inherit; text-decoration: none; transition: border-color .1s; }
+a.kpi:hover { border-color: var(--accent); }
+.kpi .l { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi .s { overflow-wrap: anywhere; }
+.kpi.alert { border-color: var(--bad); }
+/* 탭 줄: 위 띠 바로 아래에 붙는다 */
+nav.tabs { position: sticky; top: var(--hh, 56px); z-index: 25; background: var(--page); display: flex; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 0 -16px var(--s4); padding: var(--s2) 16px; border-bottom: 1px solid var(--border); }
+nav.tabs::-webkit-scrollbar { display: none; }
+nav.tabs button { flex: none; min-height: 36px; padding: 6px 14px; border-radius: 99px; border: 1px solid transparent; background: transparent; color: var(--ink2); font-size: 14.5px; }
+nav.tabs button:hover { background: var(--chip); }
+nav.tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+nav.tabs .cnt { font-size: 11.5px; font-weight: 700; min-width: 18px; padding: 0 5px; border-radius: 99px; background: var(--bad); color: #fff; line-height: 18px; text-align: center; }
+.tabpanel[hidden] { display: none; }
+/* 갈래 카드 */
+section.card { padding: 18px; margin-bottom: var(--s4); }
+section.card > h2, .card-h h2 { font-size: 17px; margin: 0 0 4px; letter-spacing: -.01em; }
+.card-h { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 12px; flex-wrap: wrap; margin-bottom: 4px; }
+.card-h h2 small { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 6px; }
+.note { font-size: 13px; color: var(--muted); background: var(--sunk); border-radius: 8px; padding: 8px 12px; margin: 0; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 var(--s4); }
+@media (min-width: 900px) { .split { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr); } }
+.grid2 > div { min-width: 0; }
+details.more { margin-top: 6px; }
+details.more > summary { font-size: 13px; }
+/* 지금 볼 것 */
+.todo { list-style: none; margin: 0; padding: 0; }
+.todo li { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--grid); font-size: 14px; }
+.todo li:last-child { border-bottom: 0; }
+.todo .dot { flex: none; width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; background: var(--muted); }
+.todo li.bad .dot { background: var(--bad); } .todo li.warn .dot { background: var(--orange); } .todo li.good .dot { background: var(--good); }
+.todo .tx { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.todo .tx small { display: block; color: var(--muted); font-size: 12.5px; }
+.todo a.go { flex: none; font-size: 12.5px; color: var(--series-hi); text-decoration: none; white-space: nowrap; margin-top: 2px; }
+/* 깔때기: 한 줄 = 단계 · 막대 · 사람 · 빠진 수 */
+.fun { list-style: none; margin: 0; padding: 0; }
+.fun li { display: grid; grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) 104px 128px; grid-template-areas: "nm fb fn fd"; gap: 4px 12px; align-items: center; padding: 7px 8px; margin: 0 -8px; border-radius: 8px; }
+.fun .nm { grid-area: nm; font-size: 14px; min-width: 0; }
+.fun .nm small { display: block; font-size: 12px; color: var(--muted); }
+.fun .fb { grid-area: fb; height: 14px; background: var(--sunk); border-radius: 4px; overflow: hidden; }
+.fun .fb i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+.fun .fn { grid-area: fn; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 13px; color: var(--ink2); }
+.fun .fn b { font-size: 16px; color: var(--ink); font-weight: 650; }
+.fun .fd { grid-area: fd; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fun .fd.warn { color: var(--orange); } .fun .fd.bad { color: var(--bad); font-weight: 650; }
+.fun li.big { background: var(--bad-bg); }
+.fun li.sep { border-top: 1px dashed var(--grid); border-radius: 0; margin-top: 6px; padding-top: 12px; }
+.fun li.sep .fb i { background: var(--soft); }
+@media (max-width: 560px) {
+  .fun li { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "nm fn" "fb fb" "fd fd"; gap: 3px 10px; padding: 8px; }
+}
+/* 작은 숫자 칸 */
+.minis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: var(--s3); }
+.minis div { background: var(--sunk); border-radius: 10px; padding: 8px 12px; min-width: 0; }
+.minis > div > span { display: block; font-size: 12px; color: var(--ink2); }
+.minis b { font-size: 18px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.minis b .u { font-size: 12.5px; font-weight: 500; color: var(--ink2); margin-left: 2px; }
+.minis em { font-style: normal; font-size: 12px; color: var(--muted); margin-left: 4px; }
+.big1 { font-size: 30px; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.big1 .u { font-size: 14px; font-weight: 500; color: var(--ink2); margin-left: 2px; }
+/* 구매 실패 */
+.fails { list-style: none; margin: 0; padding: 0; }
+.fails li { padding: 9px 0; border-bottom: 1px solid var(--grid); }
+.fails li:last-child { border-bottom: 0; }
+.fails .f1 { display: flex; gap: 6px 8px; align-items: baseline; flex-wrap: wrap; }
+.fails .f1 .tm { margin-left: auto; color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fails .f2 { font-size: 13.5px; color: var(--ink2); margin-top: 2px; overflow-wrap: anywhere; }
+td.bad-c { color: var(--bad); font-weight: 600; }
+tr.sum td { font-weight: 600; border-top: 1px solid var(--axis); }
+@media (min-width: 721px) { #reactkpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .kpis.top { grid-template-columns: repeat(2, minmax(0, 1fr)); } nav.tabs { margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; } section.card { padding: 14px 12px; } }
+footer { border-top: 1px solid var(--border); padding-top: var(--s3); margin-top: var(--s5); }
 </style>
 </head>
 <body>
+<header class="top" id="top">
+  <div class="toprow">
+    <div>
+      <h1>오도짜세 현황</h1>
+      <div class="stamp" id="stamp">불러오는 중…</div>
+    </div>
+    <div class="actions">
+      <button class="primary" id="refresh" type="button">↻ 새로고침</button>
+      <a class="btn side w-only" id="runlink" target="_blank" rel="noopener" href="https://github.com/opop4615/opop4615.github.io/actions/workflows/odojjase-stats.yml">서버 수집 ↗</a>
+    </div>
+  </div>
+</header>
 <main>
-  <header class="top">
-    <div class="toprow">
-      <div>
-        <h1>오도짜세 현황</h1>
-        <div class="stamp" id="stamp">불러오는 중…</div>
-      </div>
-      <div class="actions">
-        <button class="primary" id="refresh" type="button">↻ 새로고침</button>
-        <a class="btn side w-only" id="runlink" target="_blank" rel="noopener" href="https://github.com/opop4615/opop4615.github.io/actions/workflows/odojjase-stats.yml">서버 수집 ↗</a>
-      </div>
-    </div>
-    <nav class="jump" aria-label="갈래로 건너뛰기">
-      <a href="#changes">달라진 것</a><a href="#hall">날짜별 플레이</a><a href="#rookie">신병 문턱</a><a href="#runs">플레이 기록</a><a href="#posts">내 글 반응</a><a href="#mentions">다룬 곳</a><a href="#store">스토어</a><a href="#links">직접 볼 곳</a>
-    </nav>
-  </header>
+  <div id="notice" style="margin-top:12px"></div>
   <div class="progress" id="progress" role="status" aria-live="polite"></div>
-  <div id="notice"></div>
 
-  <div class="kpis" id="kpis"></div>
+  <div class="kpis top" id="kpis"></div>
 
-  <section class="card" id="changes">
-    <div class="row" style="justify-content:space-between">
-      <h2>달라진 것</h2>
-      <label class="row" style="font-size:13.5px;color:var(--ink2)">기준
-        <select id="base"></select>
-      </label>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="갈래"></nav>
+
+  <!-- 요약 -->
+  <div class="tabpanel" id="p-summary" role="tabpanel">
+    <div class="split">
+      <section class="card" id="todo">
+        <h2>지금 볼 것</h2>
+        <p class="sub">수집한 숫자에서 골랐다. 누르면 그 탭으로 간다.</p>
+        <div id="todolist"></div>
+      </section>
+      <section class="card" id="daily">
+        <div class="card-h">
+          <h2>날짜별 플레이한 사람</h2>
+          <div class="legend"><span><i style="background:var(--series)"></i>처음 온 사람</span><span><i style="background:var(--soft)"></i>전에도 온 사람</span></div>
+        </div>
+        <p class="sub">명예해병 명부 기준. 막대를 누르면 그날 숫자.</p>
+        <div class="chart" id="hallchart"></div>
+        <h3 class="h gap">오늘 온 사람 <span id="todaysub"></span></h3>
+        <div class="who" id="halltoday" style="margin-bottom:0"></div>
+      </section>
     </div>
-    <p class="sub" id="baseinfo"></p>
-    <div id="changed"></div>
-    <details id="samewrap" style="margin-top:10px"><summary>그대로인 것</summary><ul class="same" id="same"></ul></details>
-  </section>
+    <section class="card" id="changes">
+      <div class="card-h">
+        <h2>달라진 것</h2>
+        <label class="row" style="font-size:13.5px;color:var(--ink2)">기준
+          <select id="base"></select>
+        </label>
+      </div>
+      <p class="sub" id="baseinfo"></p>
+      <div id="changed"></div>
+      <details id="samewrap" style="margin-top:10px"><summary>그대로인 것</summary><ul class="same" id="same"></ul></details>
+    </section>
+  </div>
 
-  <section class="card" id="hall">
-    <h2>날짜별 플레이 <small>명예해병 명부에 오른 기록으로 센다</small></h2>
-    <p class="sub" id="hallsub"></p>
-    <h3 class="h">오늘 온 사람 <span id="todaysub"></span></h3>
-    <div class="who" id="halltoday"></div>
-    <div class="row" style="justify-content:space-between;margin:16px 0 4px">
-      <h3 class="h" style="margin:0">날짜별 플레이한 사람</h3>
-      <div class="legend"><span><i style="background:var(--series)"></i>처음 온 사람</span><span><i style="background:var(--soft)"></i>전에도 온 사람</span></div>
-    </div>
-    <div class="chart" id="hallchart"></div>
-    <div class="scroll" style="margin-top:8px"><table id="halldays"></table></div>
-    <details id="daysmorewrap" style="margin-top:8px"><summary></summary><div class="scroll"><table id="halldaysmore"></table></div></details>
-    <div class="grid2" style="margin-top:18px">
-      <div><h3 class="h">어디까지 갔나</h3><ul class="bars" id="hallreach"></ul></div>
-      <div><h3 class="h">고른 선임</h3><ul class="bars" id="hallseniors"></ul></div>
-      <div><h3 class="h">많이 붙인 부품</h3><ul class="bars" id="hallmods"></ul></div>
-      <div><h3 class="h">주력 무기 <span>· 그 판에서 피해를 가장 많이 준 것</span></h3><ul class="bars" id="hallmvp"></ul></div>
-    </div>
-  </section>
+  <!-- 플레이 -->
+  <div class="tabpanel" id="p-play" role="tabpanel" hidden>
+    <section class="card" id="hall">
+      <h2>날짜별 플레이 <small>명예해병 명부에 오른 기록</small></h2>
+      <p class="sub" id="hallsub"></p>
+      <div class="scroll"><table id="halldays"></table></div>
+      <details id="daysmorewrap" class="more"><summary></summary><div class="scroll"><table id="halldaysmore"></table></div></details>
+    </section>
+    <section class="card" id="evplay">
+      <h2>날짜별 플레이 <small>플레이 기록 · 이름을 정한 1.5.1 이상</small></h2>
+      <p class="sub" id="evplaysub"></p>
+      <div id="evplaybody"></div>
+    </section>
+    <section class="card" id="what">
+      <h2>판 안에서 <small>따로 적지 않은 칸은 명부 기준</small></h2>
+      <div class="grid2" style="margin-top:12px">
+        <div><h3 class="h">어디까지 갔나</h3><div id="hallreach"></div></div>
+        <div><h3 class="h">어디까지 갔나 <span>· 플레이 기록, 끝난 모든 판</span></h3><div id="evreach"></div></div>
+        <div><h3 class="h">고른 선임</h3><div id="hallseniors"></div></div>
+        <div><h3 class="h">많이 붙인 부품</h3><div id="hallmods"></div></div>
+        <div><h3 class="h">주력 무기 <span>· 그 판에서 피해를 가장 많이 준 것</span></h3><div id="hallmvp"></div></div>
+      </div>
+    </section>
+    <section class="card" id="secs">
+      <h2>판 길이 <small>싸운 시간, 어디까지 갔는지별</small></h2>
+      <div class="scroll" style="margin-top:8px"><table id="rookiesecs"></table></div>
+    </section>
+  </div>
 
-  <section class="card" id="rookie">
-    <h2>신병 문턱 <small>처음 온 사람이 첫 섬을 넘고 다시 오는가</small></h2>
-    <p class="sub" id="rookiesub"></p>
-    <div id="rookiebody">
-      <div class="kpis" id="rookiekpis"></div>
-      <h3 class="h">첫 판의 게임 버전별</h3>
-      <div class="scroll"><table id="rookiever"></table></div>
-      <h3 class="h gap">사인 <span>· 쓰러진 판에서 피해를 가장 많이 받은 것</span></h3>
-      <div class="scroll"><table id="rookiewhy"></table></div>
-      <h3 class="h gap">판 길이 <span>· 싸운 시간, 어디까지 갔는지별</span></h3>
-      <div class="scroll"><table id="rookiesecs"></table></div>
-    </div>
-  </section>
+  <!-- 신병·이탈 -->
+  <div class="tabpanel" id="p-newbie" role="tabpanel" hidden>
+    <section class="card" id="funnel">
+      <h2>처음 온 사람이 어디서 빠지나 <small>플레이 기록</small></h2>
+      <p class="sub" id="funnelsub"></p>
+      <div id="evfunnel"></div>
+    </section>
+    <section class="card" id="firstrun">
+      <h2>첫 판 <small>처음 온 사람의 첫 판</small></h2>
+      <div id="evfirstnote"></div>
+      <div class="grid2" id="evfirstbody" style="margin-top:12px">
+        <div><h3 class="h">확보한 섬</h3><div id="evfirstisl"></div></div>
+        <div><h3 class="h">사인 <span>· 쓰러진 까닭</span></h3><div id="evfirstwhy"></div></div>
+      </div>
+    </section>
+    <section class="card" id="gone">
+      <h2>판 도중에 나간 사람 · 부활 <small>플레이 기록</small></h2>
+      <div id="evgonenote"></div>
+      <div class="grid2" id="evgonebody" style="margin-top:12px">
+        <div id="evgone"></div>
+        <div id="evrev"></div>
+      </div>
+    </section>
+    <section class="card" id="rookie">
+      <h2>신병 문턱 <small>명부 기준 · 첫 섬을 넘고 다시 오는가</small></h2>
+      <p class="sub" id="rookiesub"></p>
+      <div id="rookiebody">
+        <div class="kpis" id="rookiekpis"></div>
+        <h3 class="h">첫 판의 게임 버전별</h3>
+        <div class="scroll"><table id="rookiever"></table></div>
+        <h3 class="h gap">사인 <span>· 쓰러진 판에서 피해를 가장 많이 받은 것</span></h3>
+        <div class="scroll"><table id="rookiewhy"></table></div>
+        <details id="whymorewrap" class="more"><summary></summary><div class="scroll"><table id="rookiewhymore"></table></div></details>
+      </div>
+    </section>
+  </div>
 
-  <section class="card" id="runs">
-    <h2>플레이 기록 <small>새것부터 · 누르면 그 판의 부품과 피해</small></h2>
-    <p class="sub" id="runsub"></p>
-    <form class="find" id="findform" role="search" autocomplete="off">
-      <input id="hallq" type="search" inputmode="search" enterkeyhint="search" placeholder="이름으로 찾기" aria-label="명부에 올린 이름으로 찾기">
-      <button type="button" id="hallall">사람별로 보기</button>
-    </form>
-    <ul class="runs" id="hallfound" style="columns:auto"></ul>
-    <ul class="runs" id="hallrecent"></ul>
-    <div class="row" style="margin-top:10px"><button type="button" id="recentmore">더 보기</button></div>
-  </section>
+  <!-- 결제 -->
+  <div class="tabpanel" id="p-pay" role="tabpanel" hidden>
+    <section class="card" id="payfun">
+      <h2>사기까지 <small>플레이 기록 · 사람 수</small></h2>
+      <p class="sub" id="paysub"></p>
+      <div id="payfunnel"></div>
+    </section>
+    <section class="card" id="payprod">
+      <h2>상품별 <small>누른 횟수와 결과</small></h2>
+      <div id="payprodbody"></div>
+    </section>
+    <section class="card" id="payfail">
+      <h2>구매 실패 <small>새것부터</small></h2>
+      <div id="payfails"></div>
+    </section>
+    <section class="card" id="payday">
+      <h2>날짜별 <small>횟수</small></h2>
+      <div id="paydays"></div>
+    </section>
+  </div>
 
-  <section class="card" id="posts">
-    <h2>내 글 반응</h2>
-    <p class="sub" id="postsub"></p>
-    <ul class="posts" id="postlist"></ul>
-    <h3 class="h gap">댓글 <span id="cmtsub"></span></h3>
-    <ul class="cmts" id="cmtlist"></ul>
-    <details id="cmtmorewrap" style="margin-top:8px"><summary></summary><ul class="cmts" id="cmtmore"></ul></details>
-  </section>
+  <!-- 반응 -->
+  <div class="tabpanel" id="p-react" role="tabpanel" hidden>
+    <div class="kpis" id="reactkpis"></div>
+    <section class="card" id="posts">
+      <h2>내 글 반응</h2>
+      <p class="sub" id="postsub"></p>
+      <ul class="posts" id="postlist"></ul>
+      <h3 class="h gap">댓글 <span id="cmtsub"></span></h3>
+      <ul class="cmts" id="cmtlist"></ul>
+      <details id="cmtmorewrap" class="more"><summary></summary><ul class="cmts" id="cmtmore"></ul></details>
+    </section>
+    <section class="card" id="mentions">
+      <h2>다른 곳에서 다룬 것</h2>
+      <p class="sub" id="mensub"></p>
+      <div id="mentionlist"></div>
+    </section>
+    <section class="card" id="store">
+      <h2>스토어 · 리뷰 · 유튜브</h2>
+      <p class="sub">한국 스토어. 실제 설치 수와 판매는 앱스토어 커넥트·플레이 콘솔에서만 보인다(기록 탭의 ‘직접 볼 곳’).</p>
+      <div class="pg" id="storecards" style="margin-top:0"></div>
+      <div class="grid2" style="margin-top:16px"><div id="rev-ios"></div><div id="rev-play"></div></div>
+      <h3 class="h gap">공식 트레일러</h3>
+      <div class="scroll"><table id="yt"></table></div>
+    </section>
+  </div>
 
-  <section class="card" id="mentions">
-    <h2>다른 곳에서 다룬 것</h2>
-    <p class="sub" id="mensub"></p>
-    <div id="mentionlist"></div>
-  </section>
-
-  <section class="card" id="store">
-    <h2>스토어 · 리뷰 · 유튜브</h2>
-    <p class="sub">한국 스토어. 실제 설치 수와 판매는 앱스토어 커넥트·플레이 콘솔에서만 보인다(‘직접 볼 곳’).</p>
-    <div class="pg" id="storecards" style="margin-top:0"></div>
-    <div class="grid2" style="margin-top:16px"><div id="rev-ios"></div><div id="rev-play"></div></div>
-    <h3 class="h gap">공식 트레일러</h3>
-    <div class="scroll"><table id="yt"></table></div>
-  </section>
-
-  <section class="card" id="links">
-    <h2>직접 볼 곳</h2>
-    <p class="sub">자동으로 못 읽는 곳과 검색. 새 탭으로 열린다.</p>
-    <div class="links" id="linklist"></div>
-    <p class="linknote">언론사·스트리머 메일 답장은 이 페이지가 읽지 못한다 — ‘메일 답장’으로 지메일에서 본다.</p>
-  </section>
-
-  <section class="card" id="errwrap">
-    <h2>못 읽은 것</h2>
-    <div id="errors"></div>
-  </section>
-
-  <section class="card settings">
-    <details>
-      <summary>설정 (이 브라우저에만 저장)</summary>
-      <label for="skipnames">세지 않을 이름 (선택)</label>
-      <input id="skipnames" type="text" autocomplete="off" placeholder="내 이름, 시험용 이름 — 쉼표로 나눈다">
-      <p>내가 직접 한 판이나 시험한 판을 사람 수·판 수에서 뺀다. 그 이름을 한 번이라도 쓴 기기의 기록을 모두 뺀다(이름을 바꿔 가며 해도 빠진다).</p>
-      <label for="ghtoken">깃허브 토큰 (선택)</label>
-      <input id="ghtoken" type="password" autocomplete="off" placeholder="github_pat_…">
-      <p>넣으면 새로고침이 서버 수집(글 반응·다룬 곳·스토어)까지 바로 돌린다(1~2분). 세분화 토큰(fine-grained)으로, 저장소는 opop4615.github.io 하나, 권한은 Actions: Read and write 하나만. 설화던전 현황에 넣은 토큰을 그대로 써도 된다.</p>
-      <div class="row" style="margin-top:10px"><button id="save" type="button">저장</button><a class="btn" target="_blank" rel="noopener" href="https://github.com/opop4615/opop4615.github.io/actions/workflows/odojjase-stats.yml">서버 수집 기록 ↗</a><span id="saved" class="muted" style="font-size:13px"></span></div>
-    </details>
-  </section>
+  <!-- 기록 -->
+  <div class="tabpanel" id="p-log" role="tabpanel" hidden>
+    <section class="card" id="runs">
+      <h2>플레이 기록 <small>새것부터 · 누르면 그 판의 부품과 피해</small></h2>
+      <p class="sub" id="runsub"></p>
+      <form class="find" id="findform" role="search" autocomplete="off">
+        <input id="hallq" type="search" inputmode="search" enterkeyhint="search" placeholder="이름으로 찾기" aria-label="명부에 올린 이름으로 찾기">
+        <button type="button" id="hallall">사람별로 보기</button>
+      </form>
+      <ul class="runs" id="hallfound" style="columns:auto"></ul>
+      <ul class="runs" id="hallrecent"></ul>
+      <div class="row" style="margin-top:10px"><button type="button" id="recentmore">더 보기</button></div>
+    </section>
+    <section class="card" id="links">
+      <h2>직접 볼 곳</h2>
+      <p class="sub">자동으로 못 읽는 곳과 검색. 새 탭으로 열린다.</p>
+      <div class="links" id="linklist"></div>
+      <p class="linknote">언론사·스트리머 메일 답장은 이 페이지가 읽지 못한다 — ‘메일 답장’으로 지메일에서 본다.</p>
+    </section>
+    <section class="card" id="errwrap">
+      <h2>못 읽은 것</h2>
+      <div id="errors"></div>
+    </section>
+    <section class="card settings">
+      <details>
+        <summary>설정 (이 브라우저에만 저장)</summary>
+        <label for="skipnames">세지 않을 이름 (선택)</label>
+        <input id="skipnames" type="text" autocomplete="off" placeholder="내 이름, 시험용 이름 — 쉼표로 나눈다">
+        <p>내가 직접 한 판이나 시험한 판을 사람 수·판 수에서 뺀다. 그 이름을 한 번이라도 쓴 기기의 기록을 모두 뺀다(이름을 바꿔 가며 해도 빠진다). 플레이 기록(신병·이탈, 결제)은 서버에서 센 값이라 빠지지 않는다.</p>
+        <label for="ghtoken">깃허브 토큰 (선택)</label>
+        <input id="ghtoken" type="password" autocomplete="off" placeholder="github_pat_…">
+        <p>넣으면 새로고침이 서버 수집(글 반응·다룬 곳·스토어)까지 바로 돌린다(1~2분). 세분화 토큰(fine-grained)으로, 저장소는 opop4615.github.io 하나, 권한은 Actions: Read and write 하나만. 설화던전 현황에 넣은 토큰을 그대로 써도 된다.</p>
+        <div class="row" style="margin-top:10px"><button id="save" type="button">저장</button><a class="btn" target="_blank" rel="noopener" href="https://github.com/opop4615/opop4615.github.io/actions/workflows/odojjase-stats.yml">서버 수집 기록 ↗</a><span id="saved" class="muted" style="font-size:13px"></span></div>
+      </details>
+    </section>
+  </div>
 
   <footer>
-    <p>서버 수집은 30분마다(매시 7분·37분 무렵, 깃허브 사정으로 늦기도 한다) 깃허브 액션이 돈다 — 명예해병 명부, 올린 글의 조회·추천·댓글, 다룬 곳 검색, 스토어 페이지·리뷰, 유튜브 조회. 새로고침하면 명부의 새 기록과 앱스토어 별점은 이 브라우저가 바로 읽는다 <span class="tag live">실시간</span>.</p>
-    <p>플레이 수는 명예해병 명부에 오른 판으로 센다 — 이름을 정하고, 섬을 하나라도 확보했거나 30마리 넘게 잡았거나 지도 끝까지 간 판만 오른다(실제 플레이보다 적다). 같은 기기 = 한 사람. 시각은 전부 한국 시간.</p>
+    <p>서버 수집은 30분마다(매시 7분·37분 무렵, 깃허브 사정으로 늦기도 한다) 깃허브 액션이 돈다 — 명예해병 명부, 플레이 기록, 올린 글의 조회·추천·댓글, 다룬 곳 검색, 스토어 페이지·리뷰, 유튜브 조회. 새로고침하면 명부의 새 기록과 앱스토어 별점은 이 브라우저가 바로 읽는다 <span class="tag live">실시간</span>.</p>
+    <p>명부 수는 명예해병 명부에 오른 판으로 센다 — 이름을 정하고, 섬을 하나라도 확보했거나 30마리 넘게 잡았거나 지도 끝까지 간 판만 오른다(실제 플레이보다 적다). 플레이 기록은 이름을 정한 사람의 1.5.1부터 판 시작·섬 확보·판 끝·부활·상점·구매를 모두 센다. 같은 기기 = 한 사람. 시각은 전부 한국 시간.</p>
     <p>자동 읽기를 막아 둔 곳은 돌아가지 않고 ‘못 읽음’으로 둔다. 새 글을 올리면 수집기(.github/scripts/odojjase_stats.py)의 POSTS에 한 줄 더한다.</p>
   </footer>
 </main>
@@ -396,7 +542,7 @@ const QS = new URLSearchParams(location.search);
 const FS_DOCS = QS.get("fs") || "https://firestore.googleapis.com/v1/projects/odojjase/databases/(default)/documents"; // 키 없이 읽힌다(막는 일은 게임 저장소의 firestore.rules). ?fs= 는 시험용
 const COOLDOWN_MIN = 10;
 const NOCACHE_DAYS = 3; // 모아 둔 명부 기록이 없을 때 직접 읽는 날 수 — 명부를 통째로 읽지 않는다(읽기 한도)
-const RECENT_STEP = 30; // 플레이 기록을 한 번에 보이는 줄 수
+const RECENT_STEP = 20; // 플레이 기록을 한 번에 보이는 줄 수
 const YT_MIN = 10;      // 유튜브 조회 변화가 이보다 작으면 '달라진 것'에 안 보인다(유튜브가 보여 주는 수가 몇 회씩 오르내린다)
 const WINDOWS = [["visit", "지난번 열어 본 때"], ["30", "30분 전"], ["60", "1시간 전"], ["180", "3시간 전"], ["midnight", "오늘 0시"], ["1440", "24시간 전"]];
 // 게임의 이름표(main.gd의 RANKS · SENIORS · OPS · SRC_NAMES · MODULES). 부품·무기가 늘면
@@ -406,7 +552,7 @@ const N = {"ranks":["아쎄이","일병","일꺽","일병 오장","상병","상�
 // 사인 이름표(main.gd의 CAUSES). 사인이 늘면 여기에 손으로 더한다 — 표에 없는 열쇠는 열쇠 그대로 보인다.
 const WHY = {"bite":"물림","cling":"매달림","acid":"산성","slam":"땅 찍기","line":"공격 줄","dash":"돌진","bomb":"자폭","spit":"침","freeze":"얼음","mp":"헌병","fuel":"기름 바닥","self":"찐빠포","jelly":"해파리","spike":"가시","cough":"기침","barracks":"생활반 함락"};
 
-const S = { snap: null, hist: [], hallRows: [], allRows: [], rows: [], stats: null, partial: false, skipped: 0, base: null, visitPrev: 0,
+const S = { more: {}, snap: null, hist: [], hallRows: [], allRows: [], rows: [], stats: null, partial: false, skipped: 0, base: null, visitPrev: 0,
             live: { m: {} }, liveErr: [], liveAt: null, busy: false, pushed: false, sheet: null, showAll: false, recentN: RECENT_STEP, ppl: null };
 const $ = id => document.getElementById(id);
 const store = {
@@ -736,26 +882,29 @@ function verdict(a, b) { const d = Math.round((b - a) * 100) / 100; return d > 0
 
 // ---------------------------------------------------------------- 그리기
 
+function stampText() {
+  const snap = S.snap, parts = [];
+  if (snap) parts.push(`갱신 ${ago(Date.parse(snap.at))}`);
+  else parts.push(S.busy ? "불러오는 중…" : "서버 수집본 없음");
+  if (S.liveAt) parts.push(`직접 읽음 ${hm(S.liveAt)}`);
+  $("stamp").textContent = parts.join(" · ");
+  $("stamp").title = snap ? `서버 수집 ${mdhm(Date.parse(snap.at))}` : "";
+}
+
 function render() {
   const m = cur(), snap = S.snap;
   S.base = base();
-  const parts = [];
-  if (snap) parts.push(`서버 수집 ${mdhm(Date.parse(snap.at))} (${ago(Date.parse(snap.at))})`);
-  else parts.push("서버 수집본 없음");
-  if (S.liveAt) parts.push(`직접 읽음 ${hm(S.liveAt)}`);
-  $("stamp").textContent = parts.join(" · ");
+  S.rk = S.rows.length && !S.partial ? rookieStats(S.rows) : null;
+  stampText();
   $("notice").innerHTML =
     (!snap && !S.busy ? `<div class="warnbox"><b>아직 서버 수집본이 없다.</b> 첫 수집이 돌면(매시 7분·37분 무렵, 또는 ‘서버 수집 ↗’에서 Run workflow) 글 반응·다룬 곳·스토어가 채워진다.</div>` : "") +
     (S.partial ? `<div class="warnbox"><b>명부는 최근 ${NOCACHE_DAYS}일 기록만 직접 읽었다.</b> 모아 둔 기록이 아직 없어서다 — 누적과 그 전 날짜는 서버 수집이 돈 뒤에 나온다.</div>` : "");
-  renderKpis(m);
-  renderChanges(m);
-  renderHall();
-  renderRookie();
-  renderRuns();
-  renderPosts();
-  renderMentions();
-  renderStore();
-  renderErrors();
+  const parts = [["한눈에", () => renderKpis(m)], ["달라진 것", () => renderChanges(m)], ["날짜별 플레이", renderHall], ["신병 문턱", renderRookie], ["플레이 기록", renderRuns],
+    ["내 글 반응", renderPosts], ["다룬 곳", renderMentions], ["스토어", renderStore], ["반응 숫자", () => renderReactKpis(m)], ["플레이 기록(날짜별)", renderEvPlay],
+    ["신병·이탈", renderEvNewbie], ["결제", renderPay], ["못 읽은 것", renderErrors], ["지금 볼 것", renderTodo]];
+  for (const [name, f] of parts) try { f(); } catch (e) { console.error(name, e); S.drawErr = (S.drawErr || []).filter(x => x.what !== name).concat({ what: name, why: String(e && e.message || e) }); }
+  if (S.drawErr && S.drawErr.length) $("errwrap").style.display = "", $("errors").insertAdjacentHTML("afterbegin", `<p class="note bad-c" style="margin-bottom:8px">그리다 막힌 곳: ${S.drawErr.map(x => esc(x.what + " (" + x.why + ")")).join(" · ")}</p>`);
+  tabBadges();
 }
 
 // 타일 아래 변화 한 줄. keys의 값을 더해 그때와 견준다
@@ -768,7 +917,81 @@ function kd(keys, m, min = 0) {
   return `<div class="d ${c}">${t} <span class="muted">· ${esc(baseName())} 대비</span></div>`;
 }
 
+// ---- 플레이 기록(ev): 수집기가 Firestore ev를 사람·날짜별로 센 것. 옛 수집본에는 없고, 읽기 키가 없으면 ok=false
+const ISLE = { battle: "전투 섬", rescue: "구조 섬", supply: "보급 섬", boss: "보스 섬", final: "마지막 섬", tutorial: "훈련" };
+const PROD = { welcome_set: ["전입 기념 꽃봉", 5500], medals_small: ["신병 보급", 3300], medals_medium: ["병장 보급", 8800], medals_large: ["황룡병장 보급", 19000], remove_ads: ["광고 제거", 4400] };
+const OSN = { i: "iOS", a: "안드로이드" };
+const prodName = k => (PROD[k] ? PROD[k][0] : k || "—");
+function evOk() { const e = S.snap && S.snap.ev; return e && e.ok ? e : null; }
+function evWhy() {
+  const e = S.snap && S.snap.ev;
+  if (!S.snap) return S.busy ? "읽는 중…" : "서버 수집본이 없다";
+  if (!e) return "아직 수집본에 없다 — 수집기가 새로 돌면 생긴다";
+  if (!e.ok) return e.why || "못 읽었다";
+  return "";
+}
+const evNote = () => `<p class="note">플레이 기록: ${esc(evWhy())}</p>`;
+const evDay = (e, d) => (e.days || []).find(x => x.d === d) || null;
+const n0 = v => Number(v) || 0;
+const rate = (a, b) => (b ? Math.round(a / b * 1000) / 10 : null);
+const pct = (a, b) => (b ? `${nf(rate(a, b))}%` : "—");
+const uu = (v, unit) => (v == null ? "—" : `${nf(v)}<span class="u">${unit}</span>`);
+const islName = k => (k === "win" ? "지도 끝 도달" : Number(k) === 0 ? "섬 0개" : `섬 ${nf(k)}개`);
+const objList = o => Object.entries(o || {}).map(([k, n]) => [k, n0(n)]).sort((a, b) => (isNaN(a[0]) || isNaN(b[0]) ? (a[0] < b[0] ? -1 : 1) : a[0] - b[0]));
+
+// 막대 목록. max줄 넘으면 나머지는 접어 둔다
+function barsHtml(list, unit, max = 8, total) {
+  if (!list.length) return `<ul class="bars"><li class="muted">아직 없다</li></ul>`;
+  const top = Math.max(1, ...list.map(x => x.n));
+  const li = x => `<li><span>${esc(x.name)}</span><span class="n">${nf(x.n)}${unit}${total ? ` <span class="muted">· ${pct(x.n, total)}</span>` : ""}</span><span class="bar"><i style="width:${Math.round(x.n / top * 100)}%"></i></span></li>`;
+  return `<ul class="bars">${list.slice(0, max).map(li).join("")}</ul>` +
+    (list.length > max ? `<details class="more"><summary>더 보기 (${nf(list.length - max)})</summary><ul class="bars">${list.slice(max).map(li).join("")}</ul></details>` : "");
+}
+
+// 깔때기. steps = [열쇠, 이름, 덧말]. 앞 단계보다 줄어든 수를 보이고, 가장 많이 줄어든 곳을 빨갛게
+function funnelRows(steps, f) {
+  const rows = steps.map(([k, name, note]) => ({ k, name, note, n: n0(f[k]) }));
+  let big = -1, bigN = 0;
+  rows.forEach((r, i) => { r.drop = i ? rows[i - 1].n - r.n : 0; r.dropP = i && rows[i - 1].n ? r.drop / rows[i - 1].n : 0; if (r.drop > bigN) { bigN = r.drop; big = i; } });
+  return { rows, big };
+}
+function funnelHtml(steps, f, after = []) {
+  const { rows, big } = funnelRows(steps, f), base = rows[0].n, top = Math.max(1, base, ...rows.map(r => r.n), ...after.map(a => n0(f[a[0]])));
+  const li = (r, i, sep) => {
+    const cls = i === big ? "bad" : r.dropP >= .2 ? "warn" : "";
+    const fd = sep ? `<span class="fd">${esc(sep)}</span>` : !i ? `<span class="fd">기준</span>` : r.drop > 0 ? `<span class="fd ${cls}">−${nf(r.drop)}명 · ${nf(Math.round(r.dropP * 100))}% 빠짐</span>` : `<span class="fd">빠짐 없음</span>`;
+    return `<li class="${i === big && !sep ? "big" : ""}${sep ? " sep" : ""}"><span class="nm">${esc(r.name)}${r.note ? `<small>${esc(r.note)}</small>` : ""}</span><span class="fb"><i style="width:${Math.max(r.n ? 1 : 0, Math.round(r.n / top * 100))}%"></i></span>` +
+      `<span class="fn"><b>${nf(r.n)}</b>명 · ${pct(r.n, base)}</span>${fd}</li>`;
+  };
+  return `<ul class="fun">${rows.map((r, i) => li(r, i)).join("")}${after.map(([k, name, note, sep]) => li({ name, note, n: n0(f[k]) }, -1, sep)).join("")}</ul>`;
+}
+const NEW_STEPS = [["new", "처음 온 사람", "판을 하나도 안 끝낸 채 처음 잡힘"], ["run", "출격", "판을 시작함"], ["tut", "훈련 마침", ""], ["end1", "첫 판 끝냄", ""], ["isl1", "섬 1개 이상 확보", "어느 판이든"], ["isl3", "섬 3개 이상 확보", "어느 판이든"], ["boss", "첫 보스 넘김", "작전 1 보스 섬"]];
+const PAY_STEPS = [["kk_people", "꽃봉 권유 본 사람", ""], ["tap_people", "구매 단추 누른 사람", "상품 가리지 않고"], ["buy_people", "산 사람", ""]];
+
 function renderKpis(m) {
+  const snap = S.snap || {}, e = evOk(), now = Date.now(), today = dayKey(now), yday = dayKey(now - 86400000);
+  const td = e && (evDay(e, today) || { people: 0, new: 0, runs: 0, ends: 0, tap: 0, buy: 0, fail: 0, kk: 0 }), yd = e && evDay(e, yday);
+  const ydl = (v, unit) => (v != null ? `<div class="d flat">어제 ${nf(v)}${unit}</div>` : "");
+  const k = S.rk, f = e && e.funnel;
+  const ios = Object.assign({}, snap.ios || {}, S.live.ios || {}), play = snap.play || {};
+  const tiles = [];
+  // 사람·판은 명부가 기준(모든 버전). 플레이 기록은 이름을 정한 1.5.1부터라 아직 적게 잡힌다 — 아랫줄에 같이 둔다
+  const hy = S.stats && !S.partial ? S.stats.days.find(d => d.day === yday) : null;
+  tiles.push(["#play", "오늘 플레이한 사람", uu(m["hall.today_people"], "명"), `${S.partial ? "명부" : `새로 온 ${nf(m["hall.today_new"])}명`}${e ? ` · 플레이 기록 ${nf(n0(td.people))}명(새로 ${nf(n0(td.new))})` : ""}`, ydl(hy && hy.people, "명") || kd(["hall.today_people"], m)]);
+  tiles.push(["#play", "오늘 판 수", uu(m["hall.today_runs"], "판"), e ? `플레이 기록 판 시작 ${nf(n0(td.runs))} · 끝 ${nf(n0(td.ends))}` : "명부에 오른 판", ydl(hy && hy.runs, "판")]);
+  const goalD = (a, b, g) => (!b ? "" : rate(a, b) >= g ? `<div class="d up">목표 ${g}% 넘음</div>` : `<div class="d warn-c">목표 ${g}%</div>`);
+  tiles.push(["#newbie", "다른 날 다시 온 사람", k && k.backOf ? uu(rate(k.back, k.backOf), "%") : "—", k ? `${nf(k.back)}/${nf(k.backOf)}명 · 명부${f && f.new ? ` · 플레이 기록 ${pct(n0(f.back), n0(f.new))}` : ""}` : "명부를 다 읽은 뒤에 나온다", k ? goalD(k.back, k.backOf, ROOKIE_GOAL.back) : ""]);
+  if (f && f.new) tiles.push(["#newbie", "첫 보스 넘긴 사람", uu(rate(n0(f.boss), n0(f.new)), "%"), `${nf(n0(f.boss))}/${nf(n0(f.new))}명 · 플레이 기록에 처음 온 사람`, ""]);
+  else tiles.push(["#newbie", "섬 3개 이상 간 사람", k && k.people ? uu(rate(k.three, k.people), "%") : "—", k ? `${nf(k.three)}/${nf(k.people)}명 · 명부 기준` : "명부를 다 읽은 뒤에 나온다", ""]);
+  if (e) tiles.push(["#pay", "오늘 구매", uu(n0(td.buy), "건"), `구매 단추 ${nf(n0(td.tap))}번 · 꽃봉 권유 ${nf(n0(td.kk))}번`, n0(td.fail) ? `<div class="d down">실패 ${nf(td.fail)}건</div>` : ydl(yd && yd.buy, "건"), n0(td.fail) > 0]);
+  else tiles.push(["#pay", "오늘 구매", "—", "플레이 기록이 아직 없다", ""]);
+  tiles.push(["#store", "플레이 설치", play.real != null ? uu(play.real, "") : esc(play.installs || "—"),
+    `플레이 ${play.score ? "★" + Number(play.score).toFixed(1) : "—"}${play.ratings != null ? ` (${nf(play.ratings)})` : ""} · 앱스토어 ${ios.rating ? "★" + Number(ios.rating).toFixed(1) : "—"}${ios.listed ? ` (${nf(ios.ratings)})` : ""}`, kd(["play.real"], m)]);
+  $("kpis").innerHTML = tiles.map(([href, l, v, s, d, alert]) => `<a class="kpi${alert ? " alert" : ""}" href="${href}"><div class="l">${esc(l)}</div><div class="v">${v}</div><div class="s">${esc(s)}</div>${d}</a>`).join("");
+}
+
+// 반응 탭 위 숫자 (예전 맨 위 타일)
+function renderReactKpis(m) {
   const h = S.stats || (S.snap && S.snap.hall) || {}, T = S.base.t, snap = S.snap || {};
   const ps = posts(), sum = f => ps.reduce((a, p) => a + (Number(p[f]) || 0), 0);
   const pk = f => ps.filter(p => p.kind !== "manual").map(p => `post.${p.key}.${f}`);
@@ -777,18 +1000,125 @@ function renderKpis(m) {
   const ios = Object.assign({}, snap.ios || {}, S.live.ios || {}), play = snap.play || {};
   const stars = (m["ios.ratings"] != null || m["play.ratings"] != null) ? (m["ios.ratings"] || 0) + (m["play.ratings"] || 0) : null;
   const vs = videos(), yt = snap.youtube || {};
-  const u = (v, unit) => (v == null ? "—" : `${nf(v)}<span class="u">${unit}</span>`);
   const tiles = [
-    ["오늘 플레이한 사람", u(m["hall.today_people"], "명"), `${nf(m["hall.today_runs"])}판${S.partial ? "" : ` · 처음 온 사람 ${nf(m["hall.today_new"])}명`}`, kd(["hall.today_people"], m)],
-    ["누적 플레이한 사람", S.partial ? "—" : u(m["hall.total_people"], "명"), S.partial ? "서버 수집 뒤에 나온다" : `${nf(m["hall.total_runs"])}판 · 지도 끝 ${nf(m["hall.wins"])}판${h.returned_of ? ` · 다시 온 사람 ${nf(h.returned)}/${nf(h.returned_of)}` : ""}`, kd(["hall.total_people"], m)],
-    ["내 글 댓글", ps.length ? u(sum("comments"), "개") : "—", ps.length ? `조회 ${nf(sum("views"))} · 추천 ${nf(sum("likes"))} · 내 댓글 포함` : "서버 수집에서", kd(pk("comments"), m)],
-    ["다른 곳에서 다룬 것", snap.mentions ? u(items.length, "건") : "—", snap.mentions ? `기사 ${cnt(x => x.kind === "news")} · 블로그·카페 ${cnt(x => x.kind === "blog" || x.kind === "cafe")} · 영상·방송 ${cnt(x => x.kind === "youtube" || x.kind === "stream")} · 커뮤니티 ${cnt(x => x.kind === "community")}` : "서버 수집에서",
+    ["내 글 댓글", ps.length ? uu(sum("comments"), "개") : "—", ps.length ? `조회 ${nf(sum("views"))} · 추천 ${nf(sum("likes"))} · 내 댓글 포함` : "서버 수집에서", kd(pk("comments"), m)],
+    ["다른 곳에서 다룬 것", snap.mentions ? uu(items.length, "건") : "—", snap.mentions ? `기사 ${cnt(x => x.kind === "news")} · 블로그·카페 ${cnt(x => x.kind === "blog" || x.kind === "cafe")} · 영상·방송 ${cnt(x => x.kind === "youtube" || x.kind === "stream")} · 커뮤니티 ${cnt(x => x.kind === "community")}` : "서버 수집에서",
       freshM ? `<div class="d up">새로 ${nf(freshM)}건 <span class="muted">· ${esc(baseName())} 뒤</span></div>` : ""],
-    ["스토어 별점", u(stars, "개"), `앱스토어 ${ios.listed ? nf(ios.ratings) : "—"}${ios.rating ? ` (${Number(ios.rating).toFixed(1)})` : ""} · 플레이 ${play.ratings != null ? nf(play.ratings) : "—"}${play.score ? ` (${Number(play.score).toFixed(1)})` : ""} · 글 리뷰 ${nf((snap.reviews || []).length + (snap.play_reviews || []).length)}`, kd(["ios.ratings", "play.ratings"], m)],
-    ["트레일러 조회", yt.total_views != null ? u(yt.total_views, "회") : "—", vs.length ? `유튜브 영상 ${nf(vs.length)}편` : "서버 수집에서", kd(vs.map(v => "yt.v." + v.id), m, YT_MIN)],
+    ["스토어 별점", uu(stars, "개"), `앱스토어 ${ios.listed ? nf(ios.ratings) : "—"}${ios.rating ? ` (${Number(ios.rating).toFixed(1)})` : ""} · 플레이 ${play.ratings != null ? nf(play.ratings) : "—"}${play.score ? ` (${Number(play.score).toFixed(1)})` : ""} · 글 리뷰 ${nf((snap.reviews || []).length + (snap.play_reviews || []).length)}`, kd(["ios.ratings", "play.ratings"], m)],
+    ["트레일러 조회", yt.total_views != null ? uu(yt.total_views, "회") : "—", vs.length ? `유튜브 영상 ${nf(vs.length)}편` : "서버 수집에서", kd(vs.map(v => "yt.v." + v.id), m, YT_MIN)],
   ];
-  $("kpis").innerHTML = tiles.map(([l, v, s, d]) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${v}</div><div class="s">${esc(s)}</div>${d}</div>`).join("");
+  $("reactkpis").innerHTML = tiles.map(([l, v, s, d]) => `<div class="kpi"><div class="l">${esc(l)}</div><div class="v">${v}</div><div class="s">${esc(s)}</div>${d}</div>`).join("");
 }
+
+// ---- 플레이 탭: 플레이 기록 날짜별 · 어디까지 갔나
+function renderEvPlay() {
+  const e = evOk();
+  if (!e) { $("evplaysub").textContent = ""; $("evplaybody").innerHTML = evNote(); $("evreach").innerHTML = evNote(); return; }
+  const os = Object.entries(e.os || {}).map(([k, n]) => `${OSN[k] || k} ${nf(n)}명`).join(" · ");
+  const ver = Object.entries(e.ver || {}).sort((a, b) => verCmp(b[0], a[0])).map(([k, n]) => `${k} ${nf(n)}명`).join(" · ");
+  $("evplaysub").textContent = `${e.since ? `${mdhm(Date.parse(e.since))}부터 ` : ""}${nf(e.people)}명 · 기록 ${nf(e.rows)}줄${os ? ` · ${os}` : ""}${ver ? ` · 버전 ${ver}` : ""}`;
+  const today = dayKey(Date.now()), days = e.days || [], TOP = 7;
+  const head = `<thead><tr><th>날짜</th><th class="n">사람</th><th class="n">새로 온</th><th class="n">판 시작</th><th class="n">판 끝</th><th class="n">광고 부활</th></tr></thead><tbody>`;
+  const row = d => `<tr${d.d === today ? ' class="today"' : ""}><td class="nw">${md(d.d)} (${wd(d.d)})${d.d === today ? ' <span class="tag">오늘</span>' : ""}</td><td class="n">${nf(n0(d.people))}</td><td class="n">${nf(n0(d.new))}</td><td class="n">${nf(n0(d.runs))}</td><td class="n">${nf(n0(d.ends))}</td><td class="n">${nf(n0(d.rev_y))}<span class="muted">/${nf(n0(d.rev))}</span></td></tr>`;
+  $("evplaybody").innerHTML = days.length ? `<div class="scroll"><table>${head}${days.slice(0, TOP).map(row).join("")}</tbody></table></div>` +
+    (days.length > TOP ? `<details class="more"><summary>그 전 ${nf(days.length - TOP)}일</summary><div class="scroll"><table>${head}${days.slice(TOP).map(row).join("")}</tbody></table></div></details>` : "") +
+    `<p class="sub" style="margin:8px 0 0">광고 부활 = 받은 수/권한 수.</p>` : `<p class="empty">아직 없다.</p>`;
+  const reach = objList(e.reach), tot = reach.reduce((a, x) => a + x[1], 0);
+  $("evreach").innerHTML = barsHtml(reach.map(([k, n]) => ({ name: Number(k) === 0 ? "섬 0개 — 첫 섬에서 끝" : islName(k) + (k === "win" ? "" : " 확보"), n })), "판", 12, tot);
+}
+
+// ---- 신병·이탈 탭
+function renderEvNewbie() {
+  const e = evOk(), f = e && e.funnel;
+  for (const id of ["evfirstbody", "evgonebody"]) $(id).style.display = e ? "" : "none";
+  $("evfirstnote").innerHTML = e ? "" : evNote(); $("evgonenote").innerHTML = e ? "" : evNote();
+  if (!e || !f) { $("funnelsub").textContent = ""; $("evfunnel").innerHTML = evNote(); return; }
+  $("funnelsub").textContent = `플레이 기록이 생긴 뒤(${e.since ? mdhm(Date.parse(e.since)) : "—"}) 판을 하나도 안 끝낸 채 처음 잡힌 사람 ${nf(n0(f.new))}명을 따라간다. 퍼센트는 처음 온 사람 대비, 빨간 줄이 가장 많이 빠지는 곳.`;
+  const steps = NEW_STEPS.map(s => (s[0] === "tut" ? [s[0], s[1], f.tut_skip != null ? `건너뜀 ${nf(n0(f.tut_skip))}명 포함` : ""] : s));
+  $("evfunnel").innerHTML = funnelHtml(steps, f, [["back", "다른 날 다시 옴", "", "단계와 따로 센다"]]);
+  // 첫 판
+  const fi = objList(e.first_islands), fiT = fi.reduce((a, x) => a + x[1], 0);
+  $("evfirstisl").innerHTML = barsHtml(fi.map(([k, n]) => ({ name: Number(k) === 0 ? "섬 0개 — 첫 섬에서 끝" : islName(k), n })), "명", 8, fiT);
+  const fw = (e.first_why || []).map(([k, n]) => ({ name: whyName(k), n: n0(n) })), fwT = fw.reduce((a, x) => a + x.n, 0);
+  $("evfirstwhy").innerHTML = barsHtml(fw, "명", 6, fwT);
+  // 판 도중에 나감 · 부활
+  const g = e.gone || {}, where = (g.where || []).map(([k, n]) => { const [kind, isl] = String(k).split(":"); return { name: `${ISLE[kind] || kind} · 섬 ${nf(isl || 0)}개 확보 뒤`, n: n0(n) }; });
+  $("evgone").innerHTML = `<h3 class="h">판 도중에 나간 사람 <span>· 마지막 기록이 판 한가운데</span></h3><div class="big1">${g.of ? nf(rate(n0(g.n), n0(g.of))) : "—"}<span class="u">%</span></div><p class="sub">${nf(n0(g.n))}/${nf(n0(g.of))}명 · 어디서 나갔나</p>` + barsHtml(where, "명", 6);
+  const r = e.rev || {}, days = (e.days || []).slice(0, 7);
+  $("evrev").innerHTML = `<h3 class="h">광고 보고 부활 <span>· 권한 대비 받은 수</span></h3><div class="big1">${r.offers ? nf(rate(n0(r.yes), n0(r.offers))) : "—"}<span class="u">%</span></div><p class="sub">${nf(n0(r.yes))}/${nf(n0(r.offers))}번</p>` +
+    (days.length ? barsHtml(days.map(d => ({ name: `${md(d.d)} (${wd(d.d)}) · 권한 ${nf(n0(d.rev))}`, n: n0(d.rev_y) })), "번", 7) : "");
+}
+
+// ---- 결제 탭
+function renderPay() {
+  const e = evOk(), p = e && e.pay;
+  if (!e || !p) { const nt = e ? `<p class="note">플레이 기록: 결제 칸이 아직 없다</p>` : evNote(); $("paysub").textContent = ""; for (const id of ["payfunnel", "payprodbody", "payfails", "paydays"]) $(id).innerHTML = nt; return; }
+  $("paysub").textContent = `플레이 기록 ${nf(e.people)}명 가운데. 꽃봉 권유는 작전 1 첫 보스 섬을 넘긴 뒤 처음 온 메인 화면에서 한 번 뜬다.`;
+  $("payfunnel").innerHTML = funnelHtml(PAY_STEPS, p) +
+    `<div class="minis">` + [["상점 연 사람", uu(n0(p.shop_people), "명"), pct(n0(p.shop_people), n0(e.people))], ["훈장 모자람 본 사람", uu(n0(p.short_people), "명"), ""], ["꽃봉 권유 본 횟수", uu(n0(p.kk_views), "번"), ""],
+      ["가격 없이 뜬 권유", uu(n0(p.kk_noprice), "번"), ""]].map(([l, v, s]) => `<div><span>${l}</span><b${l.startsWith("가격") && n0(p.kk_noprice) ? ' class="warn-c"' : ""}>${v}</b>${s ? `<em>${s}</em>` : ""}</div>`).join("") + `</div>`;
+  const pr = p.products || {}, keys = [...Object.keys(PROD).filter(k => pr[k]), ...Object.keys(pr).filter(k => !PROD[k])];
+  const tot = { tap: 0, ok: 0, cancel: 0, fail: 0 };
+  const prow = k => { const x = pr[k] || {}; for (const f in tot) tot[f] += n0(x[f]);
+    return `<tr><td>${esc(prodName(k))}${PROD[k] ? ` <span class="muted">₩${nf(PROD[k][1])}</span>` : ""}</td><td class="n">${nf(n0(x.tap))}</td><td class="n">${n0(x.ok) ? `<b class="up">${nf(x.ok)}</b>` : '<span class="muted">0</span>'}</td><td class="n">${nf(n0(x.cancel))}</td><td class="n${n0(x.fail) ? " bad-c" : ""}">${nf(n0(x.fail))}</td></tr>`; };
+  const body = keys.map(prow).join("");
+  $("payprodbody").innerHTML = keys.length ? `<div class="scroll"><table><thead><tr><th>상품</th><th class="n">누름</th><th class="n">완료</th><th class="n">취소</th><th class="n">실패</th></tr></thead><tbody>${body}` +
+    (keys.length > 1 ? `<tr class="sum"><td>합계</td><td class="n">${nf(tot.tap)}</td><td class="n">${nf(tot.ok)}</td><td class="n">${nf(tot.cancel)}</td><td class="n">${nf(tot.fail)}</td></tr>` : "") + `</tbody></table></div>` : `<p class="empty">아직 아무도 구매 단추를 안 눌렀다.</p>`;
+  const fails = p.fails || [], FMAX = 6;
+  const flag = (v, yes, no) => (v === true ? `<span class="up">${yes}</span>` : v === false ? `<span class="down">${no}</span>` : "");
+  const fl = x => `<li><div class="f1"><b>${esc(prodName(x.p))}</b><span class="tag">${esc(OSN[x.os] || x.os || "?")}</span><span class="tm">${esc(x.at || "")}</span></div>` +
+    `<div class="f2">${esc(x.why || "까닭 없음")}${[flag(x.rd, "가게 연결됨", "가게 연결 안 됨"), flag(x.pr, "가격 받음", "가격 못 받음")].filter(Boolean).map(s => " · " + s).join("")}</div></li>`;
+  $("payfails").innerHTML = fails.length ? `<ul class="fails">${fails.slice(0, FMAX).map(fl).join("")}</ul>` + (fails.length > FMAX ? `<details class="more"><summary>그 전 ${nf(fails.length - FMAX)}건</summary><ul class="fails">${fails.slice(FMAX).map(fl).join("")}</ul></details>` : "") +
+    `<p class="sub" style="margin:8px 0 0">가게 연결됨 = 앱이 스토어 결제에 붙었다. 가격 받음 = 스토어에서 상품 가격을 받아 왔다. 둘 중 하나가 빨가면 스토어 쪽 상품·계정 설정을 본다.</p>` : `<p class="empty">실패한 구매가 없다.</p>`;
+  const days = e.days || [], TOP = 7, today = dayKey(Date.now());
+  const head = `<thead><tr><th>날짜</th><th class="n">꽃봉 권유</th><th class="n">상점</th><th class="n">훈장 모자람</th><th class="n">구매 단추</th><th class="n">완료</th><th class="n">실패</th></tr></thead><tbody>`;
+  const row = d => `<tr${d.d === today ? ' class="today"' : ""}><td class="nw">${md(d.d)} (${wd(d.d)})</td><td class="n">${nf(n0(d.kk))}</td><td class="n">${nf(n0(d.shop))}</td><td class="n">${nf(n0(d.short))}</td><td class="n">${nf(n0(d.tap))}</td><td class="n">${n0(d.buy) ? `<b class="up">${nf(d.buy)}</b>` : '<span class="muted">0</span>'}</td><td class="n${n0(d.fail) ? " bad-c" : ""}">${nf(n0(d.fail))}</td></tr>`;
+  $("paydays").innerHTML = days.length ? `<div class="scroll"><table>${head}${days.slice(0, TOP).map(row).join("")}</tbody></table></div>` +
+    (days.length > TOP ? `<details class="more"><summary>그 전 ${nf(days.length - TOP)}일</summary><div class="scroll"><table>${head}${days.slice(TOP).map(row).join("")}</tbody></table></div></details>` : "") : `<p class="empty">아직 없다.</p>`;
+}
+
+// ---- 지금 볼 것: 숫자에서 고른 몇 줄
+function todoItems() {
+  const out = [], e = evOk(), T = S.base.t, add = (lv, text, small, tab) => out.push({ lv, text, small, tab });
+  const errs = S.liveErr.length + ((S.snap && S.snap.errors) || []).length;
+  if (e && e.pay) {
+    const fails = e.pay.fails || [], pf = Object.values(e.pay.products || {}).reduce((a, x) => a + n0(x.fail), 0);
+    if (fails.length || pf) add("bad", `구매 실패 ${nf(Math.max(fails.length, pf))}건`, fails[0] ? `최근 ${fails[0].at} · ${prodName(fails[0].p)} · ${fails[0].why}` : "", "payfail");
+    if (n0(e.pay.kk_noprice)) add("warn", `꽃봉 권유가 가격 없이 ${nf(e.pay.kk_noprice)}번 떴다`, "스토어에서 가격을 못 받았다", "pay");
+    const buy = n0(e.pay.buy_people), kk = n0(e.pay.kk_people);
+    if (kk) add(buy ? "good" : "info", `꽃봉 권유 본 ${nf(kk)}명 중 ${nf(buy)}명이 샀다`, `구매 단추 누른 사람 ${nf(n0(e.pay.tap_people))}명`, "pay");
+  }
+  if (e && e.funnel && n0(e.funnel.new)) {
+    const { rows, big } = funnelRows(NEW_STEPS, e.funnel);
+    if (big > 0) { const a = rows[big - 1], b = rows[big]; add("bad", `가장 많이 빠지는 곳: ${a.name} → ${b.name}`, `${nf(a.n)} → ${nf(b.n)}명 (−${nf(b.drop)}명, ${nf(Math.round(b.dropP * 100))}%)`, "funnel"); }
+  }
+  if (e && e.gone && n0(e.gone.n)) {
+    const w = (e.gone.where || [])[0], [kind, isl] = w ? String(w[0]).split(":") : [];
+    add("warn", `판 도중에 나간 사람 ${nf(e.gone.n)}/${nf(e.gone.of)}명`, w ? `가장 많은 곳: ${ISLE[kind] || kind} · 섬 ${nf(isl || 0)}개 확보 뒤 (${nf(w[1])}명)` : "", "gone");
+  }
+  if (!e) add("info", `플레이 기록: ${evWhy()}`, "신병·이탈과 결제 탭의 새 숫자가 비어 있다", "funnel");
+  const k = S.rk;
+  if (k && k.backOf && rate(k.back, k.backOf) < ROOKIE_GOAL.back) add("warn", `다른 날 다시 온 사람 ${pct(k.back, k.backOf)} · 목표 ${ROOKIE_GOAL.back}%`, `명부 기준 ${nf(k.back)}/${nf(k.backOf)}명`, "rookie");
+  if (k && k.people && rate(k.ok, k.people) < ROOKIE_GOAL.ok) add("warn", `첫 판에 섬을 딴 사람 ${pct(k.ok, k.people)} · 목표 ${ROOKIE_GOAL.ok}%`, `명부 기준 ${nf(k.ok)}/${nf(k.people)}명`, "rookie");
+  const nc = allComments().filter(c => !c.mine && c.ft > T).length, nm = mentionItems().filter(x => !x.own && x.ft > T).length;
+  if (nc) add("info", `새 댓글 ${nf(nc)}개`, `${baseName()} 뒤`, "posts");
+  if (nm) add("info", `새로 다룬 곳 ${nf(nm)}건`, `${baseName()} 뒤`, "mentions");
+  const low = [...((S.snap && S.snap.reviews) || []), ...((S.snap && S.snap.play_reviews) || [])].filter(r => r.replied === false && r.rating <= 3).length;
+  if (low) add("warn", `답글 없는 낮은 별점 리뷰 ${nf(low)}개`, "", "store");
+  if (errs) add("warn", `못 읽은 곳 ${nf(errs)}곳`, "", "errwrap");
+  return out;
+}
+function renderTodo() {
+  const it = todoItems(), MAX = 8;
+  const TABNAME = Object.fromEntries(TABS);
+  const li = x => { const t = secTab(x.tab); return `<li class="${x.lv}"><span class="dot"></span><span class="tx">${esc(x.text)}${x.small ? `<small>${esc(x.small)}</small>` : ""}</span>${x.tab ? `<a class="go" href="#${esc(x.tab)}">${esc(TABNAME[t] || "")} ›</a>` : ""}</li>`; };
+  $("todolist").innerHTML = it.length ? `<ul class="todo">${it.slice(0, MAX).map(li).join("")}</ul>` + (it.length > MAX ? `<details class="more"><summary>더 보기 (${nf(it.length - MAX)})</summary><ul class="todo">${it.slice(MAX).map(li).join("")}</ul></details>` : "")
+    : `<p class="empty" style="margin:0">${S.busy ? "읽는 중…" : "특별히 볼 것이 없다."}</p>`;
+}
+
+// 칩 목록 펼치기/접기 단추
+const moreBtn = (key, rest, unit) => (rest > 0 ? `<button type="button" class="linkbtn" data-more="${key}">${S.more[key] ? "접기" : `그 밖에 ${nf(rest)}${unit} 보기 ›`}</button>` : "");
+document.addEventListener("click", ev => { const b = ev.target.closest("[data-more]"); if (!b) return; S.more[b.dataset.more] = !S.more[b.dataset.more]; if (b.dataset.more === "today") renderHall(); else renderChanges(cur()); });
 
 function cmtLine(c, T) {
   const fresh = !c.mine && c.ft > T;
@@ -816,19 +1146,19 @@ function renderChanges(m) {
   if (nr.length) {
     const before = new Set(S.rows.filter(r => r.t <= T).map(r => r.uid)), who = new Map();
     for (const r of nr) { let p = who.get(r.uid); if (!p) who.set(r.uid, p = { uid: r.uid, name: "", n: 0, t: 0, fresh: !before.has(r.uid) }); p.n++; if (r.t >= p.t) { p.t = r.t; p.name = r.name || p.name; } }
-    const list = [...who.values()].sort((x, y) => y.t - x.t), MAX = 40;
+    const list = [...who.values()].sort((x, y) => y.t - x.t), MAX = S.more.chg ? 1e9 : 20;
     blocks.push(`<h3 class="h">새 플레이 기록 <span>· ${nf(nr.length)}판 · ${nf(list.length)}명${S.partial ? "" : ` (처음 온 사람 ${nf(list.filter(p => p.fresh).length)}명)`}</span></h3><div class="who">` +
       list.slice(0, MAX).map(p => `<span class="${p.fresh && !S.partial ? "new" : ""}" data-who="${esc(p.uid)}" role="button" tabindex="0"><b>${esc(p.name || "이름 없음")}</b> ${nf(p.n)}판${p.fresh && !S.partial ? " · 처음" : ""}</span>`).join("") +
-      (list.length > MAX ? `<span class="muted" style="background:none">그 밖에 ${nf(list.length - MAX)}명</span>` : "") + `</div>`);
+      moreBtn("chg", list.length - 20, "명") + `</div>`);
   }
 
   const nc = allComments().filter(c => !c.mine && c.ft > T), CMAX = 8;
   if (nc.length) blocks.push(`<h3 class="h">새 댓글 <span>· ${nf(nc.length)}개</span></h3><ul class="cmts">${nc.slice(0, CMAX).map(c => cmtLine(c, T)).join("")}</ul>` +
-    (nc.length > CMAX ? `<p class="sub" style="margin:6px 0 0">그 밖에 ${nf(nc.length - CMAX)}개 — 아래 <a href="#posts">내 글 반응</a>에서.</p>` : ""));
+    (nc.length > CMAX ? `<p class="sub" style="margin:6px 0 0">그 밖에 ${nf(nc.length - CMAX)}개 — <a href="#posts">반응 탭</a>에서.</p>` : ""));
 
   const nm = mentionItems().filter(x => !x.own && x.ft > T), MMAX = 8;
   if (nm.length) blocks.push(`<h3 class="h">새로 다룬 곳 <span>· ${nf(nm.length)}건</span></h3><ul class="ment">${nm.slice(0, MMAX).map(x => mentionLine(x, T)).join("")}</ul>` +
-    (nm.length > MMAX ? `<p class="sub" style="margin:6px 0 0">그 밖에 ${nf(nm.length - MMAX)}건 — 아래 <a href="#mentions">다른 곳에서 다룬 것</a>에서.</p>` : ""));
+    (nm.length > MMAX ? `<p class="sub" style="margin:6px 0 0">그 밖에 ${nf(nm.length - MMAX)}건 — <a href="#mentions">반응 탭</a>에서.</p>` : ""));
 
   const keys = [...new Set([...Object.keys(b.m), ...Object.keys(m)])].filter(k => !k.startsWith("hall.today") && k !== "mentions.n" && !(S.partial && k.startsWith("hall.")))
     .sort((x, y) => order(x) - order(y) || label(x).localeCompare(label(y), "ko"));
@@ -849,9 +1179,8 @@ function renderChanges(m) {
   $("samewrap").querySelector("summary").textContent = `그대로인 것 (${same.length})`;
 }
 
-function bars(id, list, unit) {
-  const max = Math.max(1, ...list.map(x => x.n));
-  $(id).innerHTML = list.length ? list.map(x => `<li><span>${esc(x.name)}</span><span class="n">${nf(x.n)}${unit}</span><span class="bar"><i style="width:${Math.round(x.n / max * 100)}%"></i></span></li>`).join("") : `<li class="muted">아직 없다</li>`;
+function bars(id, list, unit, max = 8) {
+  $(id).innerHTML = barsHtml(list, unit, max);
 }
 function tally(rows, f) { const c = new Map(); for (const r of rows) for (const k of [].concat(f(r))) if (k) c.set(k, (c.get(k) || 0) + 1); return [...c.entries()].sort((a, b) => b[1] - a[1]); }
 
@@ -865,13 +1194,14 @@ function renderHall() {
   for (const r of S.rows) if (dayKey(r.t) === today) { let p = tm.get(r.uid); if (!p) tm.set(r.uid, p = { uid: r.uid, name: "", n: 0, t: 0 }); p.n++; if (r.t >= p.t) { p.t = r.t; p.name = r.name || p.name; } }
   const tl = [...tm.values()].sort((a, b) => b.t - a.t);
   $("todaysub").textContent = tl.length ? `· ${nf(tl.length)}명 · 마지막 ${hm(tl[0].t)} · 누르면 그 사람의 판` : "";
-  $("halltoday").innerHTML = tl.length ? tl.map(p => { const fresh = st && !S.partial && st.first.get(p.uid) === today; return `<span class="${fresh ? "new" : ""}" data-who="${esc(p.uid)}" role="button" tabindex="0"><b>${esc(p.name || "이름 없음")}</b> ${nf(p.n)}판${fresh ? " · 처음" : ""}</span>`; }).join("")
+  const TMAX = S.more.today ? 1e9 : 20;
+  $("halltoday").innerHTML = tl.length ? tl.slice(0, TMAX).map(p => { const fresh = st && !S.partial && st.first.get(p.uid) === today; return `<span class="${fresh ? "new" : ""}" data-who="${esc(p.uid)}" role="button" tabindex="0"><b>${esc(p.name || "이름 없음")}</b> ${nf(p.n)}판${fresh ? " · 처음" : ""}</span>`; }).join("") + moreBtn("today", tl.length - 20, "명")
     : `<span class="muted" style="background:none;padding-left:0">아직 없다</span>`;
 
-  drawColumns($("hallchart"), h.days);
+  drawChart();
   const head = `<thead><tr><th>날짜</th><th class="n">플레이한 사람</th><th class="n">처음 온 사람</th><th class="n">판</th><th class="n">지도 끝</th></tr></thead><tbody>`;
   const row = d => `<tr${d.day === today ? ' class="today"' : ""}><td class="nw">${md(d.day)} (${wd(d.day)})${d.day === today ? ' <span class="tag">오늘</span>' : ""}</td><td class="n">${nf(d.people)}명</td><td class="n">${nf(d.new)}명</td><td class="n">${nf(d.runs)}</td><td class="n">${d.wins ? nf(d.wins) : '<span class="muted">0</span>'}</td></tr>`;
-  const desc = h.days.slice().reverse(), TOP = 14;
+  const desc = h.days.slice().reverse(), TOP = 7;
   $("halldays").innerHTML = desc.length ? head + desc.slice(0, TOP).map(row).join("") + "</tbody>" : `<tbody><tr><td class="empty">아직 기록이 없다.</td></tr></tbody>`;
   $("daysmorewrap").style.display = desc.length > TOP ? "" : "none";
   $("daysmorewrap").querySelector("summary").textContent = `그 전 ${nf(Math.max(0, desc.length - TOP))}일`;
@@ -879,10 +1209,10 @@ function renderHall() {
 
   const rows = S.rows, reach = new Map();
   for (const r of rows) { const k = r.win ? 1e6 : r.islands; reach.set(k, (reach.get(k) || 0) + 1); }
-  bars("hallreach", [...reach.entries()].sort((a, b) => a[0] - b[0]).map(([k, n]) => ({ name: k === 1e6 ? "지도 끝 도달" : k === 0 ? "섬 0개 — 첫 섬에서 끝" : `섬 ${nf(k)}개 확보`, n })), "판");
+  bars("hallreach", [...reach.entries()].sort((a, b) => a[0] - b[0]).map(([k, n]) => ({ name: k === 1e6 ? "지도 끝 도달" : k === 0 ? "섬 0개 — 첫 섬에서 끝" : `섬 ${nf(k)}개 확보`, n })), "판", 12);
   bars("hallseniors", tally(rows, r => r.senior).map(([k, n]) => ({ name: seniorName(k), n })), "판");
-  bars("hallmods", tally(rows, r => [...new Set(r.mods)]).slice(0, 8).map(([k, n]) => ({ name: modName(k), n })), "판");
-  bars("hallmvp", tally(rows, r => r.mvp).slice(0, 8).map(([k, n]) => ({ name: srcName(k), n })), "판");
+  bars("hallmods", tally(rows, r => [...new Set(r.mods)]).slice(0, 20).map(([k, n]) => ({ name: modName(k), n })), "판");
+  bars("hallmvp", tally(rows, r => r.mvp).slice(0, 20).map(([k, n]) => ({ name: srcName(k), n })), "판");
 }
 
 // ---- 신병 문턱
@@ -890,9 +1220,9 @@ const ROOKIE_GOAL = { ok: 60, back: 25 }; // 목표(%): 첫 판에 섬을 딴 �
 function renderRookie() {
   const ready = S.rows.length && !S.partial;
   $("rookiebody").style.display = ready ? "" : "none";
-  if (!ready) { $("rookiesub").textContent = S.partial ? `최근 ${NOCACHE_DAYS}일 기록만 읽어서 누가 처음인지 모른다 — 서버 수집이 돈 뒤에 나온다.` : S.busy ? "읽는 중…" : "아직 못 읽었다."; return; }
-  const k = rookieStats(S.rows);
-  const rate = (a, b) => (b ? Math.round(a / b * 1000) / 10 : null), pct = (a, b) => (b ? `${nf(rate(a, b))}%` : "—");
+  if (!ready) { $("rookiesub").textContent = S.partial ? `최근 ${NOCACHE_DAYS}일 기록만 읽어서 누가 처음인지 모른다 — 서버 수집이 돈 뒤에 나온다.` : S.busy ? "읽는 중…" : "아직 못 읽었다.";
+    $("rookiesecs").innerHTML = `<tbody><tr><td class="empty">${esc($("rookiesub").textContent)}</td></tr></tbody>`; return; }
+  const k = S.rk || rookieStats(S.rows);
   $("rookiesub").textContent = `사람마다 가장 이른 기록을 첫 판으로 본다. 명부는 닉네임을 정한 사람만 오른다(섬 0개에 30마리도 못 잡은 판도 안 오른다) — 그 전에 그만둔 사람은 여기 없다.`;
   const goal = (a, b, g) => (!b ? "" : rate(a, b) >= g ? `<div class="d up">목표 ${g}% 넘음</div>` : `<div class="d flat">목표 ${g}%</div>`);
   const tiles = [
@@ -906,9 +1236,12 @@ function renderRookie() {
   $("rookiever").innerHTML = `<thead><tr><th>첫 판<span class="w-only"> 버전</span></th><th class="n">사람</th><th class="n">첫 판 섬 0개</th><th class="n">한 판 더<span class="w-only"> 한 사람</span></th><th class="n">다른 날 다시<span class="w-only"> 온 사람</span></th></tr></thead><tbody>` +
     k.vers.map(v => vrow(v.ver ? esc(v.ver) : '<span class="muted">무표기</span>', v)).join("") +
     (k.vers.length > 1 ? vrow("전체", { n: k.people, zero: sum("zero"), more: sum("more"), back: sum("back") }, true) : "") + "</tbody>";
-  $("rookiewhy").innerHTML = k.why.length ? `<thead><tr><th>사인</th><th class="n">쓰러진 판</th><th class="n">그중 섬 0개</th></tr></thead><tbody>` +
-    k.why.map(w => `<tr><td>${esc(whyName(w.why))}</td><td class="n">${nf(w.n)}</td><td class="n">${w.zero ? nf(w.zero) : '<span class="muted">0</span>'}</td></tr>`).join("") + "</tbody>"
-    : `<tbody><tr><td class="empty">아직 기록 없음(1.3.1부터 쌓인다)</td></tr></tbody>`;
+  const whead = `<thead><tr><th>사인</th><th class="n">쓰러진 판</th><th class="n">그중 섬 0개</th></tr></thead><tbody>`, WTOP = 8;
+  const wrow = w => `<tr><td>${esc(whyName(w.why))}</td><td class="n">${nf(w.n)}</td><td class="n">${w.zero ? nf(w.zero) : '<span class="muted">0</span>'}</td></tr>`;
+  $("rookiewhy").innerHTML = k.why.length ? whead + k.why.slice(0, WTOP).map(wrow).join("") + "</tbody>" : `<tbody><tr><td class="empty">아직 기록 없음(1.3.1부터 쌓인다)</td></tr></tbody>`;
+  $("whymorewrap").style.display = k.why.length > WTOP ? "" : "none";
+  $("whymorewrap").querySelector("summary").textContent = `더 보기 (${nf(Math.max(0, k.why.length - WTOP))})`;
+  $("rookiewhymore").innerHTML = whead + k.why.slice(WTOP).map(wrow).join("") + "</tbody>";
   $("rookiesecs").innerHTML = k.secs.length ? `<thead><tr><th>어디까지</th><th class="n">판</th><th class="n">가운데 값</th><th class="n">가장 짧게</th><th class="n">가장 길게</th></tr></thead><tbody>` +
     k.secs.map(x => `<tr><td>${x.k === 1e6 ? "지도 끝 도달" : x.k === 0 ? "섬 0개" : `섬 ${nf(x.k)}개`}</td><td class="n">${nf(x.n)}</td><td class="n">${minsec(x.mid)}</td><td class="n">${minsec(x.min)}</td><td class="n">${minsec(x.max)}</td></tr>`).join("") + "</tbody>"
     : `<tbody><tr><td class="empty">아직 기록 없음(1.4.0부터 쌓인다)</td></tr></tbody>`;
@@ -1039,7 +1372,7 @@ function showRun(id) {
 function closeSheet() {
   if (!$("sheet").classList.contains("on")) return;
   if (S.pushed) { S.pushed = false; history.back(); return; } // 뒤로 가기가 popstate로 닫는다
-  hideSheet(); history.replaceState(null, "", location.pathname + location.search);
+  hideSheet(); history.replaceState(null, "", location.pathname + location.search + "#" + (S.tab || "summary"));
 }
 function hideSheet() { $("sheet").classList.remove("on"); document.body.style.overflow = ""; S.sheet = null; }
 
@@ -1062,7 +1395,7 @@ function renderPosts() {
       `<div class="p2">${num(p, "views", "조회")}${num(p, "likes", LIKE[p.kind] || "추천")}${num(p, "comments", "댓글")}${fresh ? `<span class="up">새 댓글 ${nf(fresh)}</span>` : ""}` +
       `<span class="tm">${p.err ? `<span class="down">못 읽음 · ${esc(p.err)}</span>${read ? ` · 값은 ${esc(mdhm(read))}` : ""}` : read ? esc(mdhm(read)) + " 읽음" : ""}</span></div></li>`;
   }).join("");
-  const cs = allComments(), others = cs.filter(c => !c.mine).length, TOP = 10;
+  const cs = allComments(), others = cs.filter(c => !c.mine).length, TOP = 6;
   $("cmtsub").textContent = cs.length ? `· 새것부터 · 남이 쓴 것 ${nf(others)}개 · 내 것 ${nf(cs.length - others)}개` : "";
   $("cmtlist").innerHTML = cs.length ? cs.slice(0, TOP).map(c => cmtLine(c, T)).join("") : `<li class="empty">아직 읽은 댓글이 없다.</li>`;
   $("cmtmorewrap").style.display = cs.length > TOP ? "" : "none";
@@ -1082,8 +1415,9 @@ function renderMentions() {
   for (const [name, f] of groups) {
     const g = items.filter(f);
     if (!g.length) { none.push(name); continue; }
-    h += `<h3 class="h${h ? " gap" : ""}">${name} <span>${nf(g.length)}</span></h3><ul class="ment">${g.slice(0, 30).map(x => mentionLine(x, T)).join("")}</ul>` +
-      (g.length > 30 ? `<details style="margin-top:6px"><summary>그 전 ${nf(g.length - 30)}건</summary><ul class="ment">${g.slice(30).map(x => mentionLine(x, T)).join("")}</ul></details>` : "");
+    const MT = 6;
+    h += `<h3 class="h${h ? " gap" : ""}">${name} <span>${nf(g.length)}</span></h3><ul class="ment">${g.slice(0, MT).map(x => mentionLine(x, T)).join("")}</ul>` +
+      (g.length > MT ? `<details class="more"><summary>그 전 ${nf(g.length - MT)}건</summary><ul class="ment">${g.slice(MT).map(x => mentionLine(x, T)).join("")}</ul></details>` : "");
   }
   if (none.length) h += `<p class="empty" style="margin:${h ? "14px" : "0"} 0 0">아직 없는 곳: ${none.map(esc).join(" · ")}</p>`;
   $("mentionlist").innerHTML = h;
@@ -1126,6 +1460,48 @@ function renderErrors() {
 
 // ---------------------------------------------------------------- 시작
 
+// ---- 탭: 요약 · 플레이 · 신병·이탈 · 결제 · 반응 · 기록. #탭이름 이나 #갈래id 로 바로 열고, 마지막 탭을 기억한다
+const TABS = [["summary", "요약"], ["play", "플레이"], ["newbie", "신병·이탈"], ["pay", "결제"], ["react", "반응"], ["log", "기록"]];
+function secTab(id) { if (!id) return ""; if (TABS.some(t => t[0] === id)) return id; const el = document.getElementById(id), p = el && el.closest(".tabpanel"); return p ? p.id.slice(2) : ""; }
+function drawChart() { const h = S.stats || (S.snap && S.snap.hall); if (h && !$("p-summary").hidden) drawColumns($("hallchart"), h.days); }
+function setTab(t, keepHash) {
+  if (!TABS.some(x => x[0] === t)) t = "summary";
+  const was = S.tab; S.tab = t;
+  for (const [k] of TABS) { $("p-" + k).hidden = k !== t; const b = $("tab-" + k); b.setAttribute("aria-selected", k === t ? "true" : "false"); b.tabIndex = k === t ? 0 : -1; }
+  store.set("tab", t);
+  if (!keepHash && !$("sheet").classList.contains("on") && location.hash !== "#" + t) history.replaceState(history.state, "", location.pathname + location.search + "#" + t);
+  if (t === "summary" && was !== t) drawChart();
+}
+function fromHash() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h || /^(who|run)-/.test(h)) return false;
+  const t = secTab(h);
+  if (!t) return false;
+  setTab(t);
+  if (t !== h) { const el = document.getElementById(h); requestAnimationFrame(() => el.scrollIntoView({ block: "start" })); }
+  else tabScroll();
+  return true;
+}
+// 탭을 바꾸면, 이미 탭 줄 아래로 내려와 있을 때만 탭 줄이 붙는 자리로 올린다
+function tabScroll() { const nav = $("tabs"), y = nav.getBoundingClientRect().top + scrollY - (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--hh")) || 0); if (scrollY > y) scrollTo(0, y); }
+function tabBadges() {
+  const e = evOk(), n = e && e.pay ? (e.pay.fails || []).length : 0;
+  $("tab-pay").innerHTML = `결제${n ? ` <span class="cnt" title="구매 실패">${nf(n)}</span>` : ""}`;
+}
+function initTabs() {
+  $("tabs").innerHTML = TABS.map(([k, l]) => `<button type="button" role="tab" id="tab-${k}" aria-controls="p-${k}" data-tab="${k}">${l}</button>`).join("");
+  for (const [k] of TABS) $("p-" + k).setAttribute("aria-labelledby", "tab-" + k);
+  $("tabs").addEventListener("click", ev => { const b = ev.target.closest("[data-tab]"); if (b) { setTab(b.dataset.tab); tabScroll(); } });
+  $("tabs").addEventListener("keydown", ev => {
+    if (ev.key !== "ArrowRight" && ev.key !== "ArrowLeft") return;
+    const i = TABS.findIndex(t => t[0] === S.tab), j = (i + (ev.key === "ArrowRight" ? 1 : TABS.length - 1)) % TABS.length;
+    setTab(TABS[j][0]); $("tab-" + TABS[j][0]).focus(); ev.preventDefault();
+  });
+  const hh = () => document.documentElement.style.setProperty("--hh", $("top").offsetHeight + "px");
+  hh(); if (window.ResizeObserver) new ResizeObserver(hh).observe($("top")); else addEventListener("resize", hh);
+  if (!fromHash()) setTab(store.get("tab") || "summary", /^#(who|run)-/.test(location.hash));
+}
+
 // 직접 볼 곳: 자동으로 못 읽는 곳과 검색
 {
   const q = encodeURIComponent, G = "오도짜세";
@@ -1164,7 +1540,7 @@ $("save").addEventListener("click", () => {
   $("saved").textContent = "저장했다.";
   applyRows(); render(); renderFound();
 });
-let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { const h = S.stats || (S.snap && S.snap.hall); if (h) drawColumns($("hallchart"), h.days); }, 150); });
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(drawChart, 150); });
 const tap = ev => {
   const el = ev.target.closest("[data-run], [data-who]");
   if (!el || (ev.type === "keydown" && (ev.target.tagName === "INPUT" || (ev.key !== "Enter" && ev.key !== " ")))) return;
@@ -1175,16 +1551,19 @@ for (const id of ["changed", "hallrecent", "halltoday", "hallfound", "sheetbody"
 $("sheetclose").addEventListener("click", closeSheet);
 $("sheetbg").addEventListener("click", closeSheet);
 addEventListener("keydown", ev => { if (ev.key === "Escape") closeSheet(); });
-addEventListener("popstate", ev => { const st = ev.state || {}; if (st.run) showRun(st.run); else if (st.who) showWho(st.who); else { S.pushed = false; hideSheet(); } });
+addEventListener("popstate", ev => { const st = ev.state || {}; if (st.run) showRun(st.run); else if (st.who) showWho(st.who); else { S.pushed = false; hideSheet(); fromHash(); } });
+addEventListener("hashchange", () => { if (!/^#(who|run)-/.test(location.hash)) fromHash(); });
 $("hallq").addEventListener("input", renderFound);
 $("findform").addEventListener("submit", ev => { ev.preventDefault(); $("hallq").blur(); renderFound(); });
 $("hallall").addEventListener("click", () => { S.showAll = !S.showAll || !!$("hallq").value; $("hallq").value = ""; renderFound(); });
 $("recentmore").addEventListener("click", () => { S.recentN += RECENT_STEP; renderRuns(); });
+initTabs();
 S.busy = true; // 첫 읽기가 끝나기 전에 '없다'를 띄우지 않게
 { const m = location.hash.match(/^#who-([\w-]+)$/); if (m) { history.replaceState({ who: m[1] }, "", location.hash); showWho(m[1]); } }
 { const m = location.hash.match(/^#run-([\w-]+)$/); if (m) { history.replaceState({ run: m[1] }, "", location.hash); showRun(m[1]); } }
 S.busy = false;
 refresh(false);
+setInterval(() => { if (!document.hidden) stampText(); }, 60000);
 </script>
 </body>
 </html>
