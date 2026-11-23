@@ -178,11 +178,17 @@ def summary(rows):
     for r in rows:
         if r["e"] == "buy" and r.get("r") in ("tap", "ok", "cancel", "fail"):
             prod[r.get("p") or "?"][r["r"]] += 1
+    # 날짜별 상품(2026-11-23 사용자 "상품별 누른 횟수와 결과를 날짜별로"): 새 날짜부터 [{d, p: {상품: {tap, ok, cancel, fail}}}]
+    pday = collections.OrderedDict()
+    for r in rows:
+        if r["e"] == "buy" and r.get("r") in ("tap", "ok", "cancel", "fail"):
+            d = pday.setdefault(_t(r["ct"]).date().isoformat(), {})
+            d.setdefault(r.get("p") or "?", {"tap": 0, "ok": 0, "cancel": 0, "fail": 0})[r["r"]] += 1
     fails = [{"at": _t(r["ct"]).strftime("%m-%d %H:%M"), "os": r.get("os", ""), "p": r.get("p", ""), "why": r.get("why", ""), "rd": bool(r.get("rd")), "pr": bool(r.get("pr"))}
              for r in rows if r["e"] == "buy" and r.get("r") == "fail"]
     s["pay"] = {"kk_people": who(lambda r: r["e"] == "kk"), "kk_views": sum(1 for r in rows if r["e"] == "kk"),
                 "kk_noprice": sum(1 for r in rows if r["e"] == "kk" and not r.get("pr")),
                 "shop_people": who(lambda r: r["e"] == "shop"), "short_people": who(lambda r: r["e"] == "short"),
                 "tap_people": who(lambda r: r["e"] == "buy" and r.get("r") == "tap"), "buy_people": who(lambda r: r["e"] == "buy" and r.get("r") == "ok"),
-                "products": dict(prod), "fails": fails[-FAILS:][::-1]}
+                "products": dict(prod), "by_day": [{"d": d, "p": v} for d, v in reversed(pday.items())], "fails": fails[-FAILS:][::-1]}
     return s

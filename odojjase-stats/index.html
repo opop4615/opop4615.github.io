@@ -444,6 +444,10 @@ footer { border-top: 1px solid var(--border); padding-top: var(--s3); margin-top
       <h2>상품별 <small>누른 횟수와 결과</small></h2>
       <div id="payprodbody"></div>
     </section>
+    <section class="card" id="payprodday">
+      <h2>상품별 · 날짜별 <small>누른 횟수와 결과</small></h2>
+      <div id="payproddays"></div>
+    </section>
     <section class="card" id="payfail">
       <h2>구매 실패 <small>새것부터</small></h2>
       <div id="payfails"></div>
@@ -1054,8 +1058,8 @@ function renderEvNewbie() {
 // ---- 결제 탭
 function renderPay() {
   const e = evOk(), p = e && e.pay;
-  if (!e || !p) { const nt = e ? `<p class="note">플레이 기록: 결제 칸이 아직 없다</p>` : evNote(); $("paysub").textContent = ""; for (const id of ["payfunnel", "payprodbody", "payfails", "paydays"]) $(id).innerHTML = nt; return; }
-  $("paysub").textContent = `플레이 기록 ${nf(e.people)}명 가운데. 꽃봉 권유는 작전 1 첫 보스 섬을 넘긴 뒤 처음 온 메인 화면에서 한 번 뜬다.`;
+  if (!e || !p) { const nt = e ? `<p class="note">플레이 기록: 결제 칸이 아직 없다</p>` : evNote(); $("paysub").textContent = ""; for (const id of ["payfunnel", "payprodbody", "payproddays", "payfails", "paydays"]) $(id).innerHTML = nt; return; }
+  $("paysub").textContent = `플레이 기록 ${nf(e.people)}명 가운데. 꽃봉 권유는 작전 1 첫 보스 섬을 넘긴 뒤(1.5.3부터 보스 섬에서 두 번 졌을 때도) 처음 온 메인 화면에서 한 번 뜬다. 1.5.3부터 훈장 모자람 화면에도 꽃봉이 있다.`;
   $("payfunnel").innerHTML = funnelHtml(PAY_STEPS, p) +
     `<div class="minis">` + [["상점 연 사람", uu(n0(p.shop_people), "명"), pct(n0(p.shop_people), n0(e.people))], ["훈장 모자람 본 사람", uu(n0(p.short_people), "명"), ""], ["꽃봉 권유 본 횟수", uu(n0(p.kk_views), "번"), ""],
       ["가격 없이 뜬 권유", uu(n0(p.kk_noprice), "번"), ""]].map(([l, v, s]) => `<div><span>${l}</span><b${l.startsWith("가격") && n0(p.kk_noprice) ? ' class="warn-c"' : ""}>${v}</b>${s ? `<em>${s}</em>` : ""}</div>`).join("") + `</div>`;
@@ -1066,6 +1070,15 @@ function renderPay() {
   const body = keys.map(prow).join("");
   $("payprodbody").innerHTML = keys.length ? `<div class="scroll"><table><thead><tr><th>상품</th><th class="n">누름</th><th class="n">완료</th><th class="n">취소</th><th class="n">실패</th></tr></thead><tbody>${body}` +
     (keys.length > 1 ? `<tr class="sum"><td>합계</td><td class="n">${nf(tot.tap)}</td><td class="n">${nf(tot.ok)}</td><td class="n">${nf(tot.cancel)}</td><td class="n">${nf(tot.fail)}</td></tr>` : "") + `</tbody></table></div>` : `<p class="empty">아직 아무도 구매 단추를 안 눌렀다.</p>`;
+  // 날짜별 상품: 날짜마다 누른 상품만 줄로, 날짜 첫 줄에 날짜·그날 합계
+  const pd = p.by_day || [], PTOP = 7, ptoday = dayKey(Date.now());
+  const phead = `<thead><tr><th>날짜</th><th>상품</th><th class="n">누름</th><th class="n">완료</th><th class="n">취소</th><th class="n">실패</th></tr></thead><tbody>`;
+  const pdrows = d => { const ks = [...Object.keys(PROD).filter(k => d.p[k]), ...Object.keys(d.p).filter(k => !PROD[k])];
+    return ks.map((k, i) => { const x = d.p[k];
+      return `<tr${d.d === ptoday ? ' class="today"' : ""}>${i === 0 ? `<td class="nw" rowspan="${ks.length}">${md(d.d)} (${wd(d.d)})</td>` : ""}<td>${esc(prodName(k))}</td><td class="n">${nf(n0(x.tap))}</td><td class="n">${n0(x.ok) ? `<b class="up">${nf(x.ok)}</b>` : '<span class="muted">0</span>'}</td><td class="n">${nf(n0(x.cancel))}</td><td class="n${n0(x.fail) ? " bad-c" : ""}">${nf(n0(x.fail))}</td></tr>`; }).join(""); };
+  $("payproddays").innerHTML = pd.length ? `<div class="scroll"><table>${phead}${pd.slice(0, PTOP).map(pdrows).join("")}</tbody></table></div>` +
+    (pd.length > PTOP ? `<details class="more"><summary>그 전 ${nf(pd.length - PTOP)}일</summary><div class="scroll"><table>${phead}${pd.slice(PTOP).map(pdrows).join("")}</tbody></table></div></details>` : "") :
+    (p.by_day ? `<p class="empty">아직 아무도 구매 단추를 안 눌렀다.</p>` : `<p class="note">다음 수집부터 나온다</p>`);
   const fails = p.fails || [], FMAX = 6;
   const flag = (v, yes, no) => (v === true ? `<span class="up">${yes}</span>` : v === false ? `<span class="down">${no}</span>` : "");
   const fl = x => `<li><div class="f1"><b>${esc(prodName(x.p))}</b><span class="tag">${esc(OSN[x.os] || x.os || "?")}</span><span class="tm">${esc(x.at || "")}</span></div>` +
