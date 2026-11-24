@@ -78,6 +78,7 @@ details[open] summary { margin-bottom: 8px; }
 .stars { color: var(--ink); font-weight: 600; letter-spacing: 1px; }
 .chart { position: relative; }
 .chart svg { display: block; width: 100%; height: auto; }
+.legend i.ln { display: inline-block; width: 14px; height: 0; border-top: 2px solid var(--ink2); vertical-align: middle; border-radius: 0; background: none; }
 .tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--surface); font-size: 12.5px; padding: 6px 9px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity .08s; }
 .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 20px; }
 @media (max-width: 720px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
@@ -379,6 +380,14 @@ footer { border-top: 1px solid var(--border); padding-top: var(--s3); margin-top
       <h2>날짜별 플레이 <small>플레이 기록 · 이름을 정한 1.5.1 이상</small></h2>
       <p class="sub" id="evplaysub"></p>
       <div id="evplaybody"></div>
+    </section>
+    <section class="card" id="hours">
+      <div class="card-h">
+        <h2>시간대별 플레이 <small>플레이 기록 · 한국 시각</small></h2>
+        <div class="legend"><span><i style="background:var(--series)"></i>오늘</span><span><i class="ln"></i>앞 7일 평균</span></div>
+      </div>
+      <p class="sub" id="hourssub"></p>
+      <div class="chart" id="hourschart"></div>
     </section>
     <section class="card" id="what">
       <h2>판 안에서 <small>따로 적지 않은 칸은 명부 기준</small></h2>
@@ -1017,7 +1026,16 @@ function renderReactKpis(m) {
 }
 
 // ---- 플레이 탭: 플레이 기록 날짜별 · 어디까지 갔나
+function renderHoursSub() {
+  const e = evOk(), hs = e && e.hours;
+  if (!hs) { $("hourssub").textContent = e ? "다음 수집부터 나온다" : ""; $("hourschart").innerHTML = ""; return; }
+  const sumT = (hs.today || []).slice(0, (hs.now ?? 23) + 1).reduce((a, b) => a + b, 0), sumA = (hs.avg7 || []).slice(0, (hs.now ?? 23) + 1).reduce((a, b) => a + b, 0);
+  const peak = (hs.avg7 || []).reduce((bi, v, i, a) => v > a[bi] ? i : bi, 0);
+  $("hourssub").textContent = `시간마다 기록을 남긴 사람 수(한 사람은 그 시간에 한 번). 평균은 앞 ${nf(hs.ndays)}일. 가장 붐비는 시간은 ${peak}시. 지금(${hs.now}시)까지 오늘 시간별 합 ${nf(sumT)} · 평균 ${nf(Math.round(sumA))}. 막대를 누르면 그 시간 숫자.`;
+  drawHoursNow();
+}
 function renderEvPlay() {
+  renderHoursSub();
   const e = evOk();
   if (!e) { $("evplaysub").textContent = ""; $("evplaybody").innerHTML = evNote(); $("evreach").innerHTML = evNote(); return; }
   const os = Object.entries(e.os || {}).map(([k, n]) => `${OSN[k] || k} ${nf(n)}명`).join(" · ");
@@ -1478,7 +1496,40 @@ function renderErrors() {
 // ---- 탭: 요약 · 플레이 · 신병·이탈 · 결제 · 반응 · 기록. #탭이름 이나 #갈래id 로 바로 열고, 마지막 탭을 기억한다
 const TABS = [["summary", "요약"], ["play", "플레이"], ["newbie", "신병·이탈"], ["pay", "결제"], ["react", "반응"], ["log", "기록"]];
 function secTab(id) { if (!id) return ""; if (TABS.some(t => t[0] === id)) return id; const el = document.getElementById(id), p = el && el.closest(".tabpanel"); return p ? p.id.slice(2) : ""; }
-function drawChart() { const h = S.stats || (S.snap && S.snap.hall); if (h && !$("p-summary").hidden) drawColumns($("hallchart"), h.days); }
+function drawChart() { const h = S.stats || (S.snap && S.snap.hall); if (h && !$("p-summary").hidden) drawColumns($("hallchart"), h.days); drawHoursNow(); }
+function drawHoursNow() { const e = evOk(); if (e && e.hours && !$("p-play").hidden) drawHours($("hourschart"), e.hours); }
+
+// 시간대별 플레이(2026-11-24): 막대 = 오늘 시간마다 플레이한 사람, 선 = 앞 7일 같은 시간 평균. 지금 시각 뒤는 오늘 막대가 없다
+function drawHours(el, hs) {
+  const W = Math.max(300, el.clientWidth || 600), H = 200, pl = 34, pr = 8, pt = 18, pb = 26;
+  const today = hs.today || [], avg = hs.avg7 || [], nowH = hs.now ?? 23;
+  const max = Math.max(1, ...today, ...avg), step = [1, 2, 5, 10, 20, 50, 100, 200, 500].find(s => max / s <= 5) || 1000;
+  const top = Math.ceil(max / step) * step, bw = (W - pl - pr) / 24, barW = Math.max(3, Math.min(22, bw * 0.62));
+  const y = v => pt + (H - pt - pb) * (1 - v / top);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="시간대별 플레이한 사람 수, 오늘과 앞 7일 평균">`;
+  for (let v = 0; v <= top; v += step) s += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" stroke="${v ? "var(--grid)" : "var(--axis)"}" stroke-width="1"/><text x="${pl - 6}" y="${y(v) + 4}" font-size="11" fill="var(--muted)" text-anchor="end" style="font-variant-numeric:tabular-nums">${v}</text>`;
+  for (let h = 0; h < 24; h++) {
+    const cx = pl + bw * h + bw / 2, x = cx - barW / 2, v = today[h] || 0;
+    if (h <= nowH && v > 0) { const yt = y(v), hh = y(0) - yt, r = Math.min(4, hh, barW / 2);
+      s += `<path d="M${x},${y(0)} V${yt + r} Q${x},${yt} ${x + r},${yt} H${x + barW - r} Q${x + barW},${yt} ${x + barW},${yt + r} V${y(0)} Z" fill="var(--series)"${h === nowH ? ' opacity=".55"' : ""}/>`; }
+    if (h % 3 === 0) s += `<text x="${cx}" y="${H - 8}" font-size="11" fill="var(--muted)" text-anchor="middle">${h}시</text>`;
+  }
+  if (avg.length) s += `<polyline points="${avg.map((v, h) => `${pl + bw * h + bw / 2},${y(v)}`).join(" ")}" fill="none" stroke="var(--ink2)" stroke-width="2" stroke-linejoin="round"/>`;
+  for (let h = 0; h < 24; h++) s += `<rect x="${pl + bw * h}" y="${pt}" width="${bw}" height="${H - pt - pb}" fill="transparent" data-h="${h}"/>`;
+  s += `</svg><div class="tip"></div>`;
+  el.innerHTML = s;
+  const tip = el.querySelector(".tip"), svg = el.querySelector("svg");
+  const show = ev => {
+    const t = ev.target.closest("rect[data-h]"); if (!t) { tip.style.opacity = 0; return; }
+    const h = +t.dataset.h, k = svg.getBoundingClientRect().width / W;
+    const tv = h <= nowH ? `오늘 ${nf(today[h] || 0)}명 · 출격 ${nf((hs.today_runs || [])[h] || 0)}${h === nowH ? " (지금 시간, 아직 도는 중)" : ""}` : "오늘은 아직";
+    tip.innerHTML = `<b>${h}시</b> · ${tv} · 7일 평균 ${nf(avg[h] || 0)}명 · 출격 ${nf((hs.avg7_runs || [])[h] || 0)}`;
+    const half = tip.offsetWidth / 2, cxp = (pl + bw * h + bw / 2) * k;
+    tip.style.left = `${Math.max(half, Math.min(svg.getBoundingClientRect().width - half, cxp))}px`; tip.style.top = `${y(Math.max(today[h] || 0, avg[h] || 0)) * k}px`; tip.style.opacity = 1;
+  };
+  svg.addEventListener("pointermove", show); svg.addEventListener("pointerdown", show);
+  svg.addEventListener("pointerleave", () => { tip.style.opacity = 0; });
+}
 function setTab(t, keepHash) {
   if (!TABS.some(x => x[0] === t)) t = "summary";
   const was = S.tab; S.tab = t;
@@ -1486,6 +1537,7 @@ function setTab(t, keepHash) {
   store.set("tab", t);
   if (!keepHash && !$("sheet").classList.contains("on") && location.hash !== "#" + t) history.replaceState(history.state, "", location.pathname + location.search + "#" + t);
   if (t === "summary" && was !== t) drawChart();
+  if (t === "play" && was !== t) drawHoursNow();
 }
 function fromHash() {
   const h = decodeURIComponent(location.hash.slice(1));

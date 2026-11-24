@@ -133,6 +133,25 @@ def summary(rows):
             elif res == "fail": e["fail"] += 1
     s["days"] = [dict(v, people=len(v["people"]), new=len(v["new"])) for v in reversed(days.values())]
 
+    # 시간대별(2026-11-24 사용자 "시간대별 플레이 추이"): 한국 시각 0~23시마다 기록을 남긴 사람 수(한 사람은 그 시간에 한 번)·출격 수.
+    # today = 오늘, avg7 = 오늘 앞 7일 평균(그날 기록이 있던 날만 나눈다)
+    hp = collections.defaultdict(set)      # (날짜, 시) → 사람
+    hr = collections.Counter()             # (날짜, 시) → 출격
+    for r in rows:
+        t = _t(r["ct"])
+        k = (t.date().isoformat(), t.hour)
+        hp[k].add(r["u"])
+        if r["e"] == "run":
+            hr[k] += 1
+    today = datetime.now(KST).date()
+    prev = [(today - timedelta(days=i)).isoformat() for i in range(1, 8)]
+    prev = [d for d in prev if any((d, h) in hp for h in range(24))]
+    td = today.isoformat()
+    s["hours"] = {"today": [len(hp.get((td, h), ())) for h in range(24)], "today_runs": [hr.get((td, h), 0) for h in range(24)],
+                  "avg7": [round(sum(len(hp.get((d, h), ())) for d in prev) / len(prev), 1) if prev else 0 for h in range(24)],
+                  "avg7_runs": [round(sum(hr.get((d, h), 0) for d in prev) / len(prev), 1) if prev else 0 for h in range(24)],
+                  "ndays": len(prev), "now": datetime.now(KST).hour}
+
     # 새로 온 사람(첫 줄에서 끝낸 판 0)의 길
     new = {u: rs for u, rs in by.items() if (rs[0].get("n") or 0) == 0}
     has = lambda rs, f: any(f(r) for r in rs)
