@@ -113,12 +113,18 @@ def summary(rows):
     first_day = {u: _t(rs[0]["ct"]).date().isoformat() for u, rs in by.items() if (rs[0].get("n") or 0) == 0}
     for r in rows:
         d = _t(r["ct"]).date().isoformat()
-        e = days.setdefault(d, {"d": d, "people": set(), "new": set(), "runs": 0, "ends": 0, "kk": 0, "shop": 0, "short": 0, "tap": 0, "buy": 0, "fail": 0, "rev": 0, "rev_y": 0})
+        e = days.setdefault(d, {"d": d, "people": set(), "new": set(), "runs": 0, "ends": 0, "kk": 0, "shop": 0, "short": 0, "tap": 0, "buy": 0, "fail": 0, "rev": 0, "rev_y": 0,
+                                "p_a": set(), "p_i": set(), "n_a": set(), "n_i": set(), "runs_a": 0, "runs_i": 0})
         e["people"].add(r["u"])
+        o = "i" if r.get("os") == "i" else "a"          # 운영체제별(2026-11-25 사용자): 안드로이드·iOS
+        e["p_" + o].add(r["u"])
         if first_day.get(r["u"]) == d:
             e["new"].add(r["u"])
+            e["n_" + o].add(r["u"])
         kind = r["e"]
-        if kind == "run": e["runs"] += 1
+        if kind == "run":
+            e["runs"] += 1
+            e["runs_" + o] += 1
         elif kind == "end": e["ends"] += 1
         elif kind == "kk": e["kk"] += 1
         elif kind == "shop": e["shop"] += 1
@@ -131,7 +137,7 @@ def summary(rows):
             if res == "tap": e["tap"] += 1
             elif res == "ok": e["buy"] += 1
             elif res == "fail": e["fail"] += 1
-    s["days"] = [dict(v, people=len(v["people"]), new=len(v["new"])) for v in reversed(days.values())]
+    s["days"] = [dict(v, people=len(v["people"]), new=len(v["new"]), p_a=len(v["p_a"]), p_i=len(v["p_i"]), n_a=len(v["n_a"]), n_i=len(v["n_i"])) for v in reversed(days.values())]
 
     # 시간대별(2026-11-24 사용자 "시간대별 플레이 추이"): 한국 시각 0~23시마다 기록을 남긴 사람 수(한 사람은 그 시간에 한 번)·출격 수.
     # today = 오늘, avg7 = 오늘 앞 7일 평균(그날 기록이 있던 날만 나눈다)

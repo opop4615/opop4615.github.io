@@ -1042,11 +1042,13 @@ function renderEvPlay() {
   const ver = Object.entries(e.ver || {}).sort((a, b) => verCmp(b[0], a[0])).map(([k, n]) => `${k} ${nf(n)}명`).join(" · ");
   $("evplaysub").textContent = `${e.since ? `${mdhm(Date.parse(e.since))}부터 ` : ""}${nf(e.people)}명 · 기록 ${nf(e.rows)}줄${os ? ` · ${os}` : ""}${ver ? ` · 버전 ${ver}` : ""}`;
   const today = dayKey(Date.now()), days = e.days || [], TOP = 7;
-  const head = `<thead><tr><th>날짜</th><th class="n">사람</th><th class="n">새로 온</th><th class="n">판 시작</th><th class="n">판 끝</th><th class="n">광고 부활</th></tr></thead><tbody>`;
-  const row = d => `<tr${d.d === today ? ' class="today"' : ""}><td class="nw">${md(d.d)} (${wd(d.d)})${d.d === today ? ' <span class="tag">오늘</span>' : ""}</td><td class="n">${nf(n0(d.people))}</td><td class="n">${nf(n0(d.new))}</td><td class="n">${nf(n0(d.runs))}</td><td class="n">${nf(n0(d.ends))}</td><td class="n">${nf(n0(d.rev_y))}<span class="muted">/${nf(n0(d.rev))}</span></td></tr>`;
+  const head = `<thead><tr><th>날짜</th><th class="n">사람</th><th class="n">안드로이드</th><th class="n">iOS</th><th class="n">새로 온</th><th class="n">판 시작</th><th class="n">판 끝</th><th class="n">광고 부활</th></tr></thead><tbody>`;
+  // 운영체제별: 사람(그중 새로 온). 옛 수집본에는 없다
+  const osc = (d, o) => d["p_" + o] == null ? `<span class="muted">—</span>` : `${nf(n0(d["p_" + o]))}<span class="muted"> (새 ${nf(n0(d["n_" + o]))})</span>`;
+  const row = d => `<tr${d.d === today ? ' class="today"' : ""}><td class="nw">${md(d.d)} (${wd(d.d)})${d.d === today ? ' <span class="tag">오늘</span>' : ""}</td><td class="n">${nf(n0(d.people))}</td><td class="n">${osc(d, "a")}</td><td class="n">${osc(d, "i")}</td><td class="n">${nf(n0(d.new))}</td><td class="n">${nf(n0(d.runs))}</td><td class="n">${nf(n0(d.ends))}</td><td class="n">${nf(n0(d.rev_y))}<span class="muted">/${nf(n0(d.rev))}</span></td></tr>`;
   $("evplaybody").innerHTML = days.length ? `<div class="scroll"><table>${head}${days.slice(0, TOP).map(row).join("")}</tbody></table></div>` +
     (days.length > TOP ? `<details class="more"><summary>그 전 ${nf(days.length - TOP)}일</summary><div class="scroll"><table>${head}${days.slice(TOP).map(row).join("")}</tbody></table></div></details>` : "") +
-    `<p class="sub" style="margin:8px 0 0">광고 부활 = 받은 수/권한 수.</p>` : `<p class="empty">아직 없다.</p>`;
+    `<p class="sub" style="margin:8px 0 0">안드로이드·iOS = 그날 켠 사람(괄호는 그중 새로 온 사람). 광고 부활 = 받은 수/권한 수.</p>` : `<p class="empty">아직 없다.</p>`;
   const reach = objList(e.reach), tot = reach.reduce((a, x) => a + x[1], 0);
   $("evreach").innerHTML = barsHtml(reach.map(([k, n]) => ({ name: Number(k) === 0 ? "섬 0개 — 첫 섬에서 끝" : islName(k) + (k === "win" ? "" : " 확보"), n })), "판", 12, tot);
 }
