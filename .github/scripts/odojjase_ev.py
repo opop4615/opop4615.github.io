@@ -14,7 +14,7 @@ API_KEY = "AIzaSyCWkmK0EDYP_cQ-kxQPUPKFb1TS2i0aspY"  # 게임에 박혀 나가�
 FS = "https://firestore.googleapis.com/v1/projects/odojjase/databases/(default)/documents"
 KST = timezone(timedelta(hours=9))
 EV_CACHE = "ev_rows.json"
-COLS = ["id", "ct", "u", "e", "ver", "os", "n", "m", "d", "op", "i", "k", "secs", "why", "win", "rev", "q", "s", "y", "p", "r", "rd", "pr", "first", "c"]
+COLS = ["id", "ct", "u", "e", "ver", "os", "n", "m", "d", "op", "i", "k", "secs", "why", "win", "rev", "q", "s", "y", "p", "r", "rd", "pr", "first", "c", "md", "dep"]
 OVERLAP = timedelta(minutes=30)   # 규칙이 시각을 서버 시계 ±10분까지 받는다
 FAILS = 20
 
@@ -223,4 +223,36 @@ def summary(rows):
                 "shop_people": who(lambda r: r["e"] == "shop"), "short_people": who(lambda r: r["e"] == "short"),
                 "tap_people": who(lambda r: r["e"] == "buy" and r.get("r") == "tap"), "buy_people": who(lambda r: r["e"] == "buy" and r.get("r") == "ok"),
                 "products": dict(prod), "by_day": [{"d": d, "p": v} for d, v in reversed(pday.items())], "fails": fails[-FAILS:][::-1]}
+    # 섬 종류(임무)별(2026-11-26 사용자 "어떤 미션이 인기가 없었나"): 확보·그 섬에서 끝남·걸린 시간·앱 끔(bg, 1.6부터)·지도에서 고른 비율(pick, 1.6.1부터)
+    ks = collections.defaultdict(lambda: {"clr": 0, "end": 0, "quit": 0, "dur": [], "bg": 0, "picked": 0, "offered": 0})
+    for u, rs in by.items():
+        prev = 0
+        for r in rs:
+            e, k = r["e"], r.get("k") or ""
+            if e == "run":
+                prev = 0
+            elif e in ("clr", "end") and k and k != "tutorial":
+                sec = int(r.get("secs") or 0)
+                if e == "clr":
+                    ks[k]["clr"] += 1
+                    if sec >= prev:
+                        ks[k]["dur"].append(sec - prev)
+                    prev = sec
+                else:
+                    ks[k]["end"] += 1
+                    ks[k]["quit"] += bool(r.get("q"))
+                    prev = 0
+            elif e == "bg" and k and k != "tutorial":
+                ks[k]["bg"] += 1
+            elif e == "pick":
+                offered = [x for x in str(r.get("p") or "").split(",") if x]
+                if len(offered) >= 2:
+                    for x in set(offered):
+                        ks[x]["offered"] += 1
+                    if k:
+                        ks[k]["picked"] += 1
+    order = ["battle", "rescue", "supply", "salvage", "laps", "boss", "final"]
+    s["kinds"] = [{"k": k, "clr": v["clr"], "end": v["end"], "quit": v["quit"], "bg": v["bg"], "picked": v["picked"], "offered": v["offered"],
+                   "dur": sorted(v["dur"])[len(v["dur"]) // 2] if v["dur"] else None}
+                  for k, v in sorted(ks.items(), key=lambda kv: order.index(kv[0]) if kv[0] in order else 99)]
     return s

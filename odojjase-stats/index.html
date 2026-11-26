@@ -391,6 +391,11 @@ footer { border-top: 1px solid var(--border); padding-top: var(--s3); margin-top
       <p class="sub" id="hourssub"></p>
       <div class="chart" id="hourschart"></div>
     </section>
+    <section class="card" id="kinds">
+      <h2>임무별 <small>플레이 기록 · 섬 종류마다</small></h2>
+      <p class="sub" id="kindssub"></p>
+      <div id="kindsbody"></div>
+    </section>
     <section class="card" id="what">
       <h2>판 안에서 <small>따로 적지 않은 칸은 명부 기준</small></h2>
       <div class="grid2" style="margin-top:12px">
@@ -935,7 +940,7 @@ function kd(keys, m, min = 0) {
 }
 
 // ---- 플레이 기록(ev): 수집기가 Firestore ev를 사람·날짜별로 센 것. 옛 수집본에는 없고, 읽기 키가 없으면 ok=false
-const ISLE = { battle: "전투 섬", rescue: "구조 섬", supply: "보급 섬", boss: "보스 섬", final: "마지막 섬", tutorial: "훈련" };
+const ISLE = { battle: "전투 섬", rescue: "구조 섬", supply: "보급 섬", salvage: "회수 섬", laps: "뺑뺑이 섬", boss: "보스 섬", final: "마지막 섬", tutorial: "훈련" };
 const PROD = { welcome_set: ["전입 기념 꽃봉", 5500], medals_small: ["신병 보급", 3300], medals_medium: ["병장 보급", 8800], medals_large: ["황룡병장 보급", 19000], remove_ads: ["광고 제거", 4400] };
 const OSN = { i: "iOS", a: "안드로이드" };
 const prodName = k => (PROD[k] ? PROD[k][0] : k || "—");
@@ -1037,8 +1042,20 @@ function renderHoursSub() {
   $("hourssub").textContent = `시간마다 기록을 남긴 사람 수(한 사람은 그 시간에 한 번). 평균은 앞 ${nf(hs.ndays)}일. 가장 붐비는 시간은 ${peak}시. 지금(${hs.now}시)까지 시간별 합: 오늘 ${nf(sumT)}${sumUp(hs.yday, "전일")}${sumUp(hs.wk, "전주 같은 요일")} · 평균 ${nf(Math.round(sumA))}. 막대를 누르면 그 시간 숫자.`;
   drawHoursNow();
 }
+// 임무별: 들어간 수(확보+그 섬에서 끝남)·확보율·걸린 시간·앱 끔·지도에서 고른 비율
+function renderKinds() {
+  const e = evOk(), ks = e && e.kinds;
+  if (!ks) { $("kindssub").textContent = ""; $("kindsbody").innerHTML = e ? `<p class="empty">다음 수집부터 나온다.</p>` : evNote(); return; }
+  $("kindssub").textContent = "확보율 = 확보 ÷ (확보 + 그 섬에서 끝난 판). 걸린 시간은 확보한 섬의 가운데값. 앱 끔은 1.6부터, 지도에서 고른 비율(후보로 놓였을 때 고른 몫)은 1.6.1부터 쌓인다.";
+  const head = `<thead><tr><th>임무</th><th class="n">들어감</th><th class="n">확보율</th><th class="n">그 섬에서 끝남</th><th class="n">걸린 시간</th><th class="n">앱 끔</th><th class="n">지도에서 고름</th></tr></thead><tbody>`;
+  const sec = v => v == null ? "—" : `${Math.floor(v / 60)}:${String(v % 60).padStart(2, "0")}`;
+  const row = k => { const tot = n0(k.clr) + n0(k.end), pr = tot ? rate(n0(k.clr), tot) : null;
+    return `<tr><td class="nw">${ISLE[k.k] || k.k}</td><td class="n">${nf(tot)}</td><td class="n">${pr == null ? "—" : nf(pr) + "%"}</td><td class="n">${nf(n0(k.end))}${n0(k.quit) ? `<span class="muted"> (그만둠 ${nf(n0(k.quit))})</span>` : ""}</td><td class="n">${sec(k.dur)}</td><td class="n">${nf(n0(k.bg))}</td><td class="n">${n0(k.offered) ? `${nf(rate(n0(k.picked), n0(k.offered)))}%<span class="muted"> (${nf(n0(k.picked))}/${nf(n0(k.offered))})</span>` : "—"}</td></tr>`; };
+  $("kindsbody").innerHTML = ks.length ? `<div class="scroll"><table>${head}${ks.map(row).join("")}</tbody></table></div>` : `<p class="empty">아직 없다.</p>`;
+}
 function renderEvPlay() {
   renderHoursSub();
+  renderKinds();
   const e = evOk();
   if (!e) { $("evplaysub").textContent = ""; $("evplaybody").innerHTML = evNote(); $("evreach").innerHTML = evNote(); return; }
   const os = Object.entries(e.os || {}).map(([k, n]) => `${OSN[k] || k} ${nf(n)}명`).join(" · ");
