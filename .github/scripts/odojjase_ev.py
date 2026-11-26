@@ -233,7 +233,7 @@ def summary(rows):
                 prev = 0
             elif e in ("clr", "end") and k and k != "tutorial":
                 sec = int(r.get("secs") or 0)
-                if e == "clr":
+                if e == "clr" or r.get("win"):      # 마지막 섬은 확보 줄 없이 이긴 판 끝으로 남는다
                     ks[k]["clr"] += 1
                     if sec >= prev:
                         ks[k]["dur"].append(sec - prev)
