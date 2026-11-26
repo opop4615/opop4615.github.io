@@ -98,7 +98,12 @@ def read(out, errors):
     return summary(body)
 
 
+# 집계에서 빼는 사람(2026-11-26 사용자 "내 결제는 다 빼"): 사장님 아이폰(TestFlight 시험 구매·출시 전 버전). 값은 섞은 uid(r["u"])
+SKIP_U = {"99625a202e4b"}
+
+
 def summary(rows):
+    rows = [r for r in rows if r.get("u") not in SKIP_U]
     s = {"ok": True, "rows": len(rows), "since": _t(rows[0]["ct"]).isoformat(timespec="seconds") if rows else ""}
     by = collections.OrderedDict()
     for r in rows:
