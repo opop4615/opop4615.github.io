@@ -11,7 +11,7 @@
   --page: #f9f9f7; --surface: #fcfcfb; --sunk: #f0efec;
   --ink: #0b0b0b; --ink2: #52514e; --muted: #6f6d68;
   --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,.10);
-  --series: #2a78d6; --series-hi: #1c5cab;
+  --series: #2a78d6; --series-hi: #1c5cab; --s-yday: #d9711c; --s-wk: #8a5cc7;
   --good: #006300; --bad: #c22f2f; --warn: #8a5a00; --warn-bg: #fdf3dc;
   --chip: #eceae4;
 }
@@ -21,7 +21,7 @@
     --page: #0d0d0d; --surface: #1a1a19; --sunk: #232321;
     --ink: #ffffff; --ink2: #c3c2b7; --muted: #9a988f;
     --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,.10);
-    --series: #3987e5; --series-hi: #86b6ef;
+    --series: #3987e5; --series-hi: #86b6ef; --s-yday: #f0943a; --s-wk: #a884e0;
     --good: #0ca30c; --bad: #e66767; --warn: #f2c25c; --warn-bg: #2b2414;
     --chip: #2a2a27;
   }
@@ -79,6 +79,8 @@ details[open] summary { margin-bottom: 8px; }
 .chart { position: relative; }
 .chart svg { display: block; width: 100%; height: auto; }
 .legend i.ln { display: inline-block; width: 14px; height: 0; border-top: 2px solid var(--ink2); vertical-align: middle; border-radius: 0; background: none; }
+.legend i.ln.yday { border-top-color: var(--s-yday); }
+.legend i.ln.wk { border-top: 2px dashed var(--s-wk); }
 .tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--surface); font-size: 12.5px; padding: 6px 9px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity .08s; }
 .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 20px; }
 @media (max-width: 720px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
@@ -384,7 +386,7 @@ footer { border-top: 1px solid var(--border); padding-top: var(--s3); margin-top
     <section class="card" id="hours">
       <div class="card-h">
         <h2>시간대별 플레이 <small>플레이 기록 · 한국 시각</small></h2>
-        <div class="legend"><span><i style="background:var(--series)"></i>오늘</span><span><i class="ln"></i>앞 7일 평균</span></div>
+        <div class="legend"><span><i style="background:var(--series)"></i>오늘</span><span><i class="ln yday"></i>전일</span><span><i class="ln wk"></i>전주 같은 요일</span><span><i class="ln"></i>앞 7일 평균</span></div>
       </div>
       <p class="sub" id="hourssub"></p>
       <div class="chart" id="hourschart"></div>
@@ -1030,8 +1032,9 @@ function renderHoursSub() {
   const e = evOk(), hs = e && e.hours;
   if (!hs) { $("hourssub").textContent = e ? "다음 수집부터 나온다" : ""; $("hourschart").innerHTML = ""; return; }
   const sumT = (hs.today || []).slice(0, (hs.now ?? 23) + 1).reduce((a, b) => a + b, 0), sumA = (hs.avg7 || []).slice(0, (hs.now ?? 23) + 1).reduce((a, b) => a + b, 0);
+  const sumUp = (arr, nm) => arr && arr.length ? ` · ${nm} ${nf(arr.slice(0, (hs.now ?? 23) + 1).reduce((a, b) => a + b, 0))}` : ` · ${nm} 기록 없음`;
   const peak = (hs.avg7 || []).reduce((bi, v, i, a) => v > a[bi] ? i : bi, 0);
-  $("hourssub").textContent = `시간마다 기록을 남긴 사람 수(한 사람은 그 시간에 한 번). 평균은 앞 ${nf(hs.ndays)}일. 가장 붐비는 시간은 ${peak}시. 지금(${hs.now}시)까지 오늘 시간별 합 ${nf(sumT)} · 평균 ${nf(Math.round(sumA))}. 막대를 누르면 그 시간 숫자.`;
+  $("hourssub").textContent = `시간마다 기록을 남긴 사람 수(한 사람은 그 시간에 한 번). 평균은 앞 ${nf(hs.ndays)}일. 가장 붐비는 시간은 ${peak}시. 지금(${hs.now}시)까지 시간별 합: 오늘 ${nf(sumT)}${sumUp(hs.yday, "전일")}${sumUp(hs.wk, "전주 같은 요일")} · 평균 ${nf(Math.round(sumA))}. 막대를 누르면 그 시간 숫자.`;
   drawHoursNow();
 }
 function renderEvPlay() {
@@ -1504,8 +1507,8 @@ function drawHoursNow() { const e = evOk(); if (e && e.hours && !$("p-play").hid
 // 시간대별 플레이(2026-11-24): 막대 = 오늘 시간마다 플레이한 사람, 선 = 앞 7일 같은 시간 평균. 지금 시각 뒤는 오늘 막대가 없다
 function drawHours(el, hs) {
   const W = Math.max(300, el.clientWidth || 600), H = 200, pl = 34, pr = 8, pt = 18, pb = 26;
-  const today = hs.today || [], avg = hs.avg7 || [], nowH = hs.now ?? 23;
-  const max = Math.max(1, ...today, ...avg), step = [1, 2, 5, 10, 20, 50, 100, 200, 500].find(s => max / s <= 5) || 1000;
+  const today = hs.today || [], avg = hs.avg7 || [], yd = hs.yday || [], wk = hs.wk || [], nowH = hs.now ?? 23;
+  const max = Math.max(1, ...today, ...avg, ...yd, ...wk), step = [1, 2, 5, 10, 20, 50, 100, 200, 500].find(s => max / s <= 5) || 1000;
   const top = Math.ceil(max / step) * step, bw = (W - pl - pr) / 24, barW = Math.max(3, Math.min(22, bw * 0.62));
   const y = v => pt + (H - pt - pb) * (1 - v / top);
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="시간대별 플레이한 사람 수, 오늘과 앞 7일 평균">`;
@@ -1516,7 +1519,8 @@ function drawHours(el, hs) {
       s += `<path d="M${x},${y(0)} V${yt + r} Q${x},${yt} ${x + r},${yt} H${x + barW - r} Q${x + barW},${yt} ${x + barW},${yt + r} V${y(0)} Z" fill="var(--series)"${h === nowH ? ' opacity=".55"' : ""}/>`; }
     if (h % 3 === 0) s += `<text x="${cx}" y="${H - 8}" font-size="11" fill="var(--muted)" text-anchor="middle">${h}시</text>`;
   }
-  if (avg.length) s += `<polyline points="${avg.map((v, h) => `${pl + bw * h + bw / 2},${y(v)}`).join(" ")}" fill="none" stroke="var(--ink2)" stroke-width="2" stroke-linejoin="round"/>`;
+  const line = (arr, col, dash) => arr.length ? `<polyline points="${arr.map((v, h) => `${pl + bw * h + bw / 2},${y(v)}`).join(" ")}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"${dash ? ' stroke-dasharray="5 4"' : ""}/>` : "";
+  s += line(avg, "var(--ink2)") + line(wk, "var(--s-wk)", true) + line(yd, "var(--s-yday)");
   for (let h = 0; h < 24; h++) s += `<rect x="${pl + bw * h}" y="${pt}" width="${bw}" height="${H - pt - pb}" fill="transparent" data-h="${h}"/>`;
   s += `</svg><div class="tip"></div>`;
   el.innerHTML = s;
@@ -1525,9 +1529,10 @@ function drawHours(el, hs) {
     const t = ev.target.closest("rect[data-h]"); if (!t) { tip.style.opacity = 0; return; }
     const h = +t.dataset.h, k = svg.getBoundingClientRect().width / W;
     const tv = h <= nowH ? `오늘 ${nf(today[h] || 0)}명 · 출격 ${nf((hs.today_runs || [])[h] || 0)}${h === nowH ? " (지금 시간, 아직 도는 중)" : ""}` : "오늘은 아직";
-    tip.innerHTML = `<b>${h}시</b> · ${tv} · 7일 평균 ${nf(avg[h] || 0)}명 · 출격 ${nf((hs.avg7_runs || [])[h] || 0)}`;
+    const pv = (arr, runs, nm) => arr.length ? ` · ${nm} ${nf(arr[h] || 0)}명 · 출격 ${nf((runs || [])[h] || 0)}` : ` · ${nm} 기록 없음`;
+    tip.innerHTML = `<b>${h}시</b> · ${tv}${pv(yd, hs.yday_runs, "전일")}${pv(wk, hs.wk_runs, "전주 같은 요일")} · 7일 평균 ${nf(avg[h] || 0)}명 · 출격 ${nf((hs.avg7_runs || [])[h] || 0)}`;
     const half = tip.offsetWidth / 2, cxp = (pl + bw * h + bw / 2) * k;
-    tip.style.left = `${Math.max(half, Math.min(svg.getBoundingClientRect().width - half, cxp))}px`; tip.style.top = `${y(Math.max(today[h] || 0, avg[h] || 0)) * k}px`; tip.style.opacity = 1;
+    tip.style.left = `${Math.max(half, Math.min(svg.getBoundingClientRect().width - half, cxp))}px`; tip.style.top = `${y(Math.max(today[h] || 0, avg[h] || 0, yd[h] || 0, wk[h] || 0)) * k}px`; tip.style.opacity = 1;
   };
   svg.addEventListener("pointermove", show); svg.addEventListener("pointerdown", show);
   svg.addEventListener("pointerleave", () => { tip.style.opacity = 0; });

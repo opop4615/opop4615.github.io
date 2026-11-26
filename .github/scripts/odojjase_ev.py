@@ -157,6 +157,13 @@ def summary(rows):
                   "avg7": [round(sum(len(hp.get((d, h), ())) for d in prev) / len(prev), 1) if prev else 0 for h in range(24)],
                   "avg7_runs": [round(sum(hr.get((d, h), 0) for d in prev) / len(prev), 1) if prev else 0 for h in range(24)],
                   "ndays": len(prev), "now": datetime.now(KST).hour}
+    # 전일·전주 같은 요일(2026-11-26 사용자). 기록이 없던 날이면 빈 목록
+    for key, back in (("yday", 1), ("wk", 7)):
+        d = (today - timedelta(days=back)).isoformat()
+        has = any((d, h) in hp for h in range(24))
+        s["hours"][key] = [len(hp.get((d, h), ())) for h in range(24)] if has else []
+        s["hours"][key + "_runs"] = [hr.get((d, h), 0) for h in range(24)] if has else []
+        s["hours"][key + "_d"] = d
 
     # 새로 온 사람(첫 줄에서 끝낸 판 0)의 길
     new = {u: rs for u, rs in by.items() if (rs[0].get("n") or 0) == 0}
